@@ -1,0 +1,170 @@
+﻿@page "/upload"
+@inject IJSRuntime JSRuntime
+@inject IConfiguration Config
+
+<h3>Upload CSV to Entitled Learning's Cloud Storage</h3>
+
+<h5>Select the file type you want to upload, and then choose the file.</h5>
+
+<Dropdown Options="@segments" @bind-Value="selectedOption" />
+
+@*<p>Selected Option: @selectedOption</p>*@
+
+@*
+    <SegmentedControl Segments="@segments" @bind-Value="selectedSegments" />
+
+    <p>Selected Segment: @string.Join(", ", selectedSegments)</p>
+*@
+
+<InputFile OnChange="@UploadFile" />
+
+@if (isLoading)
+{
+    <p>Uploading...</p>
+}
+
+@if (!string.IsNullOrEmpty(uploadResult))
+{
+    <p>@uploadResult</p>
+}
+
+@code {
+    private List<IBrowserFile> loadedFiles = new();
+    private int maxAllowedFiles = 1;
+    private bool isLoading;
+    private string? uploadResult;
+    private string connectionString = "";
+    private string blobContainerName = "input";
+    private string[] segments = new string[] { "Students", "Community Partners", "Community Partner Contacts"};
+    private string selectedOption = "Students";
+
+    protected override void OnInitialized()
+    {
+        connectionString = Config.GetConnectionString("ELBlobConnectionString") ?? "unknown";
+    }
+
+    private async Task UploadFile(InputFileChangeEventArgs e)
+    {
+
+        isLoading = true;
+        loadedFiles.Clear();
+
+        foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
+        {
+            try
+            {
+                var validationResult = await ValidateFile(file);
+                if (!string.IsNullOrEmpty(validationResult))
+                {
+                    uploadResult = validationResult;
+                    isLoading = false;
+                    return;
+                }
+
+
+                // Proceed with the file upload
+                BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
+                BlobContainerClient blobContainerClient = blobServiceClient.GetBlobContainerClient(blobContainerName);
+                await blobContainerClient.CreateIfNotExistsAsync();
+                BlobClient blobClient = blobContainerClient.GetBlobClient(file.Name);
+                var res = await blobClient.UploadAsync(file.OpenReadStream(), overwrite: true);
+
+                uploadResult = "File uploaded successfully!";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                uploadResult = ex.Message;
+            }
+        }
+
+        isLoading = false;
+    }
+
+    private async Task<string> ValidateFile(IBrowserFile file)
+    {
+        // Validate file extension
+        if (!file.ContentType.Equals("text/csv", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Invalid file format. Please select a CSV file.";
+        }
+
+        // Validate file name
+        var expectedFileName = selectedOption.ToLower().Replace(" ", "_") + ".csv";
+        var actualFileName = file.Name.ToLower();
+
+        if (!actualFileName.Equals(expectedFileName))
+        {
+            return $"Invalid file name. Please ensure the file name is '{expectedFileName}'.";
+        }
+
+        // Validate file content based on filename and column values
+        var contentValidationResult = await ValidateFileContent(file);
+        if (!string.IsNullOrEmpty(contentValidationResult))
+        {
+            return contentValidationResult;
+        }
+
+        return string.Empty;
+    }
+
+    private async Task<string> ValidateFileContent(IBrowserFile file)
+    {
+        var columnValidators = new Dictionary<string, Func<Dictionary<string, string>, string>>
+{
+            { "Students", Validator.ValidateStudentFile },
+            { "Community Partners", Validator.ValidateCommunityPartnerFile },
+            // Add more entries for other file types if needed
+        };
+
+        try
+        {
+            using var streamReader = file.OpenReadStream();
+            MemoryStream ms = new MemoryStream();
+            await streamReader.CopyToAsync(ms);
+            var csvLines = System.Text.Encoding.UTF8.GetString(ms.ToArray()).Split('\n');
+
+
+            // Read CSV content into a List<string[]>
+            var csvRecords = csvLines.Select(line => line.Split(',')).ToList();
+
+            var headers = csvRecords[0];
+
+            var rowDictionaries = new List<Dictionary<string, string>>();
+
+            for (int i = 1; i < csvLines.Length - 1; i++)
+            {
+                var objResult = new Dictionary<string, string>();
+                for (int j = 0; j < headers.Length; j++)
+                    objResult.Add(headers[j], csvRecords[i][j]);
+
+                rowDictionaries.Add(objResult);
+            }
+
+            if (columnValidators.TryGetValue(selectedOption, out var validateMethod))
+            {
+                foreach (var row in rowDictionaries)
+                {
+                    var validationMessage = validateMethod(row);
+                    if (!string.IsNullOrEmpty(validationMessage))
+                    {
+                        // Return the first validation error found
+                        return validationMessage;
+                    }
+                }
+            }
+
+            return string.Empty;
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine(ex.Message);
+            return "Error parsing CSV to JSON.";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return ex.Message;
+        }
+    }
+}
