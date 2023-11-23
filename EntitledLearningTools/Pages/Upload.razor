@@ -1,6 +1,7 @@
 ﻿@page "/upload"
 @inject IJSRuntime JSRuntime
 @inject IConfiguration Config
+@inject BlobStoreAdapter BlobAdapter
 
 <h3>Upload CSV to Entitled Learning's Cloud Storage</h3>
 
@@ -40,7 +41,13 @@
 
     protected override void OnInitialized()
     {
-        connectionString = Config.GetConnectionString("ELBlobConnectionString") ?? "unknown";
+        var blobContainerClient = BlobAdapter.GetBlobContainerClient();
+
+        // Print out all the blob names
+        foreach (BlobItem blob in blobContainerClient.GetBlobs())
+        {
+            Console.WriteLine(blob.Name);
+        }
     }
 
     private async Task UploadFile(InputFileChangeEventArgs e)
@@ -63,9 +70,7 @@
 
 
                 // Proceed with the file upload
-                BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
-                BlobContainerClient blobContainerClient = blobServiceClient.GetBlobContainerClient(blobContainerName);
-                await blobContainerClient.CreateIfNotExistsAsync();
+                var blobContainerClient = BlobAdapter.GetBlobContainerClient();
                 BlobClient blobClient = blobContainerClient.GetBlobClient(file.Name);
                 var res = await blobClient.UploadAsync(file.OpenReadStream(), overwrite: true);
 
