@@ -1,4 +1,6 @@
-﻿namespace EntitledLearningTools;
+﻿using System.Text.RegularExpressions;
+
+namespace EntitledLearningTools;
 
 public static class Validator
 {
@@ -17,13 +19,13 @@ public static class Validator
 
     public static string ValidateCommunityPartnerFile(Dictionary<string, string> csvRecord)
     {
-        // Validate phone_number column
-        //if (csvRecord.TryGetValue("Phone", out var phoneNumber) && !IsValidPhoneNumber(phoneNumber))
-        //{
-        //    return "Invalid value in the 'phone_number' column. Please provide a valid phone number format.";
-        //}
+        //Validate phone_number column
+        if (csvRecord.TryGetValue("Phone", out var phoneNumber) && !IsValidPhoneNumber(phoneNumber))
+        {
+            return "Invalid value in the 'Phone' column. Please provide a valid phone number format.";
+        }
 
-        // Add more validations for other columns if needed
+        //Add more validations for other columns if needed
 
         return string.Empty;
     }
@@ -32,8 +34,16 @@ public static class Validator
 
     private static bool IsValidPhoneNumber(string phoneNumber)
     {
-        // Basic validation for illustration purposes
-        // You might want to implement a more robust phone number validation
-        return phoneNumber?.All(char.IsDigit) ?? false;
+        // Define a regular expression pattern for a valid phone number
+        string pattern = @"^\+?(\d[\d-. ]+)?(\(\d+\))?[\d-. ]+\d$";
+
+        // Create a regular expression object
+        Regex regex = new Regex(pattern);
+
+        // Use the regular expression to match the input phone number
+        Match match = regex.Match(phoneNumber);
+
+        // Return true if the input phone number matches the pattern
+        return match.Success;
     }
 }
