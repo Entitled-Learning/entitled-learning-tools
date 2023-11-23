@@ -7,9 +7,19 @@
 <section class="mt-14">
     <h1 class="text-2xl leading-loose">Upload CSV to Entitled Learning's Cloud Storage</h1>
 
-    <h5>Select the file type you want to upload, and then choose the file.</h5>
+    <h5 class="leading-loose">Select the file type you want to upload, and then choose the file.</h5>
 
+    <div class="leading-loose">
+        <Tooltip TooltipText="When skip file validations is checked, files will be uploaded even if field values are missing or invalid.">
+            <span class="oi oi-info info-icon"></span>
+        </Tooltip>
+    </div>
     <Dropdown Options="@segments" @bind-Value="selectedOption" />
+
+    <div class="flex items-center mb-8">
+        <input type="checkbox" class="checkbox" @onchange="ToggleSkipValidation">
+        <p class="text-lg leading-loose">skip file validations</p>
+    </div>
 
     @*<p>Selected Option: @selectedOption</p>*@
 
@@ -28,14 +38,18 @@
 
     @if (!string.IsNullOrEmpty(uploadResult))
     {
-        <p>@uploadResult</p>
+        <div class="flex items-center alert alert-success my-8" role="alert">
+            <span class="oi oi-circle-check mr-4 text-green-600" aria-hidden="true"></span>
+            @uploadResult
+        </div>
     }
 </section>
 
 @if (!string.IsNullOrEmpty(validationResult))
 {
-    <div class="flex items-center">
-        <span class="oi oi-circle-x mr-4 text-red-600" aria-hidden="true"></span> <h2 class="text-2xl font-semibold py-8 leading-loose">@validationResult</h2>
+    <div class="flex items-center alert alert-danger my-8" role="alert">
+        <span class="oi oi-circle-x mr-4 text-red-600" aria-hidden="true"></span>
+        @validationResult
     </div>
 }
 
@@ -43,8 +57,8 @@
 {
     <div class="mx-auto">
         <div>
-            <div class="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-                <div class="inline-block min-w-full shadow-md rounded-lg overflow-hidden">
+            <div class="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-scroll">
+                <div class="inline-block min-w-full shadow-md rounded-lg overflow-scroll">
                     <table class="min-w-full leading-normal">
                         <thead>
                             <tr>
@@ -82,11 +96,10 @@
     private bool isLoading;
     private string? uploadResult;
     private string? validationResult;
-    private string connectionString = "";
-    private string blobContainerName = "input";
     private string[] segments = new string[] { "Students", "Community Partners", "Community Partner Contacts" };
-    private string selectedOption = "";
-    private Dictionary<string, string> invalidRow = null;
+    private string selectedOption = "Students";
+    private bool skipValidations = false;
+    private Dictionary<string, string>? invalidRow;
 
     protected override void OnInitialized()
     {
@@ -99,9 +112,17 @@
         }
     }
 
+    private void ToggleSkipValidation(ChangeEventArgs e)
+    {
+        skipValidations = !skipValidations;
+        StateHasChanged();
+    }
+
     private async Task UploadFile(InputFileChangeEventArgs e)
     {
 
+        uploadResult = "";
+        validationResult = "";
         isLoading = true;
         loadedFiles.Clear();
 
@@ -109,12 +130,17 @@
         {
             try
             {
-                var fileValidationResult = await ValidateFile(file);
-                if (!string.IsNullOrEmpty(fileValidationResult))
+                if (!skipValidations)
                 {
-                    validationResult = fileValidationResult;
-                    isLoading = false;
-                    return;
+                    var fileValidationResult = await ValidateFile(file);
+
+
+                    if (!string.IsNullOrEmpty(fileValidationResult))
+                    {
+                        validationResult = fileValidationResult;
+                        isLoading = false;
+                        return;
+                    }
                 }
 
 
