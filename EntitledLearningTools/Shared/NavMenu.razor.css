@@ -58,6 +58,7 @@
     .collapse {
         /* Never collapse the sidebar for wide screens */
         display: block;
+        visibility: visible;
     }
     
     .nav-scrollable {

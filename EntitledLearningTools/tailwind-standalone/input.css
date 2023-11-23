@@ -1,14 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-.current-page {
-    @apply block py-2 pl-3 pr-4 text-white bg-blue-600 rounded hover:text-white lg:hover:text-blue-500 lg:bg-transparent lg:text-blue-700 lg:p-0 dark:text-white;
-}
-
-.other-pages {
-    @apply block py-2 pl-3 pr-4 text-gray-700 border-b border-gray-200 hover:text-blue-500 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-blue-700 lg:p-0 dark:text-gray-400;
-}
-
-.testing {
-}

@@ -3,31 +3,35 @@
 @inject IConfiguration Config
 @inject BlobStoreAdapter BlobAdapter
 
-<h3>Upload CSV to Entitled Learning's Cloud Storage</h3>
 
-<h5>Select the file type you want to upload, and then choose the file.</h5>
+<section class="mt-14">
+    <h1 class="text-2xl leading-loose">Upload CSV to Entitled Learning's Cloud Storage</h1>
 
-<Dropdown Options="@segments" @bind-Value="selectedOption" />
+    <h5>Select the file type you want to upload, and then choose the file.</h5>
 
-@*<p>Selected Option: @selectedOption</p>*@
+    <Dropdown Options="@segments" @bind-Value="selectedOption" />
 
-@*
-    <SegmentedControl Segments="@segments" @bind-Value="selectedSegments" />
+    @*<p>Selected Option: @selectedOption</p>*@
 
-    <p>Selected Segment: @string.Join(", ", selectedSegments)</p>
-*@
+    @*
+        <SegmentedControl Segments="@segments" @bind-Value="selectedSegments" />
 
-<InputFile OnChange="@UploadFile" />
+        <p>Selected Segment: @string.Join(", ", selectedSegments)</p>
+    *@
 
-@if (isLoading)
-{
-    <p>Uploading...</p>
-}
+    <InputFile OnChange="@UploadFile" />
 
-@if (!string.IsNullOrEmpty(uploadResult))
-{
-    <p>@uploadResult</p>
-}
+    @if (isLoading)
+    {
+        <p>Uploading...</p>
+    }
+
+    @if (!string.IsNullOrEmpty(uploadResult))
+    {
+        <p>@uploadResult</p>
+    }
+</section>
+
 
 @code {
     private List<IBrowserFile> loadedFiles = new();
@@ -37,7 +41,7 @@
     private string connectionString = "";
     private string blobContainerName = "input";
     private string[] segments = new string[] { "Students", "Community Partners", "Community Partner Contacts"};
-    private string selectedOption = "Students";
+    private string selectedOption = "";
 
     protected override void OnInitialized()
     {
