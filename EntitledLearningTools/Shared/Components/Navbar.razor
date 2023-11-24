@@ -60,8 +60,6 @@
 
     private bool isCurrentPage(string pageName)
     {
-        var test = (PageType is not null && "EntitledLearningTools.Pages." + pageName == PageType!.ToString() ? "true" : pageName);
-        Console.WriteLine("isCurrentPage: " + test);
         return PageType is not null ? "EntitledLearningTools.Pages." + pageName == PageType!.ToString() : false;
     }
 }

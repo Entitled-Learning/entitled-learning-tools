@@ -15,6 +15,7 @@
 
 @code {
     [Parameter] public string[]? Options { get; set; }
+    [Parameter] public Action? ParentChangeHandler { get; set; }
 
     private void ChangeHandler(ChangeEventArgs e)
     {
@@ -22,6 +23,11 @@
         {
             CurrentValue = e.Value.ToString();
             StateHasChanged();
+        }
+
+        if(ParentChangeHandler is not null)
+        {
+                ParentChangeHandler.Invoke();
         }
     }
 

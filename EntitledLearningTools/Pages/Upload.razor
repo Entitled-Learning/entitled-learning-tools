@@ -15,10 +15,10 @@
         </Tooltip>
     </div>
 
-    <Dropdown Options="@segments" @bind-Value="selectedOption" />
+    <Dropdown Options="@segments" ParentChangeHandler="@ClearAll" @bind-Value="selectedOption" />
 
     <div class="flex items-center my-8">
-        <input type="checkbox" class="checkbox" @onchange="ToggleSkipValidation">
+        <input type="checkbox" class="checkbox" @onchange="ToggleSkipValidation" checked="@skipValidations">
         <p class="text-lg leading-loose">skip file validations</p>
     </div>
 
@@ -30,7 +30,7 @@
         <p>Selected Segment: @string.Join(", ", selectedSegments)</p>
     *@
 
-    <InputFile OnChange="@UploadFile" />
+    <InputFile onclick="@ClearAll" OnChange="@UploadFile" />
 
     @if (isLoading)
     {
@@ -95,6 +95,7 @@
     private string selectedOption = "Students";
     private bool skipValidations = false;
     private Dictionary<string, string>? invalidRow;
+    private const string LogicAppEndpoint = "https://prod-27.southcentralus.logic.azure.com:443/workflows/cb9c13a12142414181bf1a4c728090a9/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=NqxZPLSKyRe0AVO89iPLTSzM-7v6SFoFlcBlUpAmDOs";
 
     protected override void OnInitialized()
     {
@@ -107,6 +108,14 @@
         }
     }
 
+    private void ClearAll()
+    {
+        uploadResult = "";
+        validationResult = "";
+        invalidRow = null;
+        loadedFiles.Clear();
+    }
+
     private void ToggleSkipValidation(ChangeEventArgs e)
     {
         skipValidations = !skipValidations;
@@ -116,11 +125,7 @@
     private async Task UploadFile(InputFileChangeEventArgs e)
     {
 
-        uploadResult = "";
-        validationResult = "";
-        invalidRow = null;
         isLoading = true;
-        loadedFiles.Clear();
 
         foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
         {
@@ -147,6 +152,17 @@
 
                 uploadResult = "File uploaded successfully!";
                 uploadResult = $"File uploaded successfully! {(skipValidations ? "Validations were skipped." : null)}";
+
+                // Trigger datafactory pipeline
+                using (var httpClient = new HttpClient())
+                {
+                    // Make the POST request
+                    var response = await httpClient.PostAsync(LogicAppEndpoint, null);
+
+                    // Handle the response as needed
+                    var responseData = await response.Content.ReadAsStringAsync();
+                    // Process the responseData
+                }
             }
             catch (Exception ex)
             {
