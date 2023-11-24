@@ -1,0 +1,31 @@
+﻿<div class="sidebar md:flex h-screen text-white fixed top-0 left-0 overflow-hidden transition-all w-0 md:w-64 md:opacity-100">
+    <!-- Sidebar content goes here -->
+    <div class="p-4">
+        <a class="navbar-brand text-lg text-white" href="">Entitled Learning Tools</a>
+        
+        <!-- Add your sidebar links here -->
+        <nav class="flex-column">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <span class="oi oi-home" aria-hidden="true"></span> Home
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="upload">
+                    <span class="oi oi-data-transfer-upload" aria-hidden="true"></span> Upload
+                </NavLink>
+            </div>
+        </nav>
+    </div>
+</div>
+
+<div class="md:ml-64 transition-transform transform">
+    <!-- Content goes here -->
+    <div class="p-4">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

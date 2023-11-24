@@ -1,6 +1,6 @@
 ﻿@inherits InputBase<string>
 <div>
-    <div class="dropdown my-8">
+    <div class="dropdown">
         <select @onchange="ChangeHandler">
             @if (Options is not null)
                 @foreach (var option in Options)
@@ -18,8 +18,11 @@
 
     private void ChangeHandler(ChangeEventArgs e)
     {
-        CurrentValue = e.Value.ToString();
-        StateHasChanged();
+        if(e.Value is not null)
+        {
+            CurrentValue = e.Value.ToString();
+            StateHasChanged();
+        }
     }
 
     // Implement the TryParseValueFromString method

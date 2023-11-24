@@ -9,14 +9,15 @@
 
     <h5 class="leading-loose">Select the file type you want to upload, and then choose the file.</h5>
 
-    <div class="leading-loose">
+    <div class="leading-normal lg:leading-loose mb-12">
         <Tooltip TooltipText="When skip file validations is checked, files will be uploaded even if field values are missing or invalid.">
             <span class="oi oi-info info-icon"></span>
         </Tooltip>
     </div>
+
     <Dropdown Options="@segments" @bind-Value="selectedOption" />
 
-    <div class="flex items-center mb-8">
+    <div class="flex items-center my-8">
         <input type="checkbox" class="checkbox" @onchange="ToggleSkipValidation">
         <p class="text-lg leading-loose">skip file validations</p>
     </div>
@@ -47,7 +48,7 @@
 
 @if (!string.IsNullOrEmpty(validationResult))
 {
-    <div class="flex items-center alert alert-danger my-8" role="alert">
+    <div class="flex items-center alert alert-danger my-8 max-w-max" role="alert">
         <span class="oi oi-circle-x mr-4 text-red-600" aria-hidden="true"></span>
         @validationResult
     </div>
@@ -55,37 +56,31 @@
 
 @if (invalidRow is not null)
 {
-    <div class="mx-auto">
-        <div>
-            <div class="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-scroll">
-                <div class="inline-block min-w-full shadow-md rounded-lg overflow-scroll">
-                    <table class="min-w-full leading-normal">
-                        <thead>
-                            <tr>
-                                @foreach (var header in invalidRow.Keys)
-                                {
-                                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                        @header
-                                    </th>
-                                }
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                @foreach (var header in invalidRow.Keys)
+            <div class="shadow-md rounded-lg overflow-x-scroll max-w-fit">
+                <table class="leading-normal">
+                    <thead>
+                        <tr>
+                            @foreach (var header in invalidRow.Keys)
+                            {
+                                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                    @header
+                                </th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            @foreach (var header in invalidRow.Keys)
                                 {
                                     <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                        <p class="text-gray-900 whitespace-no-wrap">@invalidRow[header]</p>
-                                    </td>
-                                }
+                                    <p class="text-gray-900 whitespace-no-wrap">@invalidRow[header]</p>
+                                </td>
+                            }
 
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-        </div>
-    </div>
 }
 
 
@@ -123,6 +118,7 @@
 
         uploadResult = "";
         validationResult = "";
+        invalidRow = null;
         isLoading = true;
         loadedFiles.Clear();
 

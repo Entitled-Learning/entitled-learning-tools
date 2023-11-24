@@ -1,7 +1,7 @@
 ﻿<!-- Tooltip.razor -->
 
-<div class="tooltip-container" @onmouseover="ShowTooltip" @onmouseout="HideTooltip">
-    <div class="tooltip-content text-xs">@ChildContent</div>
+<div class="tooltip-container">
+    <div class="tooltip-content text-xs" @onmouseover="ShowTooltip" @onmouseout="HideTooltip">@ChildContent</div>
     <div class="tooltip-text" style="@style">@TooltipText</div>
 </div>
 

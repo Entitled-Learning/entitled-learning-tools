@@ -2,21 +2,8 @@
 
 <PageTitle>EntitledLearningTools</PageTitle>
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
-
-        <div class="flex justify-center w-full">
-            <section class="content px-4 w-3/4">
-                @Body
-            </section>
-        </div>
-    </main>
-</div>
-
+<Sidebar>
+    <section class="content px-4 w-full 2xl:w-3/4">
+        @Body
+    </section>
+</Sidebar>
