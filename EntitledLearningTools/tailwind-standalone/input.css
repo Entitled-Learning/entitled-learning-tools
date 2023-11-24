@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.current-page {
+    @apply block py-2 pl-3 pr-4 text-white bg-purple-600 rounded hover:text-white md:hover:text-purple-500 md:bg-transparent md:text-purple-700 md:p-0 dark:text-white;
+}
+
+.other-pages {
+    @apply block py-2 pl-3 pr-4 text-gray-700 border-b border-gray-200 hover:text-purple-500 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-purple-700 md:p-0 dark:text-gray-400;
+}

@@ -3,7 +3,25 @@
 <PageTitle>EntitledLearningTools</PageTitle>
 
 <Sidebar>
+    <Navbar PageType="@PageType" />
     <section class="content px-4 w-full 2xl:w-3/4">
         @Body
     </section>
 </Sidebar>
+
+@code{
+
+    public Type? PageType { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        var routeView = (this.Body!.Target as RouteView);
+
+        if (routeView is not null)
+        {
+            PageType = routeView.RouteData.PageType;
+        }
+
+        Console.WriteLine("This is your type (current type)" + PageType);
+    }
+}

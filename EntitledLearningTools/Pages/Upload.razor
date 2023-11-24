@@ -4,7 +4,7 @@
 @inject BlobStoreAdapter BlobAdapter
 
 
-<section class="mt-14">
+<section>
     <h1 class="text-2xl leading-loose">Upload CSV to Entitled Learning's Cloud Storage</h1>
 
     <h5 class="leading-loose">Select the file type you want to upload, and then choose the file.</h5>
@@ -39,7 +39,7 @@
 
     @if (!string.IsNullOrEmpty(uploadResult))
     {
-        <div class="flex items-center alert alert-success my-8" role="alert">
+        <div class="flex items-center alert alert-success my-8 max-w-max" role="alert">
             <span class="oi oi-circle-check mr-4 text-green-600" aria-hidden="true"></span>
             @uploadResult
         </div>
@@ -146,6 +146,7 @@
                 var res = await blobClient.UploadAsync(file.OpenReadStream(), overwrite: true);
 
                 uploadResult = "File uploaded successfully!";
+                uploadResult = $"File uploaded successfully! {(skipValidations ? "Validations were skipped." : null)}";
             }
             catch (Exception ex)
             {
