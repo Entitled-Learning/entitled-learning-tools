@@ -1,0 +1,113 @@
+@inherits ComponentBase
+
+<div>
+    <div class="mb-4">
+        <input type="text" class="px-3 py-2 border rounded" @bind="searchTerm" @oninput="UpdateFilteredData" placeholder="Search...">
+        <button class="px-4 py-2 ml-2 bg-blue-500 text-white rounded" @onclick="ClearSearch">Clear</button>
+    </div>
+
+    @if (Items is not null && Items.Any())
+    {
+        <div class="shadow-md rounded-lg overflow-x-scroll max-w-fit">
+            <table class="leading-normal">
+                <thead>
+                    <tr>
+                        @foreach (var header in Items.First().Keys)
+                        {
+                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                @header
+                            </th>
+                        }
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (GetPaginatedData() is not null){
+                        @foreach (var row in GetPaginatedData()!)
+                        {
+                            <tr>
+                                @foreach (var header in row.Keys)
+                                {
+                                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                        <p class="text-gray-900 whitespace-no-wrap">@row[header]</p>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination controls go here -->
+        <div class="mt-4">
+            <button class="px-4 py-2 mr-2 bg-blue-500 text-white rounded" @onclick="GoToPreviousPage" disabled="@IsFirstPage">Previous</button>
+            <span>Page @currentPage of @TotalPages</span>
+            <button class="px-4 py-2 ml-2 bg-blue-500 text-white rounded" @onclick="GoToNextPage" disabled="@IsLastPage">Next</button>
+        </div>
+    }
+    else
+    {
+        <p>Loading...</p>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public IEnumerable<Dictionary<string, object?>>? Items { get; set; }
+
+    [Parameter]
+    public int ItemsPerPage { get; set; } = 10;
+
+    private int currentPage = 1;
+    private string searchTerm = "";
+
+    private bool IsFirstPage => currentPage == 1;
+    private bool IsLastPage => currentPage == TotalPages;
+
+    private int TotalPages => GetFilteredData() is not null ? (int)Math.Ceiling((double)GetFilteredData()!.Count() / ItemsPerPage) : 0;
+
+    private IEnumerable<Dictionary<string, object?>>? GetPaginatedData()
+    {
+        int startIndex = (currentPage - 1) * ItemsPerPage;
+        return GetFilteredData() is not null ? GetFilteredData()!.Skip(startIndex).Take(ItemsPerPage) : null;
+    }
+
+    private IEnumerable<Dictionary<string, object?>>? GetFilteredData()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            return Items;
+        }
+
+        return Items?.Where(x => x.Values.Any(value => value?.ToString()!.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false));
+    }
+
+    private void GoToNextPage()
+    {
+        if (!IsLastPage)
+        {
+            currentPage++;
+        }
+    }
+
+    private void GoToPreviousPage()
+    {
+        if (!IsFirstPage)
+        {
+            currentPage--;
+        }
+    }
+
+    private void ClearSearch()
+    {
+        searchTerm = "";
+        currentPage = 1;
+    }
+
+    private void UpdateFilteredData(ChangeEventArgs e)
+    {
+        searchTerm = e.Value?.ToString() ?? "";
+        currentPage = 1;
+    }
+}

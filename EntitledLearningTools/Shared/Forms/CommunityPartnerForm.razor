@@ -1,0 +1,64 @@
+﻿@inject NavigationManager NavManager
+@inject CommunityPartnerRepository _db
+
+<div class="my-4">
+    <EditForm Model="@communityPartner" OnValidSubmit="@HandleValidSubmit">
+        <DataAnnotationsValidator />
+
+        <div class="form-group">
+            <label for="Name">Name</label>
+            <InputText id="Name" @bind-Value="communityPartner.Name" class="form-control" />
+            <ValidationMessage For="@(() => communityPartner.Name)" />
+
+            <label for="PhoneNumber">PhoneNumber</label>
+            <InputText id="PhoneNumber" @bind-Value="communityPartner.PhoneNumber" class="form-control" />
+            <ValidationMessage For="@(() => communityPartner.PhoneNumber)" />
+
+            <label for="EmailAddress">EmailAddress</label>
+            <InputText id="EmailAddress" @bind-Value="communityPartner.EmailAddress" class="form-control" />
+            <ValidationMessage For="@(() => communityPartner.EmailAddress)" />
+
+            <label for="AddressLine1">AddressLine1</label>
+            <InputText id="AddressLine1" @bind-Value="communityPartner.AddressLine1" class="form-control" />
+            <ValidationMessage For="@(() => communityPartner.AddressLine1)" />
+
+            <label for="AddressLine2">AddressLine2</label>
+            <InputText id="AddressLine2" @bind-Value="communityPartner.AddressLine2" class="form-control" />
+            <ValidationMessage For="@(() => communityPartner.AddressLine2)" />
+
+            <label for="City">City</label>
+            <InputText id="City" @bind-Value="communityPartner.City" class="form-control" />
+            <ValidationMessage For="@(() => communityPartner.City)" />
+
+            <label for="State">State</label>
+            <InputText id="State" @bind-Value="communityPartner.State" class="form-control" />
+            <ValidationMessage For="@(() => communityPartner.State)" />
+
+            <label for="ZipCode">ZipCode</label>
+            <InputText id="ZipCode" @bind-Value="communityPartner.ZipCode" class="form-control" />
+            <ValidationMessage For="@(() => communityPartner.ZipCode)" />
+        </div>
+
+        <button type="submit" class="btn btn-primary my-4">Save</button>
+    </EditForm>
+</div>
+
+@code {
+    private EntitledLearningTools.Models.CommunityPartner communityPartner = new EntitledLearningTools.Models.CommunityPartner();
+    private DataMapper mapper = new DataMapper();
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            var storageContract = mapper.ToCommunityPartnerStorageContractV1(communityPartner);
+            await _db.AddAsync(storageContract);
+            NavManager.NavigateTo("/community-partners");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+
+    }
+}

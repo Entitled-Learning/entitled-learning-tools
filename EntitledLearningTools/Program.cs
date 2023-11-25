@@ -1,4 +1,6 @@
 ﻿using EntitledLearningTools;
+using ELDataAccessLibrary;
+using ELDataAccessLibrary.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<BlobStoreAdapter>();
+builder.Services.AddScoped<StudentRepository, StudentRepository>();
+builder.Services.AddScoped<CommunityPartnerRepository, CommunityPartnerRepository>();
+builder.Services.AddScoped<CommunityPartnerContactRepository, CommunityPartnerContactRepository>();
+builder.Services.AddSingleton<ISqlDataAccess, SqlDataAccess>();
 
 
 var app = builder.Build();

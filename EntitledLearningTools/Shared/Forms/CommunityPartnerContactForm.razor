@@ -1,0 +1,84 @@
+﻿@inject NavigationManager NavManager
+@inject CommunityPartnerContactRepository _db
+
+<div class="my-4">
+    <EditForm Model="@communityPartnerContact" OnValidSubmit="@HandleValidSubmit">
+        <DataAnnotationsValidator />
+
+        <div class="form-group">
+            <label for="Prefix">Prefix</label>
+            <InputText id="Prefix" @bind-Value="communityPartnerContact.Prefix" class="form-control" />
+            <ValidationMessage For="@(() => communityPartnerContact.Prefix)" />
+
+            <label for="FirstName">FirstName</label>
+            <InputText id="FirstName" @bind-Value="communityPartnerContact.FirstName" class="form-control" />
+            <ValidationMessage For="@(() => communityPartnerContact.FirstName)" />
+
+            <label for="MiddleName">MiddleName</label>
+            <InputText id="MiddleName" @bind-Value="communityPartnerContact.MiddleName" class="form-control" />
+            <ValidationMessage For="@(() => communityPartnerContact.MiddleName)" />
+
+            <label for="LastName">LastName</label>
+            <InputText id="LastName" @bind-Value="communityPartnerContact.LastName" class="form-control" />
+            <ValidationMessage For="@(() => communityPartnerContact.LastName)" />
+
+            <label for="Suffix">Suffix</label>
+            <InputText id="Suffix" @bind-Value="communityPartnerContact.Suffix" class="form-control" />
+            <ValidationMessage For="@(() => communityPartnerContact.Suffix)" />
+
+            <label for="OfficePhoneNumber">OfficePhoneNumber</label>
+            <InputText id="OfficePhoneNumber" @bind-Value="communityPartnerContact.OfficePhoneNumber" class="form-control" />
+            <ValidationMessage For="@(() => communityPartnerContact.OfficePhoneNumber)" />
+
+            <label for="CellPhoneNumber">CellPhoneNumber</label>
+            <InputText id="CellPhoneNumber" @bind-Value="communityPartnerContact.CellPhoneNumber" class="form-control" />
+            <ValidationMessage For="@(() => communityPartnerContact.CellPhoneNumber)" />
+
+            <label for="EmailAddress">EmailAddress</label>
+            <InputText id="EmailAddress" @bind-Value="communityPartnerContact.EmailAddress" class="form-control" />
+            <ValidationMessage For="@(() => communityPartnerContact.EmailAddress)" />
+
+            <label for="AddressLine1">AddressLine1</label>
+            <InputText id="AddressLine1" @bind-Value="communityPartnerContact.AddressLine1" class="form-control" />
+            <ValidationMessage For="@(() => communityPartnerContact.AddressLine1)" />
+
+            <label for="AddressLine2">AddressLine2</label>
+            <InputText id="AddressLine2" @bind-Value="communityPartnerContact.AddressLine2" class="form-control" />
+            <ValidationMessage For="@(() => communityPartnerContact.AddressLine2)" />
+
+            <label for="City">City</label>
+            <InputText id="City" @bind-Value="communityPartnerContact.City" class="form-control" />
+            <ValidationMessage For="@(() => communityPartnerContact.City)" />
+
+            <label for="State">State</label>
+            <InputText id="State" @bind-Value="communityPartnerContact.State" class="form-control" />
+            <ValidationMessage For="@(() => communityPartnerContact.State)" />
+
+            <label for="ZipCode">ZipCode</label>
+            <InputText id="ZipCode" @bind-Value="communityPartnerContact.ZipCode" class="form-control" />
+            <ValidationMessage For="@(() => communityPartnerContact.ZipCode)" />
+
+        </div>
+
+        <button type="submit" class="btn btn-primary my-4">Save</button>
+    </EditForm>
+</div>
+
+@code {
+    private CommunityPartnerContact communityPartnerContact = new CommunityPartnerContact();
+    private DataMapper mapper = new DataMapper();
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            var storageContract = mapper.ToCommunityPartnerContactStorageContractV1(communityPartnerContact);
+            await _db.AddAsync(storageContract);
+            //NavManager.NavigateTo("/communitypartnerlist");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+    }
+}

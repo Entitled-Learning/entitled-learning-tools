@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntitledLearningTools", "EntitledLearningTools\EntitledLearningTools.csproj", "{9E7ED653-9819-4C27-948D-4BD28722F96C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ELDataAccessLibrary", "ELDataAccessLibrary\ELDataAccessLibrary.csproj", "{65A38B73-5EE7-4BF9-B443-4231214B2FED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{9E7ED653-9819-4C27-948D-4BD28722F96C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E7ED653-9819-4C27-948D-4BD28722F96C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E7ED653-9819-4C27-948D-4BD28722F96C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65A38B73-5EE7-4BF9-B443-4231214B2FED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65A38B73-5EE7-4BF9-B443-4231214B2FED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65A38B73-5EE7-4BF9-B443-4231214B2FED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65A38B73-5EE7-4BF9-B443-4231214B2FED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
