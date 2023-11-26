@@ -2,42 +2,46 @@
 @inject IJSRuntime JSRuntime
 @inherits ComponentBase
 
-<section>
-    <h1 class="text-2xl leading-loose">Add New Data</h1>
+<AuthorizeView>
+    <Authorized>
+        <section>
+            <h1 class="text-2xl leading-loose">Add New Data</h1>
 
-    <h5 class="leading-loose">Select the data type you want to add, and then complete the data intake form.</h5>
+            <h5 class="leading-loose">Select the data type you want to add, and then complete the data intake form.</h5>
 
-    <div class="leading-normal lg:leading-loose mb-12">
-        <Tooltip TooltipText="Data is uploaded in real-time to Entitled Learning's cloud databse.">
-            <span class="oi oi-info info-icon"></span>
-        </Tooltip>
-    </div>
-    
-    <div class="flex item-center justify-between">
-        <Dropdown Options="@segments" @bind-Value="selectedOption" />
-    </div>
-</section>
+            <div class="leading-normal lg:leading-loose mb-12">
+                <Tooltip TooltipText="Data is uploaded in real-time to Entitled Learning's cloud databse.">
+                    <span class="oi oi-info info-icon"></span>
+                </Tooltip>
+            </div>
 
-<section>
-    @if (@selectedOption == DataTypes.CommunityPartners.ToString())
-    {
-        <CommunityPartnerForm />
-    }
+            <div class="flex item-center justify-between">
+                <Dropdown Options="@segments" @bind-Value="selectedOption" />
+            </div>
+        </section>
 
-    @if (@selectedOption == DataTypes.CommunityPartnerContacts.ToString())
-    {
-        <CommunityPartnerContactForm />
-    }
+        <section>
+            @if (@selectedOption == DataTypes.CommunityPartners.ToString())
+            {
+                <CommunityPartnerForm />
+            }
 
+            @if (@selectedOption == DataTypes.CommunityPartnerContacts.ToString())
+            {
+                <CommunityPartnerContactForm />
+            }
+        </section>
+    </Authorized>
+    <NotAuthorized>
+        <h1 class="text-2xl leading-loose">Please Log in to access this page</h1>
+    </NotAuthorized>
+</AuthorizeView>
 
-
-</section>
-
-    @code {
-        private string[] segments = new string[] {
-            DataTypes.Students.ToString(),
-            DataTypes.CommunityPartners.ToString(),
-            DataTypes.CommunityPartnerContacts.ToString()
-        };
-        private string selectedOption = DataTypes.Students.ToString();
-    }
+@code {
+    private string[] segments = new string[] {
+        DataTypes.Students.ToString(),
+        DataTypes.CommunityPartners.ToString(),
+        DataTypes.CommunityPartnerContacts.ToString()
+    };
+    private string selectedOption = DataTypes.Students.ToString();
+}

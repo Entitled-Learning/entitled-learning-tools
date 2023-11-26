@@ -1,18 +1,38 @@
 ﻿using EntitledLearningTools;
 using ELDataAccessLibrary;
 using ELDataAccessLibrary.Repository;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.UI;
+using Microsoft.AspNetCore.Rewrite;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<BlobStoreAdapter>();
-builder.Services.AddScoped<StudentRepository, StudentRepository>();
-builder.Services.AddScoped<CommunityPartnerRepository, CommunityPartnerRepository>();
-builder.Services.AddScoped<CommunityPartnerContactRepository, CommunityPartnerContactRepository>();
-builder.Services.AddSingleton<ISqlDataAccess, SqlDataAccess>();
+builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
+builder.Services.AddControllersWithViews()
+    .AddMicrosoftIdentityUI();
 
+builder.Services.AddAuthorization(options =>
+{
+    // By default, all incoming requests will be authorized according to the default policy
+    //options.FallbackPolicy = options.DefaultPolicy;
+});
+
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor().AddMicrosoftIdentityConsentHandler();;
+builder.Services.AddSingleton<BlobStoreAdapter>();
+builder.Services.AddScoped<StudentRepository>();
+builder.Services.AddScoped<CommunityPartnerRepository>();
+builder.Services.AddScoped<CommunityPartnerContactRepository>();
+builder.Services.AddSingleton<ISqlDataAccess, SqlDataAccess>();
 
 var app = builder.Build();
 
@@ -29,6 +49,19 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseRewriter(
+    new RewriteOptions().Add(
+        context => { if (context.HttpContext.Request.Path == "/MicrosoftIdentity/Account/SignedOut")
+            { context.HttpContext.Response.Redirect("/"); }
+        })
+);
+
+app.UseAuthentication();
+
+app.UseAuthorization();
+
+app.MapControllers();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");

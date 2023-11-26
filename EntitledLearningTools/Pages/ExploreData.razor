@@ -2,30 +2,35 @@
 @inject IJSRuntime JSRuntime
 @inherits ComponentBase
 
-<section>
-    <h1 class="text-2xl leading-loose">Explore Data</h1>
+<AuthorizeView>
+    <Authorized>
+        <section>
+            <h1 class="text-2xl leading-loose">Explore Data</h1>
 
-    <h5 class="leading-loose">Select the data type you want to view.</h5>
-    
-    <div class="flex item-center justify-between">
-        <Dropdown Options="@segments" @bind-Value="selectedOption" />
-    </div>
-</section>
+            <h5 class="leading-loose">Select the data type you want to view.</h5>
+            
+            <div class="flex item-center justify-between">
+                <Dropdown Options="@segments" @bind-Value="selectedOption" />
+            </div>
+        </section>
 
-<section class="mt-8">
-    @if (@selectedOption == DataTypes.CommunityPartners.ToString())
-    {
-        <CommunityPartnerView />
-    }
+        <section class="mt-8">
+            @if (@selectedOption == DataTypes.CommunityPartners.ToString())
+            {
+                <CommunityPartnerView />
+            }
 
-    @if (@selectedOption == DataTypes.CommunityPartnerContacts.ToString())
-    {
-        <CommunityPartnerContactView />
-    }
+            @if (@selectedOption == DataTypes.CommunityPartnerContacts.ToString())
+            {
+                <CommunityPartnerContactView />
+            }
+        </section>
+    </Authorized>
+    <NotAuthorized>
+        <h1 class="text-2xl leading-loose">Please Log in to access this page</h1>
+    </NotAuthorized>
+</AuthorizeView>
 
-
-
-</section>
 
     @code {
         private string[] segments = new string[] {
