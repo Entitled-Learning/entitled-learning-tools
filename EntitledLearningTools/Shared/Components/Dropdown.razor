@@ -1,7 +1,7 @@
 ﻿@inherits InputBase<string>
 <div>
-    <div class="dropdown">
-        <select @onchange="ChangeHandler">
+    <div class="@(Class is not null ? "":"dropdown")">
+        <select @onchange="ChangeHandler" class="@Class">
             @if (Options is not null)
                 @foreach (var option in Options)
                 {
@@ -15,6 +15,7 @@
 
 @code {
     [Parameter] public string[]? Options { get; set; }
+    [Parameter] public string? Class { get; set; }
     [Parameter] public Action? ParentChangeHandler { get; set; }
 
     private void ChangeHandler(ChangeEventArgs e)

@@ -19,7 +19,6 @@ public record CommunityPartner
     [Required]
     public string? AddressLine1 { get; set; }
 
-    [Required]
     public string? AddressLine2 { get; set; }
 
     [Required]

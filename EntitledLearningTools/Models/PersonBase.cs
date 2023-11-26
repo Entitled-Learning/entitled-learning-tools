@@ -22,7 +22,6 @@ public abstract record PersonBase
     [Phone]
     public string? OfficePhoneNumber { get; set; }
 
-    [Required]
     [Phone]
     public string? CellPhoneNumber { get; set; }
 
@@ -33,7 +32,6 @@ public abstract record PersonBase
     [Required]
     public string? AddressLine1 { get; set; }
 
-    [Required]
     public string? AddressLine2 { get; set; }
 
     [Required]

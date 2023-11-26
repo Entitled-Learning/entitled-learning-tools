@@ -9,3 +9,7 @@
 .other-pages {
     @apply block py-2 pl-3 pr-4 text-gray-700 border-b border-gray-200 hover:text-purple-500 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-purple-700 md:p-0 dark:text-gray-400;
 }
+
+.form-input {
+    @apply appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500;
+}

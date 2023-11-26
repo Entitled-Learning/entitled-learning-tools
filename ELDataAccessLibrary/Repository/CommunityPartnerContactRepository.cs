@@ -5,32 +5,36 @@ namespace ELDataAccessLibrary.Repository;
 
 public class CommunityPartnerContactRepository : IDataRepository<CommunityPartnerContactStorageContractV1>
 {
-    //private readonly SqlConnection _connection;
+    private readonly ISqlDataAccess _db;
 
-    //public DataService(SqlConnection connection)
-    //{
-    //    _connection = connection;
-    //}
+    public CommunityPartnerContactRepository(ISqlDataAccess db)
+    {
+       _db = db;
+    }
 
     public async Task<IEnumerable<CommunityPartnerContactStorageContractV1>> GetAllAsync()
     {
-        await Task.Delay(1000);
-        var data = new List<CommunityPartnerContactStorageContractV1>(); // Placeholder data
+        string sql = "select * from dbo.CommunityPartnerContact;";
+        var data = await _db.LoadData<CommunityPartnerContactStorageContractV1, dynamic>(sql, new { });
+
         return data;
     }
 
     public async Task<CommunityPartnerContactStorageContractV1> GetByIdAsync(int id)
     {
-        await Task.Delay(1000);
-        var data = default(CommunityPartnerContactStorageContractV1); // Placeholder data
-        return data!;
+        string sql = "select * from dbo.CommunityPartnerContact where Id = @Id;";
+        var data = await _db.LoadData<CommunityPartnerContactStorageContractV1, dynamic>(sql, new { });
+
+        return data.FirstOrDefault()!;
     }
 
     public async Task AddAsync(CommunityPartnerContactStorageContractV1 entity)
     {
-        await Task.Delay(1000);
-    }
+        string sql = "insert into dbo.CommunityPartnerContact (Prefix, FirstName, MiddleName, LastName, Suffix, OfficePhoneNumber, CellPhoneNumber, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, CommunityPartnerName) " +
+        "values (@Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @OfficePhoneNumber, @CellPhoneNumber, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @CommunityPartnerName);";
 
+        await _db.SaveData(sql, entity);
+    }
     public async Task UpdateAsync(CommunityPartnerContactStorageContractV1 entity)
     {
         await Task.Delay(1000);
