@@ -20,6 +20,16 @@
                         Home
                     </NavLink>
                 </li>*@
+                <li class="@(showMobileMenu ? "" : "hidden")">
+                    <NavLink class="@(isCurrentPage("ExploreData") ? "current-page" : "other-pages")" href="explore-data">
+                        Explore Data
+                    </NavLink>
+                </li>
+                <li class="@(showMobileMenu ? "" : "hidden")">
+                    <NavLink class="@(isCurrentPage("AddData") ? "current-page" : "other-pages")" href="add-data">
+                        Add Data
+                    </NavLink>
+                </li>
                 <li>
                     <NavLink class="@(isCurrentPage("About") ? "current-page" : "other-pages")" href="about">
                         About

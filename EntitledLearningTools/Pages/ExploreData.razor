@@ -1,32 +1,26 @@
-﻿@page "/add-data"
+﻿@page "/explore-data"
 @inject IJSRuntime JSRuntime
 @inherits ComponentBase
 
 <section>
-    <h1 class="text-2xl leading-loose">Add New Data</h1>
+    <h1 class="text-2xl leading-loose">Explore Data</h1>
 
-    <h5 class="leading-loose">Select the data type you want to add, and then complete the data intake form.</h5>
-
-    <div class="leading-normal lg:leading-loose mb-12">
-        <Tooltip TooltipText="Data is uploaded in real-time to Entitled Learning's cloud databse.">
-            <span class="oi oi-info info-icon"></span>
-        </Tooltip>
-    </div>
+    <h5 class="leading-loose">Select the data type you want to view.</h5>
     
     <div class="flex item-center justify-between">
         <Dropdown Options="@segments" @bind-Value="selectedOption" />
     </div>
 </section>
 
-<section>
+<section class="mt-8">
     @if (@selectedOption == DataTypes.CommunityPartners.ToString())
     {
-        <CommunityPartnerForm />
+        <CommunityPartnerView />
     }
 
     @if (@selectedOption == DataTypes.CommunityPartnerContacts.ToString())
     {
-        <CommunityPartnerContactForm />
+        <CommunityPartnerContactView />
     }
 
 

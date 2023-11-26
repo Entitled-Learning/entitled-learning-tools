@@ -1,0 +1,25 @@
+@inject CommunityPartnerContactRepository _db
+
+<section>
+    <h1 class="text-2xl leading-loose">Community Partner Contacts</h1>
+</section>
+
+@if (communityPartnerContactsDictinoaries is not null)
+{
+    <PaginatedTable Items="@communityPartnerContactsDictinoaries" ItemsPerPage="10" />
+} 
+else
+{
+    <p>Loading...</p>
+}
+
+@code{
+    private IEnumerable<CommunityPartnerContactStorageContractV1>? communityPartnerContacts;
+    private IEnumerable<Dictionary<string, object?>>? communityPartnerContactsDictinoaries;
+            
+    protected override async Task OnInitializedAsync()
+    {
+        communityPartnerContacts = await _db.GetAllAsync();
+        communityPartnerContactsDictinoaries = communityPartnerContacts.Select(x => x.ToDictionary());
+    }
+}
