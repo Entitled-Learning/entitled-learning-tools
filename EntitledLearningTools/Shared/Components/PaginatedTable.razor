@@ -1,9 +1,15 @@
 @inherits ComponentBase
+@inject IJSRuntime JSRuntime
 
 <div>
-    <div class="mb-4">
-        <input type="text" class="px-3 py-2 border rounded" @bind="searchTerm" @oninput="UpdateFilteredData" placeholder="Search...">
-        <button class="px-4 py-2 ml-2 bg-blue-500 text-white rounded" @onclick="ClearSearch">Clear</button>
+    <div class="flex items-center justify-between">
+        <div class="mb-4">
+            <input type="text" class="px-3 py-2 border rounded" @bind="searchTerm" @oninput="UpdateFilteredData" placeholder="Search...">
+            <button class="px-4 py-2 ml-2 bg-blue-500 text-white rounded" @onclick="ClearSearch">Clear</button>
+        </div>
+        <div class="mb-4">
+            <button class="px-4 py-2 mr-2 bg-green-500 text-white rounded" @onclick="DownloadAsExcel">Download as Excel</button>
+        </div>
     </div>
 
     @if (Items is not null && Items.Any())
@@ -177,5 +183,55 @@
     private string GetSortIndicator()
     {
         return sortDescending ? "▼" : "▲";
+    }
+
+    private async Task DownloadAsExcel()
+    {
+        var filteredData = GetFilteredData();
+        if (filteredData is not null && filteredData.Any())
+        {
+            var package = new OfficeOpenXml.ExcelPackage();
+            var worksheet = package.Workbook.Worksheets.Add("Sheet1");
+
+            // Header
+            var headerRow = 1;
+            var columnIndex = 1;
+            foreach (var header in filteredData.First().Keys)
+            {
+                worksheet.Cells[headerRow, columnIndex].Value = header;
+                columnIndex++;
+            }
+
+            // Data
+            var dataRow = 2;
+            foreach (var row in filteredData)
+            {
+                columnIndex = 1;
+                foreach (var value in row.Values)
+                {
+                    worksheet.Cells[dataRow, columnIndex].Value = value;
+                    columnIndex++;
+                }
+                dataRow++;
+            }
+
+            // Save the Excel package to a stream
+            using (var stream = new MemoryStream())
+            {
+                await package.SaveAsAsync(stream);
+
+                // Convert the byte array to base64
+                var base64 = Convert.ToBase64String(stream.ToArray());
+                
+                // Invoke JavaScript to trigger the download
+                await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", 
+                    new
+                    {
+                        content = base64,
+                        contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        fileName = "TableData.xlsx"
+                    });
+            }
+        }
     }
 }
