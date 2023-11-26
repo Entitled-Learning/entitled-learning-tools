@@ -2,7 +2,7 @@
 
 namespace EntitledLearningTools;
 
-public static class Validator
+public static class BlobValidator
 {
     public static string ValidateStudentFile(Dictionary<string, string> csvRecord)
     {

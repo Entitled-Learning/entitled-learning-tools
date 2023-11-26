@@ -15,35 +15,39 @@
                         @foreach (var header in Items.First().Keys)
                         {
                             <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                @header
+                                <button class="flex items-center" @onclick="() => SortTable(header)">
+                                    @header
+                                    @if (sortColumn == header)
+                                    {
+                                        <span class="ml-2">@GetSortIndicator()</span>
+                                    }
+                                </button>
                             </th>
                         }
                     </tr>
                 </thead>
 
                 <tbody>
-                    @if (GetPaginatedData() is not null){
-                        @foreach (var row in GetPaginatedData()!)
-                        {
-                            <tr>
-                                @foreach (var header in row.Keys)
-                                {
-                                    <td class="px-5 py-3 border-b border-gray-200 bg-white text-sm">
-                                        <p class="text-gray-900 whitespace-no-wrap">@row[header]</p>
-                                    </td>
-                                }
-                            </tr>
-                        }
+                    @foreach (var row in GetPaginatedData())
+                    {
+                        <tr>
+                            @foreach (var header in row.Keys)
+                            {
+                                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                    <p class="text-gray-900 whitespace-no-wrap">@row[header]</p>
+                                </td>
+                            }
+                        </tr>
                     }
                 </tbody>
             </table>
-        </div>
 
-        <!-- Pagination controls go here -->
-        <div class="mt-4">
-            <button class="px-4 py-2 mr-2 bg-blue-500 text-white rounded" @onclick="GoToPreviousPage" disabled="@IsFirstPage">Previous</button>
-            <span>Page @currentPage of @TotalPages</span>
-            <button class="px-4 py-2 ml-2 bg-blue-500 text-white rounded" @onclick="GoToNextPage" disabled="@IsLastPage">Next</button>
+            <!-- Pagination controls go here -->
+            <div class="mt-4">
+                <button class="px-4 py-2 mr-2 bg-blue-500 text-white rounded" @onclick="GoToPreviousPage" disabled="@IsFirstPage">Previous</button>
+                <span>Page @currentPage of @TotalPages()</span>
+                <button class="px-4 py-2 ml-2 bg-blue-500 text-white rounded" @onclick="GoToNextPage" disabled="@IsLastPage">Next</button>
+            </div>
         </div>
     }
     else
@@ -54,33 +58,79 @@
 
 @code {
     [Parameter]
-    public IEnumerable<Dictionary<string, object?>>? Items { get; set; }
+    public IEnumerable<Dictionary<string, object>>? Items { get; set; }
 
     [Parameter]
     public int ItemsPerPage { get; set; } = 10;
 
     private int currentPage = 1;
     private string searchTerm = "";
+    private string sortColumn = "";
+    private bool sortDescending = false;
 
     private bool IsFirstPage => currentPage == 1;
-    private bool IsLastPage => currentPage == TotalPages;
+    private bool IsLastPage => currentPage == TotalPages();
 
-    private int TotalPages => GetFilteredData() is not null ? (int)Math.Ceiling((double)GetFilteredData()!.Count() / ItemsPerPage) : 0;
+    private int TotalPages() {
+        var totalPages = 0;
 
-    private IEnumerable<Dictionary<string, object?>>? GetPaginatedData()
-    {
-        int startIndex = (currentPage - 1) * ItemsPerPage;
-        return GetFilteredData() is not null ? GetFilteredData()!.Skip(startIndex).Take(ItemsPerPage) : null;
-    }
+        var filteredData = GetFilteredData();
 
-    private IEnumerable<Dictionary<string, object?>>? GetFilteredData()
-    {
-        if (string.IsNullOrWhiteSpace(searchTerm))
-        {
-            return Items;
+        if(filteredData is not null) {
+            totalPages = (int)Math.Ceiling((double)filteredData.Count() / ItemsPerPage);
         }
 
-        return Items?.Where(x => x.Values.Any(value => value?.ToString()!.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false));
+        return totalPages;
+    }
+
+    private IEnumerable<Dictionary<string, object>> GetPaginatedData()
+    {
+        int startIndex = (currentPage - 1) * ItemsPerPage;
+        var filteredData = GetFilteredData();
+
+        if(filteredData is not null) {
+            var sortedData = ApplySorting(filteredData);
+            return sortedData.Skip(startIndex).Take(ItemsPerPage);
+        }
+
+        return new List<Dictionary<string, object>>();
+    }
+
+    private IEnumerable<Dictionary<string, object>> GetFilteredData()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm) || Items is null)
+        {
+            return Items ?? Enumerable.Empty<Dictionary<string, object>>(); 
+        }
+
+        return Items
+            .Where(x => x?.Values
+                ?.Any(value => value?.ToString()?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)
+                ?? false);
+    }
+
+    private IEnumerable<Dictionary<string, object>> ApplySorting(IEnumerable<Dictionary<string, object>> data)
+    {
+        if (string.IsNullOrWhiteSpace(sortColumn))
+        {
+            return data;
+        }
+
+        var comparer = StringComparer.OrdinalIgnoreCase;
+
+        return sortDescending
+            ? data.OrderByDescending(partner => GetValueForSorting(partner, sortColumn, comparer), comparer)
+            : data.OrderBy(partner => GetValueForSorting(partner, sortColumn, comparer), comparer);
+    }
+
+    private string GetValueForSorting(Dictionary<string, object> dictionary, string key, StringComparer comparer)
+    {
+        if (dictionary.TryGetValue(key, out var value))
+        {
+            return value?.ToString() ?? string.Empty;
+        }
+
+        return string.Empty;
     }
 
     private void GoToNextPage()
@@ -107,7 +157,25 @@
 
     private void UpdateFilteredData(ChangeEventArgs e)
     {
-        searchTerm = e.Value?.ToString() ?? "";
+        searchTerm = e.Value?.ToString() ?? string.Empty;
         currentPage = 1;
+    }
+
+    private void SortTable(string column)
+    {
+        if (sortColumn == column)
+        {
+            sortDescending = !sortDescending;
+        }
+        else
+        {
+            sortColumn = column;
+            sortDescending = false;
+        }
+    }
+
+    private string GetSortIndicator()
+    {
+        return sortDescending ? "▼" : "▲";
     }
 }

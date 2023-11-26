@@ -205,8 +205,8 @@
     {
         var columnValidators = new Dictionary<string, Func<Dictionary<string, string>, string>>
 {
-            { "Students", EntitledLearningTools.Validator.ValidateStudentFile },
-            { "Community Partners", EntitledLearningTools.Validator.ValidateCommunityPartnerFile },
+            { "Students", BlobValidator.ValidateStudentFile },
+            { "Community Partners", BlobValidator.ValidateCommunityPartnerFile },
         };
 
         try
