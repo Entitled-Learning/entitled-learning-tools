@@ -19,14 +19,7 @@ public abstract record PersonBase
 
     public string? Suffix { get; set; }
 
-    [Phone]
-    public string? OfficePhoneNumber { get; set; }
-
-    [Phone]
-    public string? CellPhoneNumber { get; set; }
-
-    [Required]
-    [EmailAddress]
+    [ValidEmailOrEmpty]
     public string? EmailAddress { get; set; }
 
     [Required]

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EntitledLearningTools.Models;
 
-public record CommunityPartnerContact : PersonBase
+public record CommunityPartnerContact : AdultBase
 {
     [Required]
     public string? CommunityPartnerName { get; set; }

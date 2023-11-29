@@ -21,6 +21,11 @@
         </section>
 
         <section>
+            @if (@selectedOption == DataTypes.Students.ToString())
+            {
+                <StudentForm />
+            }
+
             @if (@selectedOption == DataTypes.CommunityPartners.ToString())
             {
                 <CommunityPartnerForm />

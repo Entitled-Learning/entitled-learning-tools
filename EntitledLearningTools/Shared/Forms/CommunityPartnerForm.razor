@@ -67,7 +67,7 @@
                     <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="State">
                         State
                     </label>
-                    <InputSelect id="State" class="form-input" Options="@states" @bind-Value="communityPartner.State">
+                    <InputSelect id="State" class="form-input" @bind-Value="communityPartner.State">
                         @foreach (var item in states)
                         {
                             <option value="@item">@item</option>
@@ -91,10 +91,9 @@
 </div>
 
 @code {
-    private EntitledLearningTools.Models.CommunityPartner communityPartner = new EntitledLearningTools.Models.CommunityPartner();
+    private CommunityPartner communityPartner = new CommunityPartner();
     private DataMapper mapper = new DataMapper();
     private string[] states = new string[] { "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming" };
-    private string selectedState = "Texas";
     private async Task HandleValidSubmit()
     {
         try
@@ -107,6 +106,5 @@
         {
             Console.WriteLine(ex.ToString());
         }
-
     }
 }
