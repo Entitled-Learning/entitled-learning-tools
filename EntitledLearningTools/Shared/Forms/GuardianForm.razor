@@ -1,4 +1,6 @@
 <div class="my-4">
+     <h1 class="text-2xl leading-loose">Add Parent/Guardian Information</h1>
+
     <EditForm Model="@guardian" OnValidSubmit="@HandleValidSubmit">
         <DataAnnotationsValidator />
             <div class="form-group p-4 mt-2">
@@ -120,7 +122,7 @@
                     </div>
                 </div>
 
-                <button type="button" @onclick="HandleCancel" class="btn bg-red-600 text-white my-4 mr-2">Cancel</button>
+                <p type="button" @onclick="HandleCancel" class="btn bg-red-600 text-white my-4 mr-2">Cancel</p>
                 <button type="submit" class="btn btn-primary my-4">Save</button>
             </div>
     </EditForm>
@@ -134,20 +136,38 @@
 
     [Parameter]
     public EventCallback OnCancel { get; set; }
-        
-    private Guardian guardian = new Guardian();
+
+    [Parameter]
+    public Guardian? EditGuardian { get; set; }
+
+    public Guardian guardian = new Guardian();
 
     private string[] states = new string[] { "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming" };
+
+    protected override void OnParametersSet()
+    {
+        if(EditGuardian is not null){
+            guardian = new Guardian(EditGuardian);
+        }
+    }
 
     private void HandleValidSubmit()
     {
         Console.WriteLine("Gauardian Form Submitted");
+        Console.WriteLine("guardian null? " + (guardian is null).ToString());
+
+        var result = new Guardian(guardian);
+        guardian = new Guardian();
+
         // Pass the edited data back to the parent component
-        OnCompleGuardianForm.InvokeAsync(guardian);
+        OnCompleGuardianForm.InvokeAsync(result);
     }
 
     private void HandleCancel()
     {
+        Console.WriteLine("Guardian Form Cancelled");
+        Console.WriteLine("guardian null? " + (guardian is null).ToString());
+        guardian = new Guardian();
         OnCancel.InvokeAsync();
     }
 }

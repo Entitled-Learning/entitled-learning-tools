@@ -3,10 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EntitledLearningTools.Models;
 
-public abstract record PersonBase
+public abstract class PersonBase
 {
-    public int Id { get; set; }
-
     public string? Prefix { get; set; }
 
     [Required]

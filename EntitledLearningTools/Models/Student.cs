@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EntitledLearningTools.Models;
 
-public record Student : PersonBase
+public class Student : PersonBase
 {
     [Required]
     public string? Race { get; set; }

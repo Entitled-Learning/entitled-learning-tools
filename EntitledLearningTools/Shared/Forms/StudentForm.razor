@@ -153,13 +153,18 @@
             </div>
 
             <h1 class="text-2xl leading-loose">Parent/Guardian Information</h1>
-            <p @onclick="AddGuardian" class="btn btn-success my-4">Add a guarddian</p>
+            
+            <ListTable Items="@guardians.Select(x => x.ToDictionary())" OnItemClick="@HandleEditGuardian" />
+
+            <p @onclick="ShowGuardianModalForm" class="btn btn-success my-4">Add a guardian</p>
 
             <Modal @ref="modalRef">
                 <!-- Dynamic content for the modal body -->
-                <GuardianForm OnCompleGuardianForm="@HandleModalSubmit" OnCancel="@CloseGuardianModal" />
+                <GuardianForm OnCompleGuardianForm="@SubmitGuardianModalForm" OnCancel="@CancelGuardianModalForm" EditGuardian="@guardianToEdit" />
             </Modal>
         </div>
+
+
 
         <button type="submit" class="btn btn-primary my-4">Save</button>
     </EditForm>
@@ -174,32 +179,40 @@
     private string[] incomeOptions = new string[] { "N/A", "$0 to $11,000", "$11,000 to $44,725", "$44,725 to $95,375", "$95,375 to $182,100", "$182,100 to $231,250", "$231,250 to $578,125", "$578,125 or more" };
     private string[] shirtSizeOptions = new string[] { "S", "M", "L", "XL", "2XL", "3XL" };  
     private Modal? modalRef; // Reference to the Modal component
+    private Guardian? guardianToEdit = null;
+    private int? guardianToEditIndex = null;
 
-    private void AddGuardian()
-    {
-        ShowGuardianModal();
-    }
-    
-    private void ShowGuardianModal()
-    {
-        // Show the modal
+    private void ShowGuardianModalForm(){
         modalRef?.ShowModal();
-    }
+    } 
 
-    private void CloseGuardianModal()
-    {
-        // Show the modal
-        modalRef?.CloseModal();
-    }
-
-    private void HandleModalSubmit(Guardian editedModel)
-    {
-        Console.WriteLine("Modal submitted");
+    private void SubmitGuardianModalForm(Guardian editedModel){
+        Console.WriteLine("Modal submitted - updating parent component's model");
+        
         // Update the parent component's model with the edited data
-        guardians.Add(editedModel);
+        if (guardianToEditIndex is null){
+            guardians.Add(editedModel);
+        } else {
+            guardians[(int)guardianToEditIndex] = editedModel;
+        }
 
+        guardianToEdit = null;
+        guardianToEditIndex = null;
         // Close the modal 
-        CloseGuardianModal();
+        modalRef?.CloseModal();
+    } 
+
+    private void CancelGuardianModalForm(){
+        guardianToEdit = null;
+        guardianToEditIndex = null;
+        modalRef?.CloseModal();
+    } 
+    private void HandleEditGuardian(int guardianIndex)
+    {
+        Console.WriteLine("Editing guardian at index " + guardianIndex);
+        guardianToEdit = guardians[guardianIndex];
+        guardianToEditIndex = guardianIndex;
+        modalRef?.ShowModal();
     }
 
     private void HandleValidSubmit()

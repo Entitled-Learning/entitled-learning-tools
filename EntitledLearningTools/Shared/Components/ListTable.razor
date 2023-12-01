@@ -1,0 +1,57 @@
+@inherits ComponentBase
+@inject IJSRuntime JSRuntime
+
+<div>
+    @if (Items is not null && Items.Any())
+    {
+        <div class="overflow-x-scroll w-full">
+            <table class="leading-normal w-full">
+                <thead>
+                    <tr>
+                        @foreach (var header in Items.First().Keys)
+                        {
+                            <th class="px-4 py-3 border-b-2 border-gray-400 bg-gray-400 text-left text-xs font-semibold text-white uppercase">
+                                @header
+                            </th>
+                        }
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var (index, row) in Items.Select((item, index) => (index, item)))
+                    {
+                     <tr class="cursor-pointer hover:bg-gray-100" @onclick="() => HandleRowClick(index)">
+                            @foreach (var header in row.Keys)
+                            {
+                                <td class="px-4 py-4 border-b border-gray-200 text-sm">
+                                    <p class="text-gray-900 whitespace-no-wrap">@row[header]</p>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+
+    }
+</div>
+
+@code {
+    [Parameter]
+    public IEnumerable<Dictionary<string, object>>? Items { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnItemClick { get; set; }
+
+    private int currentPage = 1;
+    private string searchTerm = "";
+    private string sortColumn = "";
+    private bool sortDescending = false;
+
+    private async Task HandleRowClick(int index)
+    {
+        await OnItemClick.InvokeAsync(index);
+    }
+
+}
