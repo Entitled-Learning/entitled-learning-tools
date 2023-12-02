@@ -167,6 +167,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        communityPartnerContact.initWithTestData();
         communityPartners = await _partnerDb.GetAllAsync();
 
         if (communityPartners != null) {

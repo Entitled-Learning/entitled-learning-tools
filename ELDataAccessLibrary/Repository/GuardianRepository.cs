@@ -3,33 +3,33 @@ using ELDataAccessLibrary.StorageContracts;
 
 namespace ELDataAccessLibrary.Repository;
 
-public class StudentRepository : IDataRepository<StudentStorageContractV1>
+public class GuardianRepository : IDataRepository<GuardianStorageContractV1>
 {
     private readonly ISqlDataAccess _db;
-    private readonly string tableName = "Student";
+    private readonly string tableName = "Guardian";
 
-    public StudentRepository(ISqlDataAccess db)
+    public GuardianRepository(ISqlDataAccess db)
     {
        _db = db;
     }
 
-    public async Task<IEnumerable<StudentStorageContractV1>> GetAllAsync()
+    public async Task<IEnumerable<GuardianStorageContractV1>> GetAllAsync()
     {
         string sql = "select * from dbo." + tableName + ";";
-        var data = await _db.LoadData<StudentStorageContractV1, dynamic>(sql, new { });
+        var data = await _db.LoadData<GuardianStorageContractV1, dynamic>(sql, new { });
 
         return data;
     }
 
-    public async Task<StudentStorageContractV1> GetByIdAsync(int id)
+    public async Task<GuardianStorageContractV1> GetByIdAsync(int id)
     {
         string sql = "select * from dbo." + tableName + " where Id = @Id;";
-        var data = await _db.LoadData<StudentStorageContractV1, dynamic>(sql, new { });
+        var data = await _db.LoadData<GuardianStorageContractV1, dynamic>(sql, new { });
 
         return data.FirstOrDefault()!;
     }
 
-    public async Task AddAsync(StudentStorageContractV1 entity)
+    public async Task AddAsync(GuardianStorageContractV1 entity)
     {
         string sql = "insert into dbo." + tableName + " (Id, FirstName, LastName, CellPhoneNumber, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode) " +
         "values (@Id, @FirstName, @LastName, @CellPhoneNumber, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode);";
@@ -37,10 +37,10 @@ public class StudentRepository : IDataRepository<StudentStorageContractV1>
         await _db.SaveData(sql, entity);
     }
 
-    public async Task UpdateAsync(StudentStorageContractV1 entity)
+    public async Task UpdateAsync(GuardianStorageContractV1 entity)
     {
         entity.UpdatedOn = DateTimeOffset.UtcNow;
-        await Task.Delay(1000); 
+        await Task.Delay(1000);
     }
 
     public async Task DeleteAsync(int id)

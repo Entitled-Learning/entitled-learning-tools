@@ -6,6 +6,7 @@ namespace ELDataAccessLibrary.Repository;
 public class CommunityPartnerRepository : IDataRepository<CommunityPartnerStorageContractV1>
 {
     private readonly ISqlDataAccess _db;
+    private readonly string tableName = "CommunityPartner";
 
     public CommunityPartnerRepository(ISqlDataAccess db)
     {
@@ -14,7 +15,7 @@ public class CommunityPartnerRepository : IDataRepository<CommunityPartnerStorag
 
     public async Task<IEnumerable<CommunityPartnerStorageContractV1>> GetAllAsync()
     {
-        string sql = "select * from dbo.CommunityPartner;";
+        string sql = "select * from dbo." + tableName + ";";
         var data = await _db.LoadData<CommunityPartnerStorageContractV1, dynamic>(sql, new { });
 
         return data;
@@ -22,7 +23,7 @@ public class CommunityPartnerRepository : IDataRepository<CommunityPartnerStorag
 
     public async Task<CommunityPartnerStorageContractV1> GetByIdAsync(int id)
     {
-        string sql = "select * from dbo.CommunityPartner where Id = @Id;";
+        string sql = "select * from dbo." + tableName + " where Id = @Id;";
         var data = await _db.LoadData<CommunityPartnerStorageContractV1, dynamic>(sql, new { });
 
         return data.FirstOrDefault()!;
@@ -30,14 +31,16 @@ public class CommunityPartnerRepository : IDataRepository<CommunityPartnerStorag
 
     public async Task AddAsync(CommunityPartnerStorageContractV1 entity)
     {
-        string sql = "insert into dbo.CommunityPartner (Name, PhoneNumber, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode) values (@Name, @PhoneNumber, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode);";
+        string sql = "insert into dbo." + tableName + " (Name, PhoneNumber, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode) " +
+        "values (@Name, @PhoneNumber, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode);";
 
         await _db.SaveData(sql, entity);
     }
 
     public async Task UpdateAsync(CommunityPartnerStorageContractV1 entity)
     {
-        await Task.Delay(1000);
+        entity.UpdatedOn = DateTimeOffset.UtcNow;
+        await Task.Delay(1000); 
     }
 
     public async Task DeleteAsync(int id)

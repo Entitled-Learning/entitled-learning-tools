@@ -44,5 +44,16 @@ public class CommunityPartnerContact
     [Phone]
     [Required]
     public string? CellPhoneNumber { get; set; }
+
+    public void initWithTestData(){
+        FirstName = "Olumide";
+        LastName = "Daramola";
+        EmailAddress = "tope.daram@gmail.com";
+        City = "Dallas";
+        State = "Texas";
+        ZipCode = "10001";
+        AddressLine1 = "123 Main St";
+        CellPhoneNumber = "1234567890";
+    }
 }
 

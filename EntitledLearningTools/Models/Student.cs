@@ -44,5 +44,18 @@ public class Student
     public string? HouseholdIncomeRange { get; set; }
 
     public string? ShirtSize { get; set; }
+
+    public void initWithTestData(){
+        FirstName = "John";
+        LastName = "Doe";
+        EmailAddress = "john.doe@gmail.com";
+        Race = "Black";
+        DateOfBirth = new DateTimeOffset(2000, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        ShirtSize = "M";
+        City = "New York";
+        State = "NY";
+        ZipCode = "10001";
+        AddressLine1 = "123 Main St";
+    }
 }
 

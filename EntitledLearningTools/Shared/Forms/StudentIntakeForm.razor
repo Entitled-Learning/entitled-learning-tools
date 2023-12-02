@@ -189,6 +189,15 @@
     private Guardian? guardianToEdit = null;
     private int? guardianToEditIndex = null;
 
+
+    protected override void OnInitialized()
+    {
+        student.initWithTestData();
+        var testGuardian = new Guardian();
+        testGuardian.initWithTestData();
+        guardians.Add(testGuardian);
+    }
+
     private void ShowGuardianModalForm()
     {
         modalRef?.ShowModal();

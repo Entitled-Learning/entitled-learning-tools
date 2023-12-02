@@ -2,9 +2,9 @@
 
 namespace ELDataAccessLibrary.StorageContracts;
 
-public record StudentStorageContractV1
+public record StudentStorageContractV1 : GeneratedId
 {
-    public int Id { get; set; }
+    public string Id { get => GenerateId(FirstName, LastName); }
 
     public string? Prefix { get; set; }
 
@@ -31,6 +31,10 @@ public record StudentStorageContractV1
     public string? State { get; set; }
     
     public string? ZipCode { get; set; }
+
+    public DateTimeOffset CreatedOn { get; set; }
+
+    public DateTimeOffset? UpdatedOn { get; set; }
 
     public string? ContractVersion { get; } = "StudentStorageContractV1";
 }
