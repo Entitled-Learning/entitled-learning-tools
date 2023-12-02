@@ -44,11 +44,6 @@
     [Parameter]
     public EventCallback<int> OnItemClick { get; set; }
 
-    private int currentPage = 1;
-    private string searchTerm = "";
-    private string sortColumn = "";
-    private bool sortDescending = false;
-
     private async Task HandleRowClick(int index)
     {
         await OnItemClick.InvokeAsync(index);

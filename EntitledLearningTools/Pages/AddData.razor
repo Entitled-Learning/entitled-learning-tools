@@ -23,17 +23,17 @@
         <section>
             @if (@selectedOption == DataTypes.Students.ToString())
             {
-                <StudentForm />
+                <StudentIntakeForm />
             }
 
             @if (@selectedOption == DataTypes.CommunityPartners.ToString())
             {
-                <CommunityPartnerForm />
+                <CommunityPartnerIntakeForm />
             }
 
             @if (@selectedOption == DataTypes.CommunityPartnerContacts.ToString())
             {
-                <CommunityPartnerContactForm />
+                <CommunityPartnerContactIntakeForm />
             }
         </section>
     </Authorized>

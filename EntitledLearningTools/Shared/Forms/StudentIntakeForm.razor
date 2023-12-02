@@ -164,7 +164,7 @@
 
             <Modal @ref="modalRef">
                 <!-- Dynamic content for the modal body -->
-                <GuardianForm OnCompleGuardianForm="@SubmitGuardianModalForm" OnCancel="@CancelGuardianModalForm" EditGuardian="@guardianToEdit" />
+                <GuardianIntakeForm OnCompleGuardianForm="@SubmitGuardianModalForm" OnCancel="@CancelGuardianModalForm" EditGuardian="@guardianToEdit" />
             </Modal>
         </div>
 
@@ -189,15 +189,13 @@
     private Guardian? guardianToEdit = null;
     private int? guardianToEditIndex = null;
 
-    private bool showConfirmationModal = false;
-
-
-    private void ShowGuardianModalForm(){
+    private void ShowGuardianModalForm()
+    {
         modalRef?.ShowModal();
     } 
 
-    private void SubmitGuardianModalForm(Guardian editedModel){
-        Console.WriteLine("Modal submitted - updating parent component's model");
+    private void SubmitGuardianModalForm(Guardian editedModel)
+    {
         
         // Update the parent component's model with the edited data
         if (guardianToEditIndex is null){
@@ -212,14 +210,14 @@
         modalRef?.CloseModal();
     } 
 
-    private void CancelGuardianModalForm(){
+    private void CancelGuardianModalForm()
+    {
         guardianToEdit = null;
         guardianToEditIndex = null;
         modalRef?.CloseModal();
     } 
     private void HandleEditGuardian(int guardianIndex)
     {
-        Console.WriteLine("Editing guardian at index " + guardianIndex);
         guardianToEdit = guardians[guardianIndex];
         guardianToEditIndex = guardianIndex;
         modalRef?.ShowModal();
@@ -228,14 +226,22 @@
     private async Task HandleConfirmation(bool confirmed)
     {
         confirmationModalRef?.CloseModal();
+        
         if (confirmed)
         {
             Console.WriteLine("Student form submitted");
             try
             {
-                @* var storageContract = mapper.ToStudentStorageContractV1(student);
-                await _db.AddAsync(storageContract); *@
-                //NavManager.NavigateTo("/communitypartnerlist");
+                // Save the student
+                var storageContract = mapper.ToStudentStorageContractV1(student);
+                await _db.AddAsync(storageContract);
+
+                // Save the guardians
+                foreach (var guardian in guardians)
+                {
+                    var guardianStorageContract = mapper.ToGuardianStorageContractV1(guardian);
+                    //await _db.AddAsync(guardianStorageContract);
+                }
             }
             catch (Exception ex)
             {

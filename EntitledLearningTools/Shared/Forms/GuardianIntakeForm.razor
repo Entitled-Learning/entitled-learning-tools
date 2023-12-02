@@ -154,20 +154,18 @@
 
     private void HandleValidSubmit()
     {
-        Console.WriteLine("Gauardian Form Submitted");
-        Console.WriteLine("guardian null? " + (guardian is null).ToString());
+        if (guardian is not null)
+        {
+            var result = new Guardian(guardian);
+            guardian = new Guardian();
 
-        var result = new Guardian(guardian);
-        guardian = new Guardian();
-
-        // Pass the edited data back to the parent component
-        OnCompleGuardianForm.InvokeAsync(result);
+            // Pass the edited data back to the parent component
+            OnCompleGuardianForm.InvokeAsync(result);
+        }
     }
 
     private void HandleCancel()
     {
-        Console.WriteLine("Guardian Form Cancelled");
-        Console.WriteLine("guardian null? " + (guardian is null).ToString());
         guardian = new Guardian();
         OnCancel.InvokeAsync();
     }
