@@ -123,6 +123,24 @@
                     </div>
                 </div>
 
+                <div class="flex flex-wrap mb-6">
+                    <div class="w-full md:w-1/3 mb-6 md:mb-0">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="IsEmergencyContact">
+                            Is emergency contact?
+                        </label>
+                        <InputCheckbox id="IsEmergencyContact" @bind-Value="guardian.IsEmergencyContact" class="checkbox-form-input" />
+                        <ValidationMessage For="@(() => guardian.IsEmergencyContact)" />
+                    </div>
+
+                    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="IsAuthorizedPickup">
+                            Is authorized pickup?
+                        </label>
+                        <InputCheckbox id="IsAuthorizedPickup" @bind-Value="guardian.IsAuthorizedPickup" class="checkbox-form-input" />
+                        <ValidationMessage For="@(() => guardian.IsAuthorizedPickup)" />
+                    </div>
+                </div>
+
                 <p type="button" @onclick="HandleCancel" class="btn bg-red-600 text-white my-4 mr-2">Cancel</p>
                 <button type="submit" class="btn btn-primary my-4">Save</button>
             </div>
