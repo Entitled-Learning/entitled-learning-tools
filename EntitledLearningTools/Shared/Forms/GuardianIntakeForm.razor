@@ -151,13 +151,15 @@
 @code {   
 
     [Parameter]
-    public EventCallback<Guardian> OnCompleGuardianForm { get; set; }
+    public EventCallback<Guardian> OnCompleteGuardianForm { get; set; }
 
     [Parameter]
     public EventCallback OnCancel { get; set; }
 
     [Parameter]
     public Guardian? EditGuardian { get; set; }
+
+    private DataMapper mapper = new DataMapper();
 
     public Guardian guardian = new Guardian();
 
@@ -166,7 +168,7 @@
     protected override void OnParametersSet()
     {
         if(EditGuardian is not null){
-            guardian = new Guardian(EditGuardian);
+            guardian = mapper.CopyGuardian(EditGuardian);
         }
     }
 
@@ -174,11 +176,11 @@
     {
         if (guardian is not null)
         {
-            var result = new Guardian(guardian);
+            var result = mapper.CopyGuardian(guardian);
             guardian = new Guardian();
 
             // Pass the edited data back to the parent component
-            OnCompleGuardianForm.InvokeAsync(result);
+            OnCompleteGuardianForm.InvokeAsync(result);
         }
     }
 

@@ -1,7 +1,7 @@
 ﻿
 namespace ELDataAccessLibrary.StorageContracts;
 
-public record CommunityPartnerStorageContractV1 : ContractBase
+public record CommunityPartnerStorageContractV1 : StorageContractBase
 {
     public string? Name { get; set; }
 

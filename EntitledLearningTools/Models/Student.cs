@@ -48,7 +48,6 @@ public class Student
     public void initWithTestData(){
         FirstName = "John";
         LastName = "Doe";
-        EmailAddress = "john.doe@gmail.com";
         Race = "Black";
         DateOfBirth = new DateTimeOffset(2000, 1, 1, 0, 0, 0, TimeSpan.Zero);
         ShirtSize = "M";

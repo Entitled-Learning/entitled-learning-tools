@@ -2,7 +2,7 @@ using System;
 
 namespace ELDataAccessLibrary.StorageContracts;
 
-public record GuardianStorageContractV1 : ContractBase
+public record GuardianStorageContractV1 : StorageContractBase
 {
     public string Id { get => GenerateId(FirstName, LastName); }
     

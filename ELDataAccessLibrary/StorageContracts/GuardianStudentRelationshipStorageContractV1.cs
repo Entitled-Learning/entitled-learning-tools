@@ -2,7 +2,7 @@
 
 namespace ELDataAccessLibrary.StorageContracts;
 
-public record GuardianStudentRelationshipStorageContractV1 : ContractBase
+public record GuardianStudentRelationshipStorageContractV1 : StorageContractBase
 {
     public string? GuardianId { get; set; }
 

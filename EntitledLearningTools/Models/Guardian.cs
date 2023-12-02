@@ -46,29 +46,6 @@ public class Guardian
 
     public bool IsAuthorizedPickup { get; set; }
 
-    public Guardian()
-    {
-    }
-    
-    public Guardian(Guardian guardian)
-    {
-        Prefix = guardian.Prefix;
-        FirstName = guardian.FirstName;
-        MiddleName = guardian.MiddleName;
-        LastName = guardian.LastName;
-        Suffix = guardian.Suffix;
-        EmailAddress = guardian.EmailAddress;
-        CellPhoneNumber = guardian.CellPhoneNumber;
-        Relationship = guardian.Relationship;
-        IsEmergencyContact = guardian.IsEmergencyContact;
-        IsAuthorizedPickup = guardian.IsAuthorizedPickup;
-        City = guardian.City;
-        State = guardian.State;
-        ZipCode = guardian.ZipCode;
-        AddressLine1 = guardian.AddressLine1;
-        AddressLine2 = guardian.AddressLine2;
-    }
-
     public void initWithTestData(){
         FirstName = "John";
         LastName = "Doe";

@@ -2,7 +2,7 @@
 
 namespace ELDataAccessLibrary.StorageContracts;
 
-public record CommunityPartnerContactStorageContractV1 : ContractBase
+public record CommunityPartnerContactStorageContractV1 : StorageContractBase
 {
     public string Id { get => GenerateId(FirstName, LastName); }
 

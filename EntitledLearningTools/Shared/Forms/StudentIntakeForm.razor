@@ -1,8 +1,6 @@
-﻿@inject NavigationManager NavManager
-@inject StudentRepository _db
-
-<div class="my-4">
-    <EditForm Model="@student" OnValidSubmit="@HandleValidSubmit">
+﻿<div class="my-4">
+     <h1 class="text-2xl leading-loose">Add Student Information</h1>
+      <EditForm Model="@student" OnValidSubmit="@HandleValidSubmit">
         <DataAnnotationsValidator />
 
         <!-- Student Form Fields -->
@@ -154,113 +152,55 @@
                     <InputText id="ZipCode" @bind-Value="student.ZipCode" class="form-input" />
                     <ValidationMessage For="@(() => student.ZipCode)" />
                 </div>
-            </div>
-
-            <h1 class="text-2xl leading-loose">Parent/Guardian Information</h1>
-            
-            <ListTable Items="@guardians.Select(x => x.ToDictionary())" OnItemClick="@HandleEditGuardian" />
-
-            <p @onclick="ShowGuardianModalForm" class="btn btn-success my-4">Add a guardian</p>
-
-            <Modal @ref="modalRef">
-                <!-- Dynamic content for the modal body -->
-                <GuardianIntakeForm OnCompleGuardianForm="@SubmitGuardianModalForm" OnCancel="@CancelGuardianModalForm" EditGuardian="@guardianToEdit" />
-            </Modal>
+            </div>            
         </div>
 
+        <p type="button" @onclick="HandleCancel" class="btn bg-red-600 text-white my-4 mr-2">Cancel</p>
         <button type="submit" class="btn btn-primary my-4">
             Save
         </button>
     </EditForm>
 </div>
 
-<ConfirmationModal @ref="confirmationModalRef" OnConfirmation="HandleConfirmation" />
-
 @code {
-    private Student student = new Student();
-    private List<Guardian> guardians = new List<Guardian>();
+    [Parameter]
+    public EventCallback<Student> OnCompleteStudentFormForm { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    [Parameter]
+    public Student? EditStudent { get; set; }
+
     private DataMapper mapper = new DataMapper();
+    public Student student = new Student();
     private string[] states = new string[] { "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming" };
     private string[] raceOptions = new string[] { "Black", "White", "Asian", "Hispanic", "Mixed Race" };
     private string[] incomeOptions = new string[] { "N/A", "$0 to $11,000", "$11,000 to $44,725", "$44,725 to $95,375", "$95,375 to $182,100", "$182,100 to $231,250", "$231,250 to $578,125", "$578,125 or more" };
     private string[] shirtSizeOptions = new string[] { "S", "M", "L", "XL", "2XL", "3XL" };  
-    private Modal? modalRef; 
-    private ConfirmationModal? confirmationModalRef; 
-    private Guardian? guardianToEdit = null;
-    private int? guardianToEditIndex = null;
 
-
-    protected override void OnInitialized()
+        protected override void OnParametersSet()
     {
-        student.initWithTestData();
-        var testGuardian = new Guardian();
-        testGuardian.initWithTestData();
-        guardians.Add(testGuardian);
-    }
-
-    private void ShowGuardianModalForm()
-    {
-        modalRef?.ShowModal();
-    } 
-
-    private void SubmitGuardianModalForm(Guardian editedModel)
-    {
-        
-        // Update the parent component's model with the edited data
-        if (guardianToEditIndex is null){
-            guardians.Add(editedModel);
-        } else {
-            guardians[(int)guardianToEditIndex] = editedModel;
-        }
-
-        guardianToEdit = null;
-        guardianToEditIndex = null;
-        // Close the modal 
-        modalRef?.CloseModal();
-    } 
-
-    private void CancelGuardianModalForm()
-    {
-        guardianToEdit = null;
-        guardianToEditIndex = null;
-        modalRef?.CloseModal();
-    } 
-    private void HandleEditGuardian(int guardianIndex)
-    {
-        guardianToEdit = guardians[guardianIndex];
-        guardianToEditIndex = guardianIndex;
-        modalRef?.ShowModal();
-    }
-
-    private async Task HandleConfirmation(bool confirmed)
-    {
-        confirmationModalRef?.CloseModal();
-        
-        if (confirmed)
-        {
-            Console.WriteLine("Student form submitted");
-            try
-            {
-                // Save the student
-                var storageContract = mapper.ToStudentStorageContractV1(student);
-                await _db.AddAsync(storageContract);
-
-                // Save the guardians
-                foreach (var guardian in guardians)
-                {
-                    var guardianStorageContract = mapper.ToGuardianStorageContractV1(guardian);
-                    //await _db.AddAsync(guardianStorageContract);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
+        if(EditStudent is not null){
+            student = mapper.CopyStudent(EditStudent);
         }
     }
 
     private void HandleValidSubmit()
     {
-        confirmationModalRef?.ShowModal();
+        if (student is not null)
+        {
+            var result = mapper.CopyStudent(student);
+            student = new Student();
+
+            // Pass the edited data back to the parent component
+            OnCompleteStudentFormForm.InvokeAsync(result);
+        }
+    }
+
+    private void HandleCancel()
+    {
+        student = new Student();
+        OnCancel.InvokeAsync();
     }
 }
