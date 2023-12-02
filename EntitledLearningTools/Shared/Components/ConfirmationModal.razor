@@ -1,0 +1,36 @@
+<div class="modal h-screen items-center bg-slate-900/50" tabindex="-1" style="@(_isVisible ? "display: flex;" : "display: none;")">
+  <div class="modal-dialog max-w-full">
+    <div class="modal-content">
+        <div class="modal-body">
+            <p>Are you sure you want to submit the form?</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn bg-red-600 text-white my-4 mr-2" @onclick="CloseModal">Cancel</button>
+            <button type="button" class="btn btn-primary" @onclick="ConfirmSubmit">Yes, Submit</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<bool> OnConfirmation { get; set; }
+
+    private bool _isVisible = false;
+
+    public void ShowModal()
+    {
+        _isVisible = true;
+        StateHasChanged(); // Trigger a re-render   
+    }
+
+    public void CloseModal()
+    {
+        _isVisible = false;
+        StateHasChanged(); // Trigger a re-render
+    }
+    private void ConfirmSubmit()
+    {
+        OnConfirmation.InvokeAsync(true);
+    }
+}

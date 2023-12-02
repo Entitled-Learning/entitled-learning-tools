@@ -68,6 +68,7 @@
                         State
                     </label>
                     <InputSelect id="State" class="form-input" @bind-Value="communityPartner.State">
+                        <option value="N/A">select state</option>
                         @foreach (var item in states)
                         {
                             <option value="@item">@item</option>

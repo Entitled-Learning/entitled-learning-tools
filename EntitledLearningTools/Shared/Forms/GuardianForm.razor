@@ -105,9 +105,10 @@
                             State
                         </label>
                         <InputSelect id="State" class="form-input" @bind-Value="guardian.State">
+                            <option value="N/A">select state</option>
                             @foreach (var item in states)
                             {
-                                <option value="@item" selected>@item</option>
+                                <option value="@item">@item</option>
                             }
                         </InputSelect>
                         <ValidationMessage For="@(() => guardian.State)" />

@@ -50,9 +50,10 @@
                         Race
                     </label>
                     <InputSelect id="Race" class="form-input" @bind-Value="student.Race">
+                        <option value="not disclosed">select race</option>
                         @foreach (var item in raceOptions)
                         {
-                            <option value="@item" selected>@item</option>
+                            <option value="@item">@item</option>
                         }
                     </InputSelect>
                     <ValidationMessage For="@(() => student.Race)" />
@@ -74,9 +75,10 @@
                         Household Income Range
                     </label>
                     <InputSelect id="HouseholdIncomeRange" class="form-input"  @bind-Value="student.HouseholdIncomeRange">
+                        <option value="not disclosed">select income</option>
                         @foreach (var item in incomeOptions)
                         {
-                            <option value="@item" selected>@item</option>
+                            <option value="@item">@item</option>
                         }
                     </InputSelect>
                     <ValidationMessage For="@(() => student.HouseholdIncomeRange)" />
@@ -88,9 +90,10 @@
                         Shirt Size
                     </label>
                     <InputSelect id="ShirtSize" class="form-input"  @bind-Value="student.ShirtSize">
+                        <option value="N/A">select shirt size</option>
                         @foreach (var item in shirtSizeOptions)
                         {
-                            <option value="@item" selected>@item</option>
+                            <option value="@item">@item</option>
                         }
                     </InputSelect>
                     <ValidationMessage For="@(() => student.ShirtSize)" />
@@ -135,9 +138,10 @@
                         State
                     </label>
                     <InputSelect id="State" class="form-input" @bind-Value="student.State">
+                        <option value="N/A">select state</option>
                         @foreach (var item in states)
                         {
-                            <option value="@item" selected>@item</option>
+                            <option value="@item">@item</option>
                         }
                     </InputSelect>
                     <ValidationMessage For="@(() => student.State)" />
@@ -164,23 +168,29 @@
             </Modal>
         </div>
 
-
-
-        <button type="submit" class="btn btn-primary my-4">Save</button>
+        <button type="submit" class="btn btn-primary my-4">
+            Save
+        </button>
     </EditForm>
 </div>
+
+<ConfirmationModal @ref="confirmationModalRef" OnConfirmation="HandleConfirmation" />
 
 @code {
     private Student student = new Student();
     private List<Guardian> guardians = new List<Guardian>();
     private DataMapper mapper = new DataMapper();
     private string[] states = new string[] { "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming" };
-    private string[] raceOptions = new string[] { "Black", "White", "Asian", "Hispanic", "Mixed Race", "Will not disclose" };
+    private string[] raceOptions = new string[] { "Black", "White", "Asian", "Hispanic", "Mixed Race" };
     private string[] incomeOptions = new string[] { "N/A", "$0 to $11,000", "$11,000 to $44,725", "$44,725 to $95,375", "$95,375 to $182,100", "$182,100 to $231,250", "$231,250 to $578,125", "$578,125 or more" };
     private string[] shirtSizeOptions = new string[] { "S", "M", "L", "XL", "2XL", "3XL" };  
-    private Modal? modalRef; // Reference to the Modal component
+    private Modal? modalRef; 
+    private ConfirmationModal? confirmationModalRef; 
     private Guardian? guardianToEdit = null;
     private int? guardianToEditIndex = null;
+
+    private bool showConfirmationModal = false;
+
 
     private void ShowGuardianModalForm(){
         modalRef?.ShowModal();
@@ -215,18 +225,27 @@
         modalRef?.ShowModal();
     }
 
+    private async Task HandleConfirmation(bool confirmed)
+    {
+        confirmationModalRef?.CloseModal();
+        if (confirmed)
+        {
+            Console.WriteLine("Student form submitted");
+            try
+            {
+                @* var storageContract = mapper.ToStudentStorageContractV1(student);
+                await _db.AddAsync(storageContract); *@
+                //NavManager.NavigateTo("/communitypartnerlist");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+    }
+
     private void HandleValidSubmit()
     {
-        Console.WriteLine("Student form submitted");
-        try
-        {
-            @* var storageContract = mapper.ToStudentStorageContractV1(student);
-            await _db.AddAsync(storageContract); *@
-            //NavManager.NavigateTo("/communitypartnerlist");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.ToString());
-        }
+        confirmationModalRef?.ShowModal();
     }
 }
