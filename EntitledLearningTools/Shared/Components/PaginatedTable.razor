@@ -14,8 +14,8 @@
 
     @if (Items is not null && Items.Any())
     {
-        <div class="shadow-md rounded-lg overflow-x-scroll max-w-fit">
-            <table class="leading-normal">
+        <div class="shadow-md rounded-lg overflow-x-scroll w-full">
+            <table class="leading-normal w-full">
                 <thead>
                     <tr>
                         @foreach (var header in Items.First().Keys)
@@ -47,13 +47,13 @@
                     }
                 </tbody>
             </table>
+        </div>
 
-            <!-- Pagination controls go here -->
-            <div class="mt-4">
-                <button class="px-4 py-2 mr-2 bg-blue-500 text-white rounded" @onclick="GoToPreviousPage" disabled="@IsFirstPage">Previous</button>
-                <span>Page @currentPage of @TotalPages()</span>
-                <button class="px-4 py-2 ml-2 bg-blue-500 text-white rounded" @onclick="GoToNextPage" disabled="@IsLastPage">Next</button>
-            </div>
+        <!-- Pagination controls go here -->
+        <div class="mt-4">
+            <button class="px-4 py-2 mr-2 bg-blue-500 text-white rounded" @onclick="GoToPreviousPage" disabled="@IsFirstPage">Previous</button>
+            <span>Page @currentPage of @TotalPages()</span>
+            <button class="px-4 py-2 ml-2 bg-blue-500 text-white rounded" @onclick="GoToNextPage" disabled="@IsLastPage">Next</button>
         </div>
     }
     else

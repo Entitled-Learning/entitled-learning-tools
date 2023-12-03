@@ -1,7 +1,7 @@
 ﻿
 namespace ELDataAccessLibrary.StorageContracts;
 
-public record CommunityPartnerStorageContractV1
+public record CommunityPartnerStorageContractV1 : StorageContractBase
 {
     public string? Name { get; set; }
 
@@ -18,4 +18,6 @@ public record CommunityPartnerStorageContractV1
     public string? State { get; set; }
     
     public string? ZipCode { get; set; }
+
+    public string? ContractVersion { get; } = nameof(CommunityPartnerStorageContractV1);
 }

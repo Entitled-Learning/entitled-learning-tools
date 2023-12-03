@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace EntitledLearningTools.Models;
 
-public class CommunityPartnerContact
+public class Guardian : TestModelBase
 {
     public string? Prefix { get; set; }
 
@@ -35,25 +35,31 @@ public class CommunityPartnerContact
     [RegularExpression(@"^\d{5}(?:[-\s]\d{4})?$", ErrorMessage = "Invalid Zip Code")]
     public string? ZipCode { get; set; }
 
-    [Required]
-    public string? CommunityPartnerName { get; set; }
-
-    [ValidPhoneNumberOrEmpty]
-    public string? OfficePhoneNumber { get; set; }
-
     [Phone]
     [Required]
     public string? CellPhoneNumber { get; set; }
 
+    [Required]
+    public string? Relationship { get; set; }
+
+    public bool IsEmergencyContact { get; set; }
+
+    public bool IsAuthorizedPickup { get; set; }
+
     public void initWithTestData(){
-        FirstName = "Olumide";
-        LastName = "Daramola";
-        EmailAddress = "tope.daram@gmail.com";
-        City = "Dallas";
-        State = "Texas";
+        FirstName = GenerateRandomFirstName();
+        LastName = GenerateRandomLastName();
+        EmailAddress = "john.doe@gmail.com";
+        CellPhoneNumber = "123-456-7890";
+        Relationship = "Father";
+        IsEmergencyContact = true;
+        IsAuthorizedPickup = true;
+        City = "New York";
+        State = "NY";
         ZipCode = "10001";
         AddressLine1 = "123 Main St";
-        CellPhoneNumber = "1234567890";
     }
 }
+
+
 

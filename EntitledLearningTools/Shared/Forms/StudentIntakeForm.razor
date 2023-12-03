@@ -1,0 +1,206 @@
+﻿<div class="my-4">
+     <h1 class="text-2xl leading-loose">Add Student Information</h1>
+      <EditForm Model="@student" OnValidSubmit="@HandleValidSubmit">
+        <DataAnnotationsValidator />
+
+        <!-- Student Form Fields -->
+        <div class="form-group">
+            <div class="flex flex-wrap mb-6">
+                <div class="w-full md:w-1/12 pr-3 mb-6 md:mb-0">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                        for="Prefix">Prefix</label>
+                    <InputText id="Prefix" @bind-Value="student.Prefix" class="form-input" />
+                    <ValidationMessage For="@(() => student.Prefix)" />
+                </div>
+
+                <div class="w-full md:w-4/12 pr-3 mb-6 md:mb-0">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                        for="FirstName">FirstName</label>
+                    <InputText id="FirstName" @bind-Value="student.FirstName" class="form-input" />
+                    <ValidationMessage For="@(() => student.FirstName)" />
+                </div>
+
+                <div class="w-full md:w-2/12 pr-3 mb-6 md:mb-0">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                        for="MiddleName">MiddleName</label>
+                    <InputText id="MiddleName" @bind-Value="student.MiddleName" class="form-input" />
+                    <ValidationMessage For="@(() => student.MiddleName)" />
+                </div>
+
+                <div class="w-full md:w-4/12 pr-3 mb-6 md:mb-0">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                        for="LastName">LastName</label>
+                    <InputText id="LastName" @bind-Value="student.LastName" class="form-input" />
+                    <ValidationMessage For="@(() => student.LastName)" />
+                </div>
+
+                <div class="w-full md:w-1/12 mb-6 md:mb-0">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                        for="Suffix">Suffix</label>
+                    <InputText id="Suffix" @bind-Value="student.Suffix" class="form-input" />
+                    <ValidationMessage For="@(() => student.Suffix)" />
+                </div>
+            </div>
+
+            <div class="flex flex-wrap mb-6">
+                <div class="w-full md:w-1/4 pr-3 mb-6 md:mb-0">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="Race">
+                        Race
+                    </label>
+                    <InputSelect id="Race" class="form-input" @bind-Value="student.Race">
+                        <option value="not disclosed">select race</option>
+                        @foreach (var item in raceOptions)
+                        {
+                            <option value="@item">@item</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => student.Race)" />
+                </div>
+
+                <div class="w-full md:w-1/4 pr-3 mb-6 md:mb-0">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                        for="DateOfBirth">
+                        Date of Birth
+                    </label>
+                    <InputDate id="DateOfBirth" @bind-Value="student.DateOfBirth"
+                        class="form-input" />
+                    <ValidationMessage For="@(() => student.DateOfBirth)" />
+                </div>
+
+                <div class="w-full md:w-1/4 pr-3 mb-6 md:mb-0">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                        for="HouseholdIncomeRange">
+                        Household Income Range
+                    </label>
+                    <InputSelect id="HouseholdIncomeRange" class="form-input"  @bind-Value="student.HouseholdIncomeRange">
+                        <option value="not disclosed">select income</option>
+                        @foreach (var item in incomeOptions)
+                        {
+                            <option value="@item">@item</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => student.HouseholdIncomeRange)" />
+                </div>
+                
+                <div class="w-full md:w-1/4 mb-6 md:mb-0">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                        for="ShirtSize">
+                        Shirt Size
+                    </label>
+                    <InputSelect id="ShirtSize" class="form-input"  @bind-Value="student.ShirtSize">
+                        <option value="N/A">select shirt size</option>
+                        @foreach (var item in shirtSizeOptions)
+                        {
+                            <option value="@item">@item</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => student.ShirtSize)" />
+                </div>
+            </div>
+
+            <div class="flex flex-wrap mb-6">
+                <div class="w-full">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                        for="AddressLine1">
+                        Address Line 1
+                    </label>
+                    <InputText id="AddressLine1" @bind-Value="student.AddressLine1"
+                        class="form-input" />
+                    <ValidationMessage For="@(() => student.AddressLine1)" />
+                </div>
+            </div>
+
+            <div class="flex flex-wrap mb-6">
+                <div class="w-full">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                        for="AddressLine2">
+                        Address Line 2
+                    </label>
+                    <InputText id="AddressLine2" @bind-Value="student.AddressLine2"
+                        class="form-input" />
+                    <ValidationMessage For="@(() => student.AddressLine2)" />
+                </div>
+            </div>
+
+            <div class="flex flex-wrap mb-6">
+                <div class="w-full md:w-1/3 mb-6 md:mb-0">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="City">
+                        City
+                    </label>
+                    <InputText id="City" @bind-Value="student.City" class="form-input" />
+                    <ValidationMessage For="@(() => student.City)" />
+                </div>
+
+                <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="State">
+                        State
+                    </label>
+                    <InputSelect id="State" class="form-input" @bind-Value="student.State">
+                        <option value="N/A">select state</option>
+                        @foreach (var item in states)
+                        {
+                            <option value="@item">@item</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => student.State)" />
+                </div>
+
+                <div class="w-full md:w-1/3 mb-6 md:mb-0">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="ZipCode">
+                        ZipCode
+                    </label>
+                    <InputText id="ZipCode" @bind-Value="student.ZipCode" class="form-input" />
+                    <ValidationMessage For="@(() => student.ZipCode)" />
+                </div>
+            </div>            
+        </div>
+
+        <p type="button" @onclick="HandleCancel" class="btn bg-red-600 text-white my-4 mr-2">Cancel</p>
+        <button type="submit" class="btn btn-primary my-4">
+            Save
+        </button>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<Student> OnCompleteStudentFormForm { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    [Parameter]
+    public Student? EditStudent { get; set; }
+
+    private DataMapper mapper = new DataMapper();
+    public Student student = new Student();
+    private string[] states = new string[] { "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming" };
+    private string[] raceOptions = new string[] { "Black", "White", "Asian", "Hispanic", "Mixed Race" };
+    private string[] incomeOptions = new string[] { "N/A", "$0 to $11,000", "$11,000 to $44,725", "$44,725 to $95,375", "$95,375 to $182,100", "$182,100 to $231,250", "$231,250 to $578,125", "$578,125 or more" };
+    private string[] shirtSizeOptions = new string[] { "S", "M", "L", "XL", "2XL", "3XL" };  
+
+        protected override void OnParametersSet()
+    {
+        if(EditStudent is not null){
+            student = mapper.CopyStudent(EditStudent);
+        }
+    }
+
+    private void HandleValidSubmit()
+    {
+        if (student is not null)
+        {
+            var result = mapper.CopyStudent(student);
+            student = new Student();
+
+            // Pass the edited data back to the parent component
+            OnCompleteStudentFormForm.InvokeAsync(result);
+        }
+    }
+
+    private void HandleCancel()
+    {
+        student = new Student();
+        OnCancel.InvokeAsync();
+    }
+}
