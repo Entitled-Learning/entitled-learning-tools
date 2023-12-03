@@ -3,7 +3,7 @@ using ELDataAccessLibrary.StorageContracts;
 
 namespace ELDataAccessLibrary.Repository;
 
-public class StudentRepository : IDataRepository<StudentStorageContractV1>
+public class StudentRepository : RepositoryBase, IDataRepository<StudentStorageContractV1>
 {
     private readonly ISqlDataAccess _db;
     private readonly string tableName = "Student";
@@ -29,12 +29,16 @@ public class StudentRepository : IDataRepository<StudentStorageContractV1>
         return data.FirstOrDefault()!;
     }
 
-    public async Task AddAsync(StudentStorageContractV1 entity)
+    public async Task<StudentStorageContractV1> AddAsync(StudentStorageContractV1 entity)
     {
-        string sql = "insert into dbo." + tableName + " (Id, FirstName, LastName, CellPhoneNumber, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode) " +
-        "values (@Id, @FirstName, @LastName, @CellPhoneNumber, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode);";
+        entity.Id = GenerateId(entity.FirstName, entity.LastName);
+
+        string sql = "insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, Race, DateOfBirth, HouseholdIncomeRange, ShirtSize, ContractVersion) " +
+        "values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @Race, @DateOfBirth, @HouseholdIncomeRange, @ShirtSize, @ContractVersion);";
 
         await _db.SaveData(sql, entity);
+
+        return entity;
     }
 
     public async Task UpdateAsync(StudentStorageContractV1 entity)

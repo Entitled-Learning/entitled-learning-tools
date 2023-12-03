@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EntitledLearningTools.Models;
 
-public class Student
+public class Student : TestModelBase
 {
     public string? Prefix { get; set; }
 
@@ -46,8 +46,8 @@ public class Student
     public string? ShirtSize { get; set; }
 
     public void initWithTestData(){
-        FirstName = "John";
-        LastName = "Doe";
+        FirstName = GenerateRandomFirstName();
+        LastName = GenerateRandomLastName();
         Race = "Black";
         DateOfBirth = new DateTimeOffset(2000, 1, 1, 0, 0, 0, TimeSpan.Zero);
         ShirtSize = "M";

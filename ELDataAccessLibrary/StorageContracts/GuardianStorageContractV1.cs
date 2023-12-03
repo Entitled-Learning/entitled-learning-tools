@@ -4,7 +4,7 @@ namespace ELDataAccessLibrary.StorageContracts;
 
 public record GuardianStorageContractV1 : StorageContractBase
 {
-    public string Id { get => GenerateId(FirstName, LastName); }
+    public string? Id { get; set; }
     
     public string? Prefix { get; set; }
 
@@ -28,14 +28,7 @@ public record GuardianStorageContractV1 : StorageContractBase
 
     public string? ZipCode { get; set; }
 
-
     public string? CellPhoneNumber { get; set; }
 
-    public string? Relationship { get; set; }
-
-    public bool IsEmergencyContact { get; set; }
-
-    public bool IsAuthorizedPickup { get; set; }
-
-    public string? ContractVersion { get; } = "GuardianStorageContractV1";
+    public string? ContractVersion { get; } = nameof(GuardianStorageContractV1);
 }

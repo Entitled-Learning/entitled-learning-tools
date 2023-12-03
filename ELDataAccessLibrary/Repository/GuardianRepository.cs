@@ -3,7 +3,7 @@ using ELDataAccessLibrary.StorageContracts;
 
 namespace ELDataAccessLibrary.Repository;
 
-public class GuardianRepository : IDataRepository<GuardianStorageContractV1>
+public class GuardianRepository : RepositoryBase, IDataRepository<GuardianStorageContractV1>
 {
     private readonly ISqlDataAccess _db;
     private readonly string tableName = "Guardian";
@@ -29,12 +29,16 @@ public class GuardianRepository : IDataRepository<GuardianStorageContractV1>
         return data.FirstOrDefault()!;
     }
 
-    public async Task AddAsync(GuardianStorageContractV1 entity)
+    public async Task<GuardianStorageContractV1> AddAsync(GuardianStorageContractV1 entity)
     {
-        string sql = "insert into dbo." + tableName + " (Id, FirstName, LastName, CellPhoneNumber, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode) " +
-        "values (@Id, @FirstName, @LastName, @CellPhoneNumber, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode);";
+        entity.Id = GenerateId(entity.FirstName, entity.LastName);
+
+        string sql = "insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, CellPhoneNumber, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, ContractVersion) " +
+        "values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @CellPhoneNumber, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @ContractVersion);";
 
         await _db.SaveData(sql, entity);
+
+        return entity;
     }
 
     public async Task UpdateAsync(GuardianStorageContractV1 entity)

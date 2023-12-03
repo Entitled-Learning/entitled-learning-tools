@@ -1,8 +1,9 @@
+using System;
+using ELDataAccessLibrary.StorageContracts;
 
+namespace ELDataAccessLibrary.Repository;
 
-namespace ELDataAccessLibrary.StorageContracts;
-
-public record GeneratedId
+public  abstract class RepositoryBase
 {
     protected string GenerateId(string? string1, string? string2)
     {
@@ -17,3 +18,4 @@ public record GeneratedId
         return uniqueId.ToLower();
     }
 }
+

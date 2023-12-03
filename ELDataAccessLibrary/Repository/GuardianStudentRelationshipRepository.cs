@@ -29,12 +29,14 @@ public class GuardianStudentRelationshipRepository : IDataRepository<GuardianStu
         return data.FirstOrDefault()!;
     }
 
-    public async Task AddAsync(GuardianStudentRelationshipStorageContractV1 entity)
+    public async Task<GuardianStudentRelationshipStorageContractV1> AddAsync(GuardianStudentRelationshipStorageContractV1 entity)
     {
-        string sql = "insert into dbo." + tableName + " (StudentId, GuardianId) " +
-        "values (@StudentId, @GuardianId);";
+        string sql = "insert into dbo." + tableName + " (StudentId, GuardianId, Relationship, IsEmergencyContact, IsAuthorizedPickup) " +
+        "values (@StudentId, @GuardianId, @Relationship, @IsEmergencyContact, @IsAuthorizedPickup);";
 
         await _db.SaveData(sql, entity);
+        
+        return entity;
     }
 
     public async Task UpdateAsync(GuardianStudentRelationshipStorageContractV1 entity)

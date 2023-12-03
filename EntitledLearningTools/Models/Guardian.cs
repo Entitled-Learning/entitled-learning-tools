@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EntitledLearningTools.Models;
 
-public class Guardian
+public class Guardian : TestModelBase
 {
     public string? Prefix { get; set; }
 
@@ -47,8 +47,8 @@ public class Guardian
     public bool IsAuthorizedPickup { get; set; }
 
     public void initWithTestData(){
-        FirstName = "John";
-        LastName = "Doe";
+        FirstName = GenerateRandomFirstName();
+        LastName = GenerateRandomLastName();
         EmailAddress = "john.doe@gmail.com";
         CellPhoneNumber = "123-456-7890";
         Relationship = "Father";

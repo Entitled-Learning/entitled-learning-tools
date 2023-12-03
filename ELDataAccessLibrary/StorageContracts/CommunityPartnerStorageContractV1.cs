@@ -19,5 +19,5 @@ public record CommunityPartnerStorageContractV1 : StorageContractBase
     
     public string? ZipCode { get; set; }
 
-    public string? ContractVersion { get; } = "CommunityPartnerStorageContractV1";
+    public string? ContractVersion { get; } = nameof(CommunityPartnerStorageContractV1);
 }

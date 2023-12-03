@@ -1,5 +1,7 @@
 @inject NavigationManager NavManager
-@inject StudentRepository _db
+@inject StudentRepository _studentDB
+@inject GuardianRepository _guardianDB
+@inject GuardianStudentRelationshipRepository _relationshipDB
 
 <h1 class="text-2xl leading-loose">Student Information</h1>
 <ListTable Items="@students.Select(x => x.ToDictionary())" OnItemClick="@HandleEditStudent" />
@@ -137,18 +139,34 @@
             Console.WriteLine("Student form submitted");
             try
             {
+                var storedStudents = new List<StudentStorageContractV1>();
+                var storedGuardians = new List<GuardianStorageContractV1>();
+
                 // Save the students
                 foreach (var student in students)
                 {
                     var storageContract = mapper.ToStudentStorageContractV1(student);
-                    await _db.AddAsync(storageContract);
+                    var result = await _studentDB.AddAsync(storageContract);
+                    storedStudents.Add(result);
                 }
 
                 // Save the guardians
                 foreach (var guardian in guardians)
                 {
                     var guardianStorageContract = mapper.ToGuardianStorageContractV1(guardian);
-                    //await _db.AddAsync(guardianStorageContract);
+                    var result = await _guardianDB.AddAsync(guardianStorageContract);
+
+                    // Save the relationship between the students and guardians
+                    foreach (var student in storedStudents)
+                    {
+                        var relationship = new GuardianStudentRelationshipStorageContractV1();
+                        relationship.StudentId = student.Id;
+                        relationship.GuardianId = result.Id;
+                        relationship.Relationship = guardian.Relationship;
+                        relationship.IsAuthorizedPickup = guardian.IsAuthorizedPickup;
+                        relationship.IsEmergencyContact = guardian.IsEmergencyContact;
+                        await _relationshipDB.AddAsync(relationship);
+                    }
                 }
             }
             catch (Exception ex)

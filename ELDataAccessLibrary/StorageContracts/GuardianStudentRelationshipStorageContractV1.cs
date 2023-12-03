@@ -8,6 +8,12 @@ public record GuardianStudentRelationshipStorageContractV1 : StorageContractBase
 
     public string? StudentId { get; set; }
 
-    public string? ContractVersion { get; } = "GuardianStudentRelationshipStorageContractV1";
+    public string? Relationship { get; set; }
+
+    public bool IsEmergencyContact { get; set; }
+
+    public bool IsAuthorizedPickup { get; set; }
+
+    public string? ContractVersion { get; } = nameof(GuardianStudentRelationshipStorageContractV1);
 }
 

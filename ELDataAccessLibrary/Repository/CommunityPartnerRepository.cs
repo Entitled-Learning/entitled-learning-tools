@@ -29,12 +29,14 @@ public class CommunityPartnerRepository : IDataRepository<CommunityPartnerStorag
         return data.FirstOrDefault()!;
     }
 
-    public async Task AddAsync(CommunityPartnerStorageContractV1 entity)
+    public async Task<CommunityPartnerStorageContractV1> AddAsync(CommunityPartnerStorageContractV1 entity)
     {
-        string sql = "insert into dbo." + tableName + " (Name, PhoneNumber, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode) " +
-        "values (@Name, @PhoneNumber, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode);";
+        string sql = "insert into dbo." + tableName + " (Name, PhoneNumber, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, ContractVersion) " +
+        "values (@Name, @PhoneNumber, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @ContractVersion);";
 
         await _db.SaveData(sql, entity);
+
+        return entity;
     }
 
     public async Task UpdateAsync(CommunityPartnerStorageContractV1 entity)

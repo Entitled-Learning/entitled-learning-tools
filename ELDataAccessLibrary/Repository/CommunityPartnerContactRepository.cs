@@ -3,7 +3,7 @@ using ELDataAccessLibrary.StorageContracts;
 
 namespace ELDataAccessLibrary.Repository;
 
-public class CommunityPartnerContactRepository : IDataRepository<CommunityPartnerContactStorageContractV1>
+public class CommunityPartnerContactRepository : RepositoryBase, IDataRepository<CommunityPartnerContactStorageContractV1>
 {
     private readonly ISqlDataAccess _db;
     private readonly string tableName = "CommunityPartnerContact";
@@ -29,12 +29,16 @@ public class CommunityPartnerContactRepository : IDataRepository<CommunityPartne
         return data.FirstOrDefault()!;
     }
 
-    public async Task AddAsync(CommunityPartnerContactStorageContractV1 entity)
+    public async Task<CommunityPartnerContactStorageContractV1> AddAsync(CommunityPartnerContactStorageContractV1 entity)
     {       
-        string sql = "insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, OfficePhoneNumber, CellPhoneNumber, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, CommunityPartnerName) " +
-        "values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @OfficePhoneNumber, @CellPhoneNumber, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @CommunityPartnerName);";
+        entity.Id = GenerateId(entity.FirstName, entity.LastName);
+        
+        string sql = "insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, OfficePhoneNumber, CellPhoneNumber, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, CommunityPartnerName, ContractVersion) " +
+        "values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @OfficePhoneNumber, @CellPhoneNumber, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @CommunityPartnerName, @ContractVersion);";
 
         await _db.SaveData(sql, entity);
+
+        return entity;
     }
     public async Task UpdateAsync(CommunityPartnerContactStorageContractV1 entity)
     {

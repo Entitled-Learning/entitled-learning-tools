@@ -4,7 +4,7 @@ namespace ELDataAccessLibrary.StorageContracts;
 
 public record CommunityPartnerContactStorageContractV1 : StorageContractBase
 {
-    public string Id { get => GenerateId(FirstName, LastName); }
+    public string? Id { get; set; }
 
     public string? Prefix { get; set; }
 
@@ -34,6 +34,6 @@ public record CommunityPartnerContactStorageContractV1 : StorageContractBase
 
     public string? CommunityPartnerName { get; set; }
 
-    public string? ContractVersion { get; } = "CommunityPartnerContactStorageContractV1";
+    public string? ContractVersion { get; } = nameof(CommunityPartnerContactStorageContractV1);
 }
 
