@@ -9,47 +9,63 @@
         <section class="flex flex-col p-4 w-full">
             <RadzenBreadCrumb class="mb-8">
                 <RadzenBreadCrumbItem Path="/explore-data" Text="Data Exploer" />
-                <RadzenBreadCrumbItem Icon="" Text="@($"{_student.Prefix} {_student.FirstName} {_student.MiddleName} {_student.LastName} {_student.Suffix}")" />
+                <RadzenBreadCrumbItem Icon=""
+                    Text="@($"{_student.Prefix} {_student.FirstName} {_student.MiddleName} {_student.LastName} {_student.Suffix}")" />
             </RadzenBreadCrumb>
 
             <div class="flex flex-col">
-                <div class="mb-8">
-                    <h1 class="text-2xl font-bold leading-loose">@_student.Prefix @_student.FirstName @_student.MiddleName @_student.LastName @_student.Suffix</h1>
-                    <h2 class="leading-loose"> </h2>
+                <div class="flex flex-wrap items-start justify-between mb-8">
+                    <div>
+                        <h1 class="text-2xl font-bold leading-loose">@_student.Prefix @_student.FirstName
+                            @_student.MiddleName @_student.LastName @_student.Suffix</h1>
+                        <h2 class="leading-loose"> </h2>
+                    </div>
+                    <div class="flex items-center mb-2">
+                        <RadzenButton Text="Delete" Icon="delete" ButtonStyle="ButtonStyle.Danger"
+                            Size="ButtonSize.Small" />
+                    </div>
                 </div>
 
                 <h1 class="text-lg font-bold leading-loose">Parents/Guardians</h1>
                 <RadzenDataGrid AllowFiltering="false" AllowColumnResize="true" AllowAlternatingRows="false"
-                    FilterMode="FilterMode.SimpleWithMenu" AllowSorting="true"  AllowPaging="false"
+                    FilterMode="FilterMode.SimpleWithMenu" AllowSorting="true" AllowPaging="false"
                     PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="false" Data="@_guardians"
                     TItem="StudentGuardian" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or"
                     SelectionMode="DataGridSelectionMode.Single">
                     <Columns>
-                        <RadzenDataGridColumn TItem="StudentGuardian" Title="Name" Width="200px" >
+                        <RadzenDataGridColumn TItem="StudentGuardian" Title="Name" Width="200px">
                             <Template Context="guardian">
-                                @guardian.Prefix @guardian.FirstName @guardian.MiddleName @guardian.LastName @guardian.Suffix
+                                @guardian.Prefix @guardian.FirstName @guardian.MiddleName @guardian.LastName
+                                @guardian.Suffix
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="StudentGuardian" Property="IsEmergencyContact" Title="Emergency Contact?" Width="200px">
+                        <RadzenDataGridColumn TItem="StudentGuardian" Property="IsEmergencyContact"
+                            Title="Emergency Contact?" Width="200px">
                             <Template Context="guardian">
                                 @(guardian.IsEmergencyContact ? "✅" : "❌")
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="StudentGuardian" Property="IsAuthorizedPickup" Title="Authorized Pickup?" Width="200px">
+                        <RadzenDataGridColumn TItem="StudentGuardian" Property="IsAuthorizedPickup"
+                            Title="Authorized Pickup?" Width="200px">
                             <Template Context="guardian">
                                 @(guardian.IsAuthorizedPickup ? "✅" : "❌")
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="StudentGuardian" Property="CellPhoneNumber" Title="Cell Phone Number" Width="200px" />
-                        <RadzenDataGridColumn TItem="StudentGuardian" Property="EmailAddress" Title="Email" Width="200px" />
-                        <RadzenDataGridColumn TItem="StudentGuardian" Property="AddressLine1" Title="Address Line 1" Width="120px" />
-                        <RadzenDataGridColumn TItem="StudentGuardian" Property="AddressLine2" Title="Address Line 2" Width="160px" />
+                        <RadzenDataGridColumn TItem="StudentGuardian" Property="CellPhoneNumber"
+                            Title="Cell Phone Number" Width="200px" />
+                        <RadzenDataGridColumn TItem="StudentGuardian" Property="EmailAddress" Title="Email"
+                            Width="200px" />
+                        <RadzenDataGridColumn TItem="StudentGuardian" Property="AddressLine1" Title="Address Line 1"
+                            Width="120px" />
+                        <RadzenDataGridColumn TItem="StudentGuardian" Property="AddressLine2" Title="Address Line 2"
+                            Width="160px" />
                         <RadzenDataGridColumn TItem="StudentGuardian" Property="City" Title="City" Width="160px" />
                         <RadzenDataGridColumn TItem="StudentGuardian" Property="State" Title="State" Width="160px" />
-                        <RadzenDataGridColumn TItem="StudentGuardian" Property="ZipCode" Title="Zipcode" Width="160px" />
+                        <RadzenDataGridColumn TItem="StudentGuardian" Property="ZipCode" Title="Zipcode"
+                            Width="160px" />
                     </Columns>
                 </RadzenDataGrid>
-            </div>            
+            </div>
         </section>
     </Authorized>
     <NotAuthorized>
@@ -65,13 +81,14 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await base.OnInitializedAsync(); 
+        await base.OnInitializedAsync();
     }
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
 
-        if(studentId is not null){
+        if (studentId is not null)
+        {
             _student = await _db.GetByIdAsync(studentId);
             _guardians = await _relationshipDB.GetByStudentIdAsync(studentId);
         }

@@ -3,6 +3,7 @@
 @inject CommunityPartnerContactRepository _contactDB
 @inject IJSRuntime JSRuntime
 @inject DialogService DialogService
+@inject NavigationManager NavManager
 
 <AuthorizeView>
     <Authorized>
@@ -13,23 +14,29 @@
             </RadzenBreadCrumb>
 
             <div class="flex flex-col">
-                <div class="mb-8">
-                    <h1 class="text-2xl font-bold leading-loose">@_partner.Name</h1>
-                    @if (!string.IsNullOrEmpty(_partner.AddressLine1)) {
-                        <h2>@_partner.AddressLine1</h2>
-                    }
-                    @if (!string.IsNullOrEmpty(_partner.AddressLine2)) {
-                        <h2>@_partner.AddressLine2</h2>
-                    }
-                    @if (!string.IsNullOrEmpty(_partner.City) && !string.IsNullOrEmpty(_partner.State) && !string.IsNullOrEmpty(_partner.ZipCode)) {
-                        <h2>@_partner.City, @_partner.State @_partner.ZipCode</h2>
-                    }
+
+                <div class="flex flex-wrap items-start justify-between mb-8">
+                    <div>
+                        <h1 class="text-2xl font-bold leading-loose">@_partner.Name</h1>
+                        @if (!string.IsNullOrEmpty(_partner.AddressLine1)) {
+                            <h2>@_partner.AddressLine1</h2>
+                        }
+                        @if (!string.IsNullOrEmpty(_partner.AddressLine2)) {
+                            <h2>@_partner.AddressLine2</h2>
+                        }
+                        @if (!string.IsNullOrEmpty(_partner.City) && !string.IsNullOrEmpty(_partner.State) && !string.IsNullOrEmpty(_partner.ZipCode)) {
+                            <h2>@_partner.City, @_partner.State @_partner.ZipCode</h2>
+                        }
+                    </div>
+                    <div class="flex items-center justify-content-start mb-2">
+                        <RadzenButton class="align-self-start" Text="Delete" Icon="delete" ButtonStyle="ButtonStyle.Danger"
+                            Size="ButtonSize.Small" Click=@(args => DialogService.Alert("Be patient. This functionality is coming soon!", "Coming Soon", new AlertOptions() { OkButtonText = "Ok, cool." })) />
+                    </div>
                 </div>
 
                 <h1 class="text-lg font-bold leading-loose">Contacts</h1>
-                <a href="/add-data?option=CommunityPartnerContacts" class="mr-2 mb-4">
-                    <RadzenButton Text="Add Contact" Icon="add" ButtonStyle="ButtonStyle.Primary" />
-                </a>
+                <RadzenButton Text="Add Contact" Icon="add" ButtonStyle="ButtonStyle.Primary" class="self-start mb-4" Click=@(() => NavManager.NavigateTo("/add-data?option=CommunityPartnerContacts")) />
+                    
                 <RadzenDataGrid AllowFiltering="false" AllowColumnResize="true" AllowAlternatingRows="false"
                     FilterMode="FilterMode.SimpleWithMenu" AllowSorting="true"  AllowPaging="false"
                     PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="false" Data="@_contacts"
