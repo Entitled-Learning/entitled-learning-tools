@@ -1,9 +1,9 @@
 <AuthorizeView>
     <Authorized>
         <p class="mr-2 text-sm">Hello, @context.User.Identity?.Name!</p>
-        <a href="MicrosoftIdentity/Account/SignOut">Log out</a>
+        <a class="text-sm" href="MicrosoftIdentity/Account/SignOut">Log out</a>
     </Authorized>
     <NotAuthorized>
-        <a href="MicrosoftIdentity/Account/SignIn">Log in</a>
+        <a class="text-sm text-white" href="MicrosoftIdentity/Account/SignIn">Log in</a>
     </NotAuthorized>
 </AuthorizeView>
