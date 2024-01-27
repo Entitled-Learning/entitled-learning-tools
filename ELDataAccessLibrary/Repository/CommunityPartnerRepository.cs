@@ -21,10 +21,10 @@ public class CommunityPartnerRepository : IDataRepository<CommunityPartnerStorag
         return data;
     }
 
-    public async Task<CommunityPartnerStorageContractV1> GetByIdAsync(string id)
+    public async Task<CommunityPartnerStorageContractV1> GetByIdAsync(string name)
     {
-        string sql = "select * from dbo." + tableName + " where Id = @Id;";
-        var data = await _db.LoadData<CommunityPartnerStorageContractV1, dynamic>(sql, new { Id = id });
+        string sql = "select * from dbo." + tableName + " where Name = @name;";
+        var data = await _db.LoadData<CommunityPartnerStorageContractV1, dynamic>(sql, new { Name = name });
 
         return data.FirstOrDefault()!;
     }

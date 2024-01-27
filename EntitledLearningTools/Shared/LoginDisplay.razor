@@ -1,6 +1,6 @@
 <AuthorizeView>
     <Authorized>
-        Hello, @context.User.Identity?.Name!
+        <p class="mr-2 text-sm">Hello, @context.User.Identity?.Name!</p>
         <a href="MicrosoftIdentity/Account/SignOut">Log out</a>
     </Authorized>
     <NotAuthorized>

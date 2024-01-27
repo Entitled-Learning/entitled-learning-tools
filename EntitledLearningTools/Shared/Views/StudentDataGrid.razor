@@ -10,10 +10,12 @@
     <RadzenButton Text="Download as Excel" Icon="file_download" ButtonStyle="ButtonStyle.Success" Click="DownloadAsExcel" />
 </div>
 
-<RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false"
-    FilterMode="FilterMode.SimpleWithMenu" AllowSorting="true" PageSize="_pageSize" AllowPaging="true"
-    PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_students"
-    TItem="StudentStorageContractV1" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or"
+<div class="flex my-4">
+    <RadzenTextBox class="flex-1 py-3 border-none rounded-full bg-gray-200/30" @oninput="UpdateFilteredData" placeholder="Search..." aria-label="Default TextBox" />
+</div>
+ 
+<RadzenDataGrid  AllowColumnResize="true" AllowAlternatingRows="false" AllowSorting="true" PageSize="_pageSize" AllowPaging="true"PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" 
+Data="@_filteredData"TItem="StudentStorageContractV1" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or"
     SelectionMode="DataGridSelectionMode.Single" @bind-Value=@_selectedStudents RowSelect="(row) => OpenDetails(row)">
     <Columns>
         <RadzenDataGridColumn TItem="StudentStorageContractV1" Title="Name" Width="200px" >
@@ -42,6 +44,8 @@
 @code {
     private IEnumerable<StudentStorageContractV1>? _students;
     private IList<StudentStorageContractV1>? _selectedStudents;
+    private IList<StudentStorageContractV1>? _filteredData;
+    private string _searchTerm = string.Empty;
 
     private int _pageSize = 20;
 
@@ -50,16 +54,11 @@
         await base.OnInitializedAsync();
 
         _students = await _db.GetAllAsync();
-
-        foreach (var student in _students)
-        {
-            Console.WriteLine(student.Id);
-        }
+        ResetFilterdData();
     }
 
     private void OpenDetails(StudentStorageContractV1 student)
     {
-        Console.WriteLine(student.Id);
         NavManager.NavigateTo("/student/" + student.Id);
         @* Console.WriteLine(_selectedStudents?[0].FirstName);
         InvokeAsync(async () => {
@@ -81,11 +80,48 @@
         </RadzenStack>);
     }
 
-    private string GetColumnPropertyExpression(string name)
+    private void UpdateFilteredData(ChangeEventArgs e)
     {
-        var expression = $@"it[""{name}""].ToString()";
+        _searchTerm = e.Value?.ToString() ?? string.Empty;
+        FilterData();
+    }
 
-        return expression;
+    private void ResetFilterdData()
+    {
+        if (_students is null)
+        {
+            return;
+        }
+
+        _filteredData = new List<StudentStorageContractV1>();
+        foreach (var student in _students)
+        {
+            if(_filteredData.Any(t => t.Id == student.Id))
+            {
+                continue;
+            } else {
+                _filteredData.Add(student);
+            }
+        }
+    }
+
+    private void FilterData()
+    {
+         if (_students is null)
+        {
+            return;
+        }
+
+        _filteredData = _students
+        .Where(t =>
+            (t.FirstName != null && t.FirstName.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.LastName != null && t.LastName.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.Race != null && t.Race.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.AddressLine1 != null && t.AddressLine1.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.AddressLine2 != null && t.AddressLine2.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.City != null && t.City.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.State != null && t.State.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.ZipCode != null && t.ZipCode.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase))).ToList();
     }
 
     private async Task DownloadAsExcel()

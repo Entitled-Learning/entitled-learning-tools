@@ -4,17 +4,17 @@
     class="sidebar h-full md:flex text-white fixed top-0 left-0 overflow-hidden transition-all w-0 md:w-20 md:opacity-100">
     <!-- Sidebar content goes here -->
     <div class="sidebar-section w-full flex-1">
-        <RadzenButton class="bg-transparent" Icon="menu" Click="ToggleDrawer" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Large" MouseEnter="@(args => ShowTooltip(args) )"/>
+        <RadzenButton class="bg-transparent" Icon="menu" Click="ToggleDrawer" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Large"/>
         <a href="/">
-            <RadzenButton class="bg-transparent" Icon="home" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Large" MouseEnter="@(args => ShowTooltip(args) )"/>
+            <RadzenButton class="bg-transparent" Icon="home" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Large"  MouseEnter="@(args => ShowTooltip(args, "Home"))"/>
         </a>
     </div>
     <div class="sidebar-section w-full">
         <a href="/settings">
-            <RadzenButton class="bg-transparent" Icon="settings" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Large" MouseEnter="@(args => ShowTooltip(args) )"/>
+            <RadzenButton class="bg-transparent" Icon="settings" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Large" MouseEnter="@(args => ShowTooltip(args, "Settings: Coming soon"))"/>
         </a>
         <a href="/feedback">
-            <RadzenButton class="bg-transparent" Icon="help_outline" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Large" MouseEnter="@(args => ShowTooltip(args) )"/>
+            <RadzenButton class="bg-transparent" Icon="help_outline" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Large" MouseEnter="@(args => ShowTooltip(args, "Help/Feedback: Coming soon"))"/>
         </a>
     </div>
 </div>
@@ -31,5 +31,10 @@
         _isOpen = !_isOpen;
     }
 
-    void ShowTooltip(ElementReference elementReference, TooltipOptions options = null) => tooltipService.Open(elementReference, "Hello!", options);
+    void ShowTooltip(ElementReference elementReference, string text) {
+        var options = new TooltipOptions() {
+            Position = TooltipPosition.Right
+        };
+        tooltipService.Open(elementReference, text, options);
+    }
 }

@@ -1,6 +1,7 @@
 @inject CommunityPartnerRepository _db
 @inject IJSRuntime JSRuntime
 @inject DialogService DialogService
+@inject NavigationManager NavManager
 
 <div class="flex items-center mb-2">
     <a href="/add-data" class="mr-2">
@@ -9,11 +10,13 @@
     <RadzenButton Text="Download as Excel" Icon="file_download" ButtonStyle="ButtonStyle.Success" Click="DownloadAsExcel" />
 </div>
 
-<RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false"
-    FilterMode="FilterMode.SimpleWithMenu" AllowSorting="true" PageSize="_pageSize" AllowPaging="true"
-    PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" Data="@_partners"
-    TItem="CommunityPartnerStorageContractV1" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or"
-    SelectionMode="DataGridSelectionMode.Single" @bind-Value=@_selectedPartners RowClick="OpenDetails">
+<div class="flex my-4">
+    <RadzenTextBox class="flex-1 py-3 border-none rounded-full bg-gray-200/30" @oninput="UpdateFilteredData" placeholder="Search..." aria-label="Default TextBox" />
+</div>
+
+<RadzenDataGrid  AllowColumnResize="true" AllowAlternatingRows="false" AllowSorting="true" PageSize="_pageSize" AllowPaging="true"PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" 
+    Data="@_filteredData" TItem="CommunityPartnerStorageContractV1" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or"
+    SelectionMode="DataGridSelectionMode.Single" @bind-Value=@_selectedPartners RowSelect="(row) => OpenDetails(row)">
     <Columns>
         <RadzenDataGridColumn TItem="CommunityPartnerStorageContractV1" Property="Name" Filterable="false" Title="Partner Name" Frozen="true" Width="180px" TextAlign="TextAlign.Left" />
         <RadzenDataGridColumn TItem="CommunityPartnerStorageContractV1" Property="PhoneNumber" Title="Phone Number" Width="160px" />
@@ -29,6 +32,8 @@
 @code {
     private IEnumerable<CommunityPartnerStorageContractV1>? _partners;
     private IList<CommunityPartnerStorageContractV1>? _selectedPartners;
+    private IList<CommunityPartnerStorageContractV1>? _filteredData;
+    private string _searchTerm = string.Empty;
 
     private int _pageSize = 20;
 
@@ -37,14 +42,12 @@
         await base.OnInitializedAsync();
 
         _partners = await _db.GetAllAsync();
+        ResetFilterdData();
     }
 
-    private void OpenDetails()
+    private void OpenDetails(CommunityPartnerStorageContractV1 partner)
     {
-        Console.WriteLine(_selectedPartners?[0].Name);
-        InvokeAsync(async () => {
-            await BusyDialog();
-        });
+        NavManager.NavigateTo("/community-partner/" + partner.Name);
     }
 
     // Busy dialog from markup
@@ -56,10 +59,52 @@
             <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
                 <RadzenStack Orientation="Orientation.Horizontal">
                     <RadzenButton Text="Ok" Click="() => ds.Close(true)" Style="width: 80px;" />
-                    @* <RadzenButton Text="Cancel" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Light" /> *@
                 </RadzenStack>
             </RadzenStack>
         </RadzenStack>);
+    }
+
+     private void UpdateFilteredData(ChangeEventArgs e)
+    {
+        _searchTerm = e.Value?.ToString() ?? string.Empty;
+        FilterData();
+    }
+
+    private void ResetFilterdData()
+    {
+        if (_partners is null)
+        {
+            return;
+        }
+
+        _filteredData = new List<CommunityPartnerStorageContractV1>();
+        foreach (var student in _partners)
+        {
+            if(_filteredData.Any(t => t.Name == student.Name))
+            {
+                continue;
+            } else {
+                _filteredData.Add(student);
+            }
+        }
+    }
+
+    private void FilterData()
+    {
+         if (_partners is null)
+        {
+            return;
+        }
+
+        _filteredData = _partners
+        .Where(t =>
+            (t.Name != null && t.Name.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.EmailAddress != null && t.EmailAddress.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.AddressLine1 != null && t.AddressLine1.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.AddressLine2 != null && t.AddressLine2.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.City != null && t.City.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.State != null && t.State.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.ZipCode != null && t.ZipCode.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase))).ToList();
     }
 
     private async Task DownloadAsExcel()
@@ -107,7 +152,7 @@
                     {
                         content = base64,
                         contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        fileName = "TableData.xlsx"
+                        fileName = "CommunityPartners.xlsx"
                     });
             }
         }

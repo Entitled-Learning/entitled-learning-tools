@@ -1,6 +1,6 @@
-@page "/student/{studentId}"
-@inject StudentRepository _db
-@inject GuardianStudentRelationshipRepository _relationshipDB
+@page "/community-partner/{partnerName}"
+@inject CommunityPartnerRepository _db
+@* @inject GuardianStudentRelationshipRepository _relationshipDB *@
 @inject IJSRuntime JSRuntime
 @inject DialogService DialogService
 
@@ -9,17 +9,21 @@
         <section class="flex flex-col p-4 w-full">
             <RadzenBreadCrumb class="mb-8">
                 <RadzenBreadCrumbItem Path="/explore-data" Text="Data Exploer" />
-                <RadzenBreadCrumbItem Icon="" Text="@($"{_student.Prefix} {_student.FirstName} {_student.MiddleName} {_student.LastName} {_student.Suffix}")" />
+                <RadzenBreadCrumbItem Icon="" Text="@_partner.Name" />
             </RadzenBreadCrumb>
 
             <div class="flex flex-col">
                 <div class="mb-8">
-                    <h1 class="text-2xl font-bold leading-loose">@_student.Prefix @_student.FirstName @_student.MiddleName @_student.LastName @_student.Suffix</h1>
-                    <h2 class="leading-loose"> </h2>
+                    <h1 class="text-2xl font-bold leading-loose">@_partner.Name</h1>
+                    <h2>@_partner.AddressLine1</h2>
+                    @if (!string.IsNullOrEmpty(_partner.AddressLine2)) {
+                        <h2>@_partner.AddressLine2</h2>
+                    }
+                    <h2>@_partner.City, @_partner.State @_partner.ZipCode</h2>
                 </div>
 
-                <h1 class="text-lg font-bold leading-loose">Parents/Guardians</h1>
-                <RadzenDataGrid AllowFiltering="false" AllowColumnResize="true" AllowAlternatingRows="false"
+                <h1 class="text-lg font-bold leading-loose">Contacts</h1>
+                @* <RadzenDataGrid AllowFiltering="false" AllowColumnResize="true" AllowAlternatingRows="false"
                     FilterMode="FilterMode.SimpleWithMenu" AllowSorting="true"  AllowPaging="false"
                     PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="false" Data="@_guardians"
                     TItem="StudentGuardian" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or"
@@ -48,7 +52,7 @@
                         <RadzenDataGridColumn TItem="StudentGuardian" Property="State" Title="State" Width="160px" />
                         <RadzenDataGridColumn TItem="StudentGuardian" Property="ZipCode" Title="Zipcode" Width="160px" />
                     </Columns>
-                </RadzenDataGrid>
+                </RadzenDataGrid> *@
             </div>            
         </section>
     </Authorized>
@@ -59,9 +63,9 @@
 
 
 @code {
-    [Parameter] public string? studentId { get; set; }
-    private StudentStorageContractV1 _student = new StudentStorageContractV1();
-    private IEnumerable<StudentGuardian> _guardians = new List<StudentGuardian>();
+    [Parameter] public string? partnerName { get; set; }
+    private CommunityPartnerStorageContractV1 _partner = new CommunityPartnerStorageContractV1();
+    @* private IEnumerable<StudentGuardian> _guardians = new List<StudentGuardian>(); *@
 
     protected override async Task OnInitializedAsync()
     {
@@ -71,9 +75,9 @@
     {
         await base.OnParametersSetAsync();
 
-        if(studentId is not null){
-            _student = await _db.GetByIdAsync(studentId);
-            _guardians = await _relationshipDB.GetByStudentIdAsync(studentId);
+        if(partnerName is not null){
+            _partner = await _db.GetByIdAsync(partnerName);
+            @* _guardians = await _relationshipDB.GetByStudentIdAsync(partnerName); *@
         }
     }
 }
