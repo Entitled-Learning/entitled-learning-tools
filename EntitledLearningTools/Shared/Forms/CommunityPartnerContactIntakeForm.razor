@@ -48,7 +48,7 @@
             <div class="flex flex-wrap mb-6">
                 <div class="w-full">
                     <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Community Partner Name" Variant="@variant">
-                        <RadzenDropDown Data=_communityPartnerList @bind-Value="@communityPartnerContact.CommunityPartnerName" />
+                        <RadzenDropDown Data=_communityPartnerList @bind-Value="@communityPartnerContact.CommunityPartnerName" Change="@(args => UpdatePartnerFields(args))" />
                     </RadzenFormField>
                     <ValidationMessage class="text-xs text-danger" For="@(() => communityPartnerContact.CommunityPartnerName)" />
                 </div>
@@ -135,7 +135,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        communityPartnerContact.initWithTestData();
+        @* communityPartnerContact.initWithTestData(); *@
         communityPartners = await _partnerDb.GetAllAsync();
 
         if (communityPartners != null) {
@@ -143,13 +143,27 @@
         }
     }
 
+    private void UpdatePartnerFields(object partnerName)
+    {
+        var partner = communityPartners?.FirstOrDefault(x => x.Name == (string)partnerName);
+        if (partner != null)
+        {
+            communityPartnerContact.AddressLine1 = partner.AddressLine1;
+            communityPartnerContact.AddressLine2 = partner.AddressLine2;
+            communityPartnerContact.City = partner.City;
+            communityPartnerContact.State = partner.State;
+            communityPartnerContact.ZipCode = partner.ZipCode;
+        }
+    }
+
     private async Task HandleValidSubmit()
     {
+        Console.WriteLine("Valid");
         try
         {
             var storageContract = mapper.ToCommunityPartnerContactStorageContractV1(communityPartnerContact);
             await _db.AddAsync(storageContract);
-            //NavManager.NavigateTo("/communitypartnerlist");
+            NavManager.NavigateTo($"/community-partner/{storageContract.CommunityPartnerName}");
         }
         catch (Exception ex)
         {

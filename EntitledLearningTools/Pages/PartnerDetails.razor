@@ -1,6 +1,6 @@
 @page "/community-partner/{partnerName}"
 @inject CommunityPartnerRepository _db
-@* @inject GuardianStudentRelationshipRepository _relationshipDB *@
+@inject CommunityPartnerContactRepository _contactDB
 @inject IJSRuntime JSRuntime
 @inject DialogService DialogService
 
@@ -15,44 +15,41 @@
             <div class="flex flex-col">
                 <div class="mb-8">
                     <h1 class="text-2xl font-bold leading-loose">@_partner.Name</h1>
-                    <h2>@_partner.AddressLine1</h2>
+                    @if (!string.IsNullOrEmpty(_partner.AddressLine1)) {
+                        <h2>@_partner.AddressLine1</h2>
+                    }
                     @if (!string.IsNullOrEmpty(_partner.AddressLine2)) {
                         <h2>@_partner.AddressLine2</h2>
                     }
-                    <h2>@_partner.City, @_partner.State @_partner.ZipCode</h2>
+                    @if (!string.IsNullOrEmpty(_partner.City) && !string.IsNullOrEmpty(_partner.State) && !string.IsNullOrEmpty(_partner.ZipCode)) {
+                        <h2>@_partner.City, @_partner.State @_partner.ZipCode</h2>
+                    }
                 </div>
 
                 <h1 class="text-lg font-bold leading-loose">Contacts</h1>
-                @* <RadzenDataGrid AllowFiltering="false" AllowColumnResize="true" AllowAlternatingRows="false"
+                <a href="/add-data?option=CommunityPartnerContacts" class="mr-2 mb-4">
+                    <RadzenButton Text="Add Contact" Icon="add" ButtonStyle="ButtonStyle.Primary" />
+                </a>
+                <RadzenDataGrid AllowFiltering="false" AllowColumnResize="true" AllowAlternatingRows="false"
                     FilterMode="FilterMode.SimpleWithMenu" AllowSorting="true"  AllowPaging="false"
-                    PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="false" Data="@_guardians"
-                    TItem="StudentGuardian" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or"
+                    PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="false" Data="@_contacts"
+                    TItem="CommunityPartnerContactStorageContractV1" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or"
                     SelectionMode="DataGridSelectionMode.Single">
                     <Columns>
-                        <RadzenDataGridColumn TItem="StudentGuardian" Title="Name" Width="200px" >
-                            <Template Context="guardian">
-                                @guardian.Prefix @guardian.FirstName @guardian.MiddleName @guardian.LastName @guardian.Suffix
+                        <RadzenDataGridColumn TItem="CommunityPartnerContactStorageContractV1" Title="Name" Width="200px" >
+                            <Template Context="contact">
+                                @contact.Prefix @contact.FirstName @contact.MiddleName @contact.LastName @contact.Suffix
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="StudentGuardian" Property="IsEmergencyContact" Title="Emergency Contact?" Width="200px">
-                            <Template Context="guardian">
-                                @(guardian.IsEmergencyContact ? "✅" : "❌")
-                            </Template>
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="StudentGuardian" Property="IsAuthorizedPickup" Title="Authorized Pickup?" Width="200px">
-                            <Template Context="guardian">
-                                @(guardian.IsAuthorizedPickup ? "✅" : "❌")
-                            </Template>
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="StudentGuardian" Property="CellPhoneNumber" Title="Cell Phone Number" Width="200px" />
-                        <RadzenDataGridColumn TItem="StudentGuardian" Property="EmailAddress" Title="Email" Width="200px" />
-                        <RadzenDataGridColumn TItem="StudentGuardian" Property="AddressLine1" Title="Address Line 1" Width="120px" />
-                        <RadzenDataGridColumn TItem="StudentGuardian" Property="AddressLine2" Title="Address Line 2" Width="160px" />
-                        <RadzenDataGridColumn TItem="StudentGuardian" Property="City" Title="City" Width="160px" />
-                        <RadzenDataGridColumn TItem="StudentGuardian" Property="State" Title="State" Width="160px" />
-                        <RadzenDataGridColumn TItem="StudentGuardian" Property="ZipCode" Title="Zipcode" Width="160px" />
+                        <RadzenDataGridColumn TItem="CommunityPartnerContactStorageContractV1" Property="CellPhoneNumber" Title="Cell Phone Number" Width="200px" />
+                        <RadzenDataGridColumn TItem="CommunityPartnerContactStorageContractV1" Property="EmailAddress" Title="Email" Width="200px" />
+                        <RadzenDataGridColumn TItem="CommunityPartnerContactStorageContractV1" Property="AddressLine1" Title="Address Line 1" Width="120px" />
+                        <RadzenDataGridColumn TItem="CommunityPartnerContactStorageContractV1" Property="AddressLine2" Title="Address Line 2" Width="160px" />
+                        <RadzenDataGridColumn TItem="CommunityPartnerContactStorageContractV1" Property="City" Title="City" Width="160px" />
+                        <RadzenDataGridColumn TItem="CommunityPartnerContactStorageContractV1" Property="State" Title="State" Width="160px" />
+                        <RadzenDataGridColumn TItem="CommunityPartnerContactStorageContractV1" Property="ZipCode" Title="Zipcode" Width="160px" />
                     </Columns>
-                </RadzenDataGrid> *@
+                </RadzenDataGrid>
             </div>            
         </section>
     </Authorized>
@@ -65,7 +62,7 @@
 @code {
     [Parameter] public string? partnerName { get; set; }
     private CommunityPartnerStorageContractV1 _partner = new CommunityPartnerStorageContractV1();
-    @* private IEnumerable<StudentGuardian> _guardians = new List<StudentGuardian>(); *@
+    private IEnumerable<CommunityPartnerContactStorageContractV1> _contacts = new List<CommunityPartnerContactStorageContractV1>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -77,7 +74,7 @@
 
         if(partnerName is not null){
             _partner = await _db.GetByIdAsync(partnerName);
-            @* _guardians = await _relationshipDB.GetByStudentIdAsync(partnerName); *@
+            _contacts = await _contactDB.GetByPartnerNameAsync(partnerName);
         }
     }
 }

@@ -140,7 +140,6 @@
         
         if (confirmed)
         {
-            Console.WriteLine("Student form submitted");
             try
             {
                 var storedStudents = new List<StudentStorageContractV1>();
@@ -172,6 +171,8 @@
                         await _relationshipDB.AddAsync(relationship);
                     }
                 }
+
+                NavManager.NavigateTo("/explore-data");
             }
             catch (Exception ex)
             {

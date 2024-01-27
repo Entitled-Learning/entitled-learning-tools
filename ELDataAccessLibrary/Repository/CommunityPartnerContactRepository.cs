@@ -29,6 +29,14 @@ public class CommunityPartnerContactRepository : RepositoryBase, IDataRepository
         return data.FirstOrDefault()!;
     }
 
+    public async Task<IEnumerable<CommunityPartnerContactStorageContractV1>> GetByPartnerNameAsync(string partnerName)
+    {
+        string sql = "select * from dbo." + tableName + " where CommunityPartnerName = @CommunityPartnerName;";
+        var data = await _db.LoadData<CommunityPartnerContactStorageContractV1, dynamic>(sql, new { CommunityPartnerName = partnerName });
+
+        return data;
+    }
+
     public async Task<CommunityPartnerContactStorageContractV1> AddAsync(CommunityPartnerContactStorageContractV1 entity)
     {       
         entity.Id = GenerateId(entity.FirstName, entity.LastName);

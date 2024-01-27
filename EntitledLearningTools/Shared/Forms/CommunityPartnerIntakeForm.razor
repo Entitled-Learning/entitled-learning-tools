@@ -89,7 +89,7 @@
         {
             var storageContract = mapper.ToCommunityPartnerStorageContractV1(communityPartner);
             await _db.AddAsync(storageContract);
-            NavManager.NavigateTo("/community-partners");
+            NavManager.NavigateTo($"/community-partner/{storageContract.Name}");
         }
         catch (Exception ex)
         {
