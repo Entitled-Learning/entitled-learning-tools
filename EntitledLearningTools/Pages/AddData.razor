@@ -1,40 +1,40 @@
 ﻿@page "/add-data"
+@inject TooltipService tooltipService
 @inject IJSRuntime JSRuntime
 @inherits ComponentBase
 
 <AuthorizeView>
     <Authorized>
-        <section>
-            <h1 class="text-2xl leading-loose">Add New Data</h1>
+         <section class="flex flex-col p-4 w-full">
+            <RadzenBreadCrumb>
+                <RadzenBreadCrumbItem Path="/" Text="Home" />
+                <RadzenBreadCrumbItem Icon="" Text="Add Data" />
+            </RadzenBreadCrumb>
 
-            <h5 class="leading-loose">Select the data type you want to add, and then complete the data intake form.</h5>
-
-            <div class="leading-normal lg:leading-loose mb-12">
-                <Tooltip TooltipText="Data is uploaded in real-time to Entitled Learning's cloud databse.">
-                    <span class="oi oi-info info-icon"></span>
-                </Tooltip>
+            <div class="flex flex-col">
+                <h1 class="text-2xl font-bold leading-loose">Add New Data</h1>
+                <h2 class="leading-loose">Select the data type you want to add, and then complete the data intake form.</h2>
+                <RadzenButton class="bg-transparent text-black self-start" Icon="help" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small" MouseEnter="@(args => tooltipService.Open(args, "Data is uploaded in real-time to Entitled Learning's cloud databse.", null))"/>
             </div>
+            
+            <RadzenDropDown @bind-Value=@_selectedOption Data=@_segments class="my-4" Style="width: 100%; max-width: 400px;"/>
 
-            <div class="flex item-center justify-between">
-                <Dropdown Options="@segments" @bind-Value="selectedOption" />
-            </div>
-        </section>
+            <div class="mt-8">
+                @if (_selectedOption == DataTypes.Students.ToString())
+                {
+                    <StudentIntakeBase />
+                }
 
-        <section>
-            @if (@selectedOption == DataTypes.Students.ToString())
-            {
-                <StudentIntakeBase />
-            }
+                @if (_selectedOption == DataTypes.CommunityPartners.ToString())
+                {
+                    <CommunityPartnerIntakeForm />
+                }
 
-            @if (@selectedOption == DataTypes.CommunityPartners.ToString())
-            {
-                <CommunityPartnerIntakeForm />
-            }
-
-            @if (@selectedOption == DataTypes.CommunityPartnerContacts.ToString())
-            {
-                <CommunityPartnerContactIntakeForm />
-            }
+                @if (_selectedOption == DataTypes.CommunityPartnerContacts.ToString())
+                {
+                    <CommunityPartnerContactIntakeForm />
+                }
+            </div>  
         </section>
     </Authorized>
     <NotAuthorized>
@@ -43,10 +43,11 @@
 </AuthorizeView>
 
 @code {
-    private string[] segments = new string[] {
+    private IEnumerable<string> _segments = new List<string>() {
         DataTypes.Students.ToString(),
         DataTypes.CommunityPartners.ToString(),
         DataTypes.CommunityPartnerContacts.ToString()
     };
-    private string selectedOption = DataTypes.Students.ToString();
+
+    private string _selectedOption = DataTypes.Students.ToString();
 }

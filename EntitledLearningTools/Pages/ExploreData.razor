@@ -4,26 +4,35 @@
 
 <AuthorizeView>
     <Authorized>
-        <section>
-            <h1 class="text-2xl leading-loose">Explore Data</h1>
-
-            <h5 class="leading-loose">Select the data type you want to view.</h5>
+        <section class="flex flex-col p-4 w-full">
+            <RadzenBreadCrumb>
+                <RadzenBreadCrumbItem Path="/" Text="Home" />
+                <RadzenBreadCrumbItem Icon="" Text="Data Explorer" />
+            </RadzenBreadCrumb>
             
-            <div class="flex item-center justify-between">
-                <Dropdown Options="@segments" @bind-Value="selectedOption" />
+            <div class="flex flex-col">
+                <h1 class="text-2xl font-bold leading-loose">Explore Data</h1>
+                <h2 class="leading-loose">Select the data type you want to view.</h2>
             </div>
-        </section>
+            
+            <RadzenDropDown @bind-Value=@_selectedOption Data=@_segments class="my-4" Style="width: 100%; max-width: 400px;"/>
 
-        <section class="mt-8">
-            @if (@selectedOption == DataTypes.CommunityPartners.ToString())
-            {
-                <CommunityPartnerView />
-            }
+            <div class="mt-8">
+                @if (_selectedOption == DataTypes.Students.ToString())
+                {
+                    <StudentDataGrid />
+                }
 
-            @if (@selectedOption == DataTypes.CommunityPartnerContacts.ToString())
-            {
-                <CommunityPartnerContactView />
-            }
+                @if (_selectedOption == DataTypes.CommunityPartners.ToString())
+                {
+                    <CommunityPartnerDataGrid />
+                }
+
+                @if (_selectedOption == DataTypes.CommunityPartnerContacts.ToString())
+                {
+                    <CommunityPartnerContactView />
+                }
+            </div>
         </section>
     </Authorized>
     <NotAuthorized>
@@ -33,10 +42,11 @@
 
 
     @code {
-        private string[] segments = new string[] {
-            DataTypes.Students.ToString(),
+        private IEnumerable<string> _segments = new List<string>() {
+            DataTypes.Students.ToString(), 
             DataTypes.CommunityPartners.ToString(),
             DataTypes.CommunityPartnerContacts.ToString()
         };
-        private string selectedOption = DataTypes.Students.ToString();
+        
+        private string _selectedOption = DataTypes.Students.ToString();
     }

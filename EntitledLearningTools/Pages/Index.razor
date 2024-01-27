@@ -2,4 +2,39 @@
 
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, Tope!</h1>
+<div class="container mx-auto flex flex-col justify-center items-center">
+    <h1 class="text-4xl tracking-tighter mb-3 text-center lg:text-7xl">
+        Welcome to
+        <strong class="bg-clip-text text-transparent bg-gradient-to-r from-yellow-500 to-red-500">
+            EntitledTooling
+        </strong>
+    </h1>
+
+    <p>
+        <abbr title="entitled learning tools">ET</abbr>
+        helps ease the management of data for the organization.
+    </p>
+
+    <div class="w-full max-w-2xl grid grid-cols-1 lg:grid-cols-2 gap-4 my-8 px-4 lg:mx-0">
+
+        @if(_links.Count > 0){
+
+            @foreach(var link in _links){
+                <a href="@link.Value" class="p-5 border text-slate-600 rounded border-gray-200 hover:border-purple-400">
+                    <h3 class="text-2xl font-bold mb-3">@link.Key →</h3>
+                    <p>Some description</p>
+                </a>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    private Dictionary<string, string> _links = new Dictionary<string, string>() {
+        { "Explore Data", "/explore-data" },
+        { "Eleventy", "https://www.11ty.dev/" },
+        { "Alpine JS", "https://www.11ty.dev/" },
+        { "Tailwind CSS", "https://tailwindcss.com/" },
+    };
+
+}

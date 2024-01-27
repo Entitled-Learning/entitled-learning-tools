@@ -1,41 +1,35 @@
-﻿<div class="sidebar md:flex h-screen text-white fixed top-0 left-0 overflow-hidden transition-all w-0 md:w-64 md:opacity-100">
+﻿@inject TooltipService tooltipService
+
+<div
+    class="sidebar h-full md:flex text-white fixed top-0 left-0 overflow-hidden transition-all w-0 md:w-20 md:opacity-100">
     <!-- Sidebar content goes here -->
-    <div class="p-4">
-        <a class="navbar-brand text-lg text-white" href="">Entitled Learning Tools</a>
-        
-        <!-- Add your sidebar links here -->
-        <nav class="flex-column">
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                    <span class="oi oi-home" aria-hidden="true"></span> Home
-                </NavLink>
-            </div>
-            @* <div class="nav-item px-3">
-                <NavLink class="nav-link" href="upload">
-                    <span class="oi oi-data-transfer-upload" aria-hidden="true"></span> Upload
-                </NavLink>
-            </div> *@
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="explore-data">
-                    <span class="oi oi-magnifying-glass" aria-hidden="true"></span> Explore Data
-                </NavLink>
-            </div>
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="add-data">
-                    <span class="oi oi-plus" aria-hidden="true"></span> Add Data
-                </NavLink>
-            </div>
-        </nav>
+    <div class="sidebar-section w-full flex-1">
+        <RadzenButton class="bg-transparent" Icon="menu" Click="ToggleDrawer" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Large" MouseEnter="@(args => ShowTooltip(args) )"/>
+        <a href="/">
+            <RadzenButton class="bg-transparent" Icon="home" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Large" MouseEnter="@(args => ShowTooltip(args) )"/>
+        </a>
+    </div>
+    <div class="sidebar-section w-full">
+        <a href="/settings">
+            <RadzenButton class="bg-transparent" Icon="settings" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Large" MouseEnter="@(args => ShowTooltip(args) )"/>
+        </a>
+        <a href="/feedback">
+            <RadzenButton class="bg-transparent" Icon="help_outline" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Large" MouseEnter="@(args => ShowTooltip(args) )"/>
+        </a>
     </div>
 </div>
 
-<div class="md:ml-64 transition-transform transform">
-    <!-- Content goes here -->
-    <div>
-        @ChildContent
-    </div>
-</div>
+<SideDrawer IsOpen="@_isOpen" ParentChangeHandler="@ToggleDrawer" />
 
 @code {
     [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private bool _isOpen = false;
+
+    private void ToggleDrawer()
+    {
+        _isOpen = !_isOpen;
+    }
+
+    void ShowTooltip(ElementReference elementReference, TooltipOptions options = null) => tooltipService.Open(elementReference, "Hello!", options);
 }

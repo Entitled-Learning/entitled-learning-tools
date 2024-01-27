@@ -1,13 +1,14 @@
 ﻿@inherits LayoutComponentBase
 
+<RadzenComponents/>
 <PageTitle>EntitledLearningTools</PageTitle>
-
-<Sidebar>
-    <Navbar PageType="@PageType" />
-    <section class="content px-4 w-full 2xl:w-3/4">
+<div class="min-h-screen">
+    <Navbar/>
+    <Sidebar/>
+    <section class="content content-section flex justify-center p-2 max-w-screen m-auto">
         @Body
     </section>
-</Sidebar>
+</div>
 
 @code{
 

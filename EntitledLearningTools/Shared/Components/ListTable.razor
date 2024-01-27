@@ -1,52 +1,92 @@
-@inherits ComponentBase
-@inject IJSRuntime JSRuntime
+@using System.Linq.Dynamic.Core
+@using System.Globalization
 
-<div>
-    @if (Items is not null && Items.Any())
-    {
-        <div class="overflow-x-scroll w-full">
-            <table class="leading-normal w-full">
-                <thead>
-                    <tr>
-                        @foreach (var header in Items.First().Keys)
-                        {
-                            <th class="px-4 py-3 border-b-2 border-gray-400 bg-gray-400 text-left text-xs font-semibold text-white uppercase">
-                                @header
-                            </th>
-                        }
-                    </tr>
-                </thead>
-
-                <tbody>
-                    @foreach (var (index, row) in Items.Select((item, index) => (index, item)))
-                    {
-                     <tr class="cursor-pointer hover:bg-gray-100" @onclick="() => HandleRowClick(index)">
-                            @foreach (var header in row.Keys)
-                            {
-                                <td class="px-4 py-4 border-b border-gray-200 text-sm">
-                                    <p class="text-gray-900 whitespace-no-wrap">@row[header]</p>
-                                </td>
-                            }
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-
-
-    }
-</div>
+@if (Data is not null && Data.Any())
+{
+    <RadzenDataGrid @bind-Value=@selectedItems Data="@Data" TItem="IDictionary<string, object>" ColumnWidth="200px"
+        AllowFiltering="false" FilterPopupRenderMode="PopupRenderMode.OnDemand" FilterMode="FilterMode.Advanced"
+        AllowPaging="false" AllowSorting="false" SelectionMode="DataGridSelectionMode.Single" RowSelect="(e) => HandleRowClick(e)">
+        <Columns>
+            @foreach (var column in columns)
+            {
+                <RadzenDataGridColumn TItem="IDictionary<string, object>" Title="@column.Key" Type="column.Value"  Property="@GetColumnPropertyExpression(column.Key, column.Value)">
+                    <Template>
+                        @((context[column.Key] is DateTime || context[column.Key] is DateTimeOffset)
+                            ? ((DateTimeOffset)context[column.Key]).ToString("MM/dd/yyyy")
+                            : context[column.Key])
+                    </Template>
+                </RadzenDataGridColumn>
+            }
+        </Columns>
+    </RadzenDataGrid>
+}
 
 @code {
-    [Parameter]
-    public IEnumerable<Dictionary<string, object>>? Items { get; set; }
 
-    [Parameter]
-    public EventCallback<int> OnItemClick { get; set; }
+    [Parameter] public IEnumerable<IDictionary<string, object>>? Data { get; set; }
+    [Parameter] public EventCallback<int> OnItemClick { get; set; }
+    IList<IDictionary<string, object>>? selectedItems;
+    public IDictionary<string, Type> columns { get; set; } = new Dictionary<string, Type>();
 
-    private async Task HandleRowClick(int index)
+    private void HandleRowClick(IDictionary<string, object> item)
     {
-        await OnItemClick.InvokeAsync(index);
+        var itemId = item["Id"];
+
+        foreach (var (index, row) in Data.Select((item, index) => (index, item)))
+        {
+            if (row["Id"] == itemId)
+            {
+                InvokeAsync(async () => {
+                    await OnItemClick.InvokeAsync(index);
+                });
+                break;
+            }
+        }
     }
 
+    public string GetColumnPropertyExpression(string name, Type type)
+    {
+        var expression = $@"it[""{name}""].ToString()";
+
+        if (type == typeof(int))
+        {
+            return $"int.Parse({expression})";
+        }
+        else if (type == typeof(DateTime) || type == typeof(DateTimeOffset))
+        {
+            var format = "MM/dd/yyyy";
+
+            if (type == typeof(DateTimeOffset))
+            {
+                return $"((DateTimeOffset){expression}).ToString(\"{format}\")";
+            }
+            else
+            {
+                return $"((DateTime){expression}).ToString(\"{format}\")";
+            }
+        }
+
+        return expression;
+    }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (Data is not null && Data.Any()){
+            foreach (var header in Data.First().Keys)
+            {
+                var type = Data.First()[header] is not null ? Data.First()[header].GetType() : typeof(string);
+
+                if(!columns.ContainsKey(header) && header != "Id"){
+                    columns.Add(header, type);
+                }
+            }
+        }
+    }
 }

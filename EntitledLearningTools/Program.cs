@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 using Microsoft.AspNetCore.Rewrite;
-
+using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +30,7 @@ builder.Services.AddScoped<GuardianStudentRelationshipRepository>();
 builder.Services.AddScoped<CommunityPartnerRepository>();
 builder.Services.AddScoped<CommunityPartnerContactRepository>();
 builder.Services.AddSingleton<ISqlDataAccess, SqlDataAccess>();
+builder.Services.AddRadzenComponents();
 
 var app = builder.Build();
 

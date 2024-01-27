@@ -4,18 +4,21 @@
 @inject GuardianStudentRelationshipRepository _relationshipDB
 
 <h1 class="text-2xl leading-loose">Student Information</h1>
-<ListTable Items="@students.Select(x => x.ToDictionary())" OnItemClick="@HandleEditStudent" />
-<p @onclick="ShowStudentModalForm" class="btn btn-success my-4">Add a student</p>
+<ListTable Data="@students.Select(x => x.ToDictionary())" OnItemClick="@HandleEditStudent" />
+
+<RadzenButton class="my-4" Text="Add a student" Icon="add" ButtonStyle="ButtonStyle.Success" Click="ShowStudentModalForm" />
+
 
 <Modal @ref="studentnModalRef">
     <!-- Dynamic content for the modal body -->
     <StudentIntakeForm OnCompleteStudentFormForm="@SubmitStudentModalForm" OnCancel="@CancelStudentModalForm" EditStudent="@studentToEdit" />
 </Modal>
 
-<h1 class="text-2xl leading-loose">Parent/Guardian Information</h1>
+<h1 class="text-2xl leading-loose mt-8">Parent/Guardian Information</h1>
 <p class="text-sm text-gray-600 mb-4">Please provide information for at least one parent/guardian.</p>   
-<ListTable Items="@guardians.Select(x => x.ToDictionary())" OnItemClick="@HandleEditGuardian" />
-<p @onclick="ShowGuardianModalForm" class="btn btn-success my-4">Add a guardian</p>
+<ListTable Data="@guardians.Select(x => x.ToDictionary())" OnItemClick="@HandleEditGuardian" />
+
+<RadzenButton class="my-4" Text="Add a guardian" Icon="add" ButtonStyle="ButtonStyle.Success" Click="ShowGuardianModalForm" />
 
 <Modal @ref="guardianModalRef">
     <!-- Dynamic content for the modal body -->
@@ -32,11 +35,12 @@
     </div>
 }
 
-<div>
-    <button @onclick="HandleValidSubmit" class="btn btn-primary my-4"> Submit </button>
+<div class="mt-4">
+    <RadzenButton type="submit" Text="Save" Icon="" ButtonStyle="ButtonStyle.Primary" Click="HandleValidSubmit" />
 </div>
 
 @code {
+
     private List<Student> students = new List<Student>();
     private List<Guardian> guardians = new List<Guardian>();
     private DataMapper mapper = new DataMapper();
@@ -51,13 +55,13 @@
 
     protected override void OnInitialized()
     {
-        @* var student = new Student();
+        var student = new Student();
         student.initWithTestData();
         students.Add(student);
 
         var testGuardian = new Guardian();
         testGuardian.initWithTestData();
-        guardians.Add(testGuardian); *@
+        guardians.Add(testGuardian);
     }
 
     private void ShowGuardianModalForm()

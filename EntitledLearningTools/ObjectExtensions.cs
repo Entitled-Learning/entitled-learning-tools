@@ -6,12 +6,12 @@ namespace EntitledLearningTools;
 
 public static class ObjectExtensions
 {
-    public static Dictionary<string, object?> ToDictionary(this object obj)
+    public static Dictionary<string, object?> ToDictionary<T>(this T obj)
     {
         var dictionary = new Dictionary<string, object?>();
 
         // Get the type of the object
-        Type type = obj.GetType();
+        Type type = typeof(T);
 
         // Get all properties of the type
         PropertyInfo[] properties = type.GetProperties();
@@ -23,7 +23,7 @@ public static class ObjectExtensions
             if (property.CanRead)
             {
                 string key = property.Name;
-                
+
                 try
                 {
                     object? value = property.GetValue(obj);

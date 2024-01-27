@@ -21,10 +21,10 @@ public class CommunityPartnerContactRepository : RepositoryBase, IDataRepository
         return data;
     }
 
-    public async Task<CommunityPartnerContactStorageContractV1> GetByIdAsync(int id)
+    public async Task<CommunityPartnerContactStorageContractV1> GetByIdAsync(string id)
     {
         string sql = "select * from dbo." + tableName + " where Id = @Id;";
-        var data = await _db.LoadData<CommunityPartnerContactStorageContractV1, dynamic>(sql, new { });
+        var data = await _db.LoadData<CommunityPartnerContactStorageContractV1, dynamic>(sql, new { Id = id });
 
         return data.FirstOrDefault()!;
     }
@@ -46,7 +46,7 @@ public class CommunityPartnerContactRepository : RepositoryBase, IDataRepository
         await Task.Delay(1000);    
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task DeleteAsync(string id)
     {
         await Task.Delay(1000);
     }

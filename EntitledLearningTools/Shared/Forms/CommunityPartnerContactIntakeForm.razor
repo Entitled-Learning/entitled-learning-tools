@@ -10,151 +10,117 @@
             <div class="flex flex-wrap mb-6">
 
                 <div class="w-full md:w-1/12 pr-3 mb-6 md:mb-0">
-                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                        for="Prefix">Prefix</label>
-                    <InputText id="Prefix" @bind-Value="communityPartnerContact.Prefix" class="form-input" />
-                    <ValidationMessage For="@(() => communityPartnerContact.Prefix)" />
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Prefix" Variant="@variant">
+                        <RadzenTextBox @bind-Value="communityPartnerContact.Prefix" />
+                    </RadzenFormField>
+                    <ValidationMessage class="text-xs text-danger" For="@(() => communityPartnerContact.Prefix)" />
                 </div>
 
                 <div class="w-full md:w-4/12 pr-3 mb-6 md:mb-0">
-                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                        for="FirstName">FirstName</label>
-                    <InputText id="FirstName" @bind-Value="communityPartnerContact.FirstName" class="form-input" />
-                    <ValidationMessage For="@(() => communityPartnerContact.FirstName)" />
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="First Name" Variant="@variant">
+                        <RadzenTextBox @bind-Value="communityPartnerContact.FirstName" />
+                    </RadzenFormField>
+                    <ValidationMessage class="text-xs text-danger" For="@(() => communityPartnerContact.FirstName)" />
                 </div>
 
                 <div class="w-full md:w-2/12 pr-3 mb-6 md:mb-0">
-                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                        for="MiddleName">MiddleName</label>
-                    <InputText id="MiddleName" @bind-Value="communityPartnerContact.MiddleName" class="form-input" />
-                    <ValidationMessage For="@(() => communityPartnerContact.MiddleName)" />
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Middle Name" Variant="@variant">
+                        <RadzenTextBox @bind-Value="communityPartnerContact.MiddleName" />
+                    </RadzenFormField>
+                    <ValidationMessage class="text-xs text-danger" For="@(() => communityPartnerContact.MiddleName)" />
                 </div>
 
                 <div class="w-full md:w-4/12 pr-3 mb-6 md:mb-0">
-                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                        for="LastName">LastName</label>
-                    <InputText id="LastName" @bind-Value="communityPartnerContact.LastName" class="form-input" />
-                    <ValidationMessage For="@(() => communityPartnerContact.LastName)" />
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Last Name" Variant="@variant">
+                        <RadzenTextBox @bind-Value="communityPartnerContact.LastName" />
+                    </RadzenFormField>
+                    <ValidationMessage class="text-xs text-danger" For="@(() => communityPartnerContact.LastName)" />
                 </div>
 
                 <div class="w-full md:w-1/12 mb-6 md:mb-0">
-                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                        for="Suffix">Suffix</label>
-                    <InputText id="Suffix" @bind-Value="communityPartnerContact.Suffix" class="form-input" />
-                    <ValidationMessage For="@(() => communityPartnerContact.Suffix)" />
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Suffix" Variant="@variant">
+                        <RadzenTextBox @bind-Value="communityPartnerContact.Suffix" />
+                    </RadzenFormField>
+                    <ValidationMessage class="text-xs text-danger" For="@(() => communityPartnerContact.Suffix)" />
                 </div>
             </div>
 
             <div class="flex flex-wrap mb-6">
                 <div class="w-full">
-                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                        for="CommunityPartnerName">
-                        CommunityPartner Name
-                    </label>
-                    <InputSelect id="CommunityPartnerName" class="form-input" @bind-Value="communityPartnerContact.CommunityPartnerName">
-                        @if(communityPartnerList is not null) {
-                            <option value="N/A">select community partner</option>
-                            @foreach (var item in communityPartnerList)
-                            {
-                                <option value="@item">@item</option>
-                            }
-                        }
-                    </InputSelect>
-                    <ValidationMessage For="@(() => communityPartnerContact.CommunityPartnerName)" />
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Community Partner Name" Variant="@variant">
+                        <RadzenDropDown Data=_communityPartnerList @bind-Value="@communityPartnerContact.CommunityPartnerName" />
+                    </RadzenFormField>
+                    <ValidationMessage class="text-xs text-danger" For="@(() => communityPartnerContact.CommunityPartnerName)" />
                 </div>
             </div>
 
             <div class="flex flex-wrap mb-6">
                 <div class="w-full md:w-1/3 pr-3 mb-6 md:mb-0">
-                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                        for="OfficePhoneNumber">
-                        Office Phone Number
-                    </label>
-                    <InputText id="OfficePhoneNumber" @bind-Value="communityPartnerContact.OfficePhoneNumber"
-                        class="form-input" />
-                    <ValidationMessage For="@(() => communityPartnerContact.OfficePhoneNumber)" />
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Office Phone Number" Variant="@variant">
+                        <RadzenNumeric @bind-Value="@communityPartnerContact.OfficePhoneNumber" />
+                    </RadzenFormField>
+                    <ValidationMessage class="text-xs text-danger" For="@(() => communityPartnerContact.OfficePhoneNumber)" />
                 </div>
 
                 <div class="w-full md:w-1/3 pr-3 mb-6 md:mb-0">
-                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                        for="CellPhoneNumber">
-                        Cell Phone Number
-                    </label>
-                    <InputText id="CellPhoneNumber" @bind-Value="communityPartnerContact.CellPhoneNumber"
-                        class="form-input" />
-                    <ValidationMessage For="@(() => communityPartnerContact.CellPhoneNumber)" />
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Cell Phone Number" Variant="@variant">
+                        <RadzenNumeric @bind-Value="@communityPartnerContact.CellPhoneNumber" />
+                    </RadzenFormField>
+                    <ValidationMessage class="text-xs text-danger" For="@(() => communityPartnerContact.CellPhoneNumber)" />
                 </div>
 
                 <div class="w-full md:w-1/3 mb-6 md:mb-0">
-                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                        for="EmailAddress">
-                        Email Address
-                    </label>
-                    <InputText id="EmailAddress" @bind-Value="communityPartnerContact.EmailAddress"
-                        class="form-input" />
-                    <ValidationMessage For="@(() => communityPartnerContact.EmailAddress)" />
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Email Address" Variant="@variant">
+                        <RadzenTextBox @bind-Value="communityPartnerContact.EmailAddress" />
+                    </RadzenFormField>
+                    <ValidationMessage class="text-xs text-danger" For="@(() => communityPartnerContact.EmailAddress)" />
                 </div>
             </div>
 
             <div class="flex flex-wrap mb-6">
                 <div class="w-full">
-                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                        for="AddressLine1">
-                        Address Line 1
-                    </label>
-                    <InputText id="AddressLine1" @bind-Value="communityPartnerContact.AddressLine1"
-                        class="form-input" />
-                    <ValidationMessage For="@(() => communityPartnerContact.AddressLine1)" />
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Address Line 1" Variant="@variant">
+                        <RadzenTextBox @bind-Value="communityPartnerContact.AddressLine1" />
+                    </RadzenFormField>
+                    <ValidationMessage class="text-xs text-danger" For="@(() => communityPartnerContact.AddressLine1)" />
                 </div>
             </div>
 
             <div class="flex flex-wrap mb-6">
                 <div class="w-full">
-                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                        for="AddressLine2">
-                        Address Line 2
-                    </label>
-                    <InputText id="AddressLine2" @bind-Value="communityPartnerContact.AddressLine2"
-                        class="form-input" />
-                    <ValidationMessage For="@(() => communityPartnerContact.AddressLine2)" />
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Address Line 2" Variant="@variant">
+                        <RadzenTextBox @bind-Value="communityPartnerContact.AddressLine2" />
+                    </RadzenFormField>
+                    <ValidationMessage class="text-xs text-danger" For="@(() => communityPartnerContact.AddressLine2)" />
                 </div>
             </div>
 
             <div class="flex flex-wrap mb-6">
                 <div class="w-full md:w-1/3 mb-6 md:mb-0">
-                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="City">
-                        City
-                    </label>
-                    <InputText id="City" @bind-Value="communityPartnerContact.City" class="form-input" />
-                    <ValidationMessage For="@(() => communityPartnerContact.City)" />
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="City" Variant="@variant">
+                        <RadzenTextBox @bind-Value="communityPartnerContact.City" />
+                    </RadzenFormField>
+                    <ValidationMessage class="text-xs text-danger" For="@(() => communityPartnerContact.City)" />
                 </div>
 
                 <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="State">
-                        State
-                    </label>
-                    <InputSelect id="State" class="form-input" Options="@states" @bind-Value="communityPartnerContact.State">
-                        <option value="N/A">select state</option>
-                        @foreach (var item in states)
-                        {
-                            <option value="@item">@item</option>
-                        }
-                    </InputSelect>
-                    <ValidationMessage For="@(() => communityPartnerContact.State)" />
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="State" Variant="@variant">
+                        <RadzenDropDown Data=@states @bind-Value="@communityPartnerContact.State" />
+                    </RadzenFormField>
+                    <ValidationMessage class="text-xs text-danger" For="@(() => communityPartnerContact.State)" />
                 </div>
 
                 <div class="w-full md:w-1/3 mb-6 md:mb-0">
-                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="ZipCode">
-                        ZipCode
-                    </label>
-                    <InputText id="ZipCode" @bind-Value="communityPartnerContact.ZipCode" class="form-input" />
-                    <ValidationMessage For="@(() => communityPartnerContact.ZipCode)" />
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Zipcode" Variant="@variant">
+                        <RadzenNumeric @bind-Value="@communityPartnerContact.ZipCode" />
+                    </RadzenFormField>
+                    <ValidationMessage class="text-xs text-danger" For="@(() => communityPartnerContact.ZipCode)" />
                 </div>
             </div>
 
         </div>
 
-        <button type="submit" class="btn btn-primary my-4">Save</button>
+        <RadzenButton type="submit" Text="Save" Icon="" ButtonStyle="ButtonStyle.Primary" />
     </EditForm>
 </div>
 
@@ -163,7 +129,9 @@
     private IEnumerable<CommunityPartnerStorageContractV1>? communityPartners;
     private DataMapper mapper = new DataMapper();
     private string[] states = new string[] { "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming" };
-    private string[]? communityPartnerList; 
+    private string[]? _communityPartnerList; 
+    Variant variant = Variant.Outlined;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -171,7 +139,7 @@
         communityPartners = await _partnerDb.GetAllAsync();
 
         if (communityPartners != null) {
-            communityPartnerList = communityPartners.Select(x => x.Name).ToArray()!;
+            _communityPartnerList = communityPartners.Select(x => x.Name).ToArray()!;
         }
     }
 

@@ -5,6 +5,8 @@ namespace EntitledLearningTools.Models;
 
 public class Student : TestModelBase
 {
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+
     public string? Prefix { get; set; }
 
     [Required]
@@ -45,16 +47,24 @@ public class Student : TestModelBase
 
     public string? ShirtSize { get; set; }
 
+    public Student(bool initTestData = false)
+    {
+        if (initTestData)
+        {
+            initWithTestData();
+        }
+    }
+
     public void initWithTestData(){
-        FirstName = GenerateRandomFirstName();
-        LastName = GenerateRandomLastName();
+        FirstName = "Kenia";
+        LastName = "Kemp";
         Race = "Black";
-        DateOfBirth = new DateTimeOffset(2000, 1, 1, 0, 0, 0, TimeSpan.Zero);
-        ShirtSize = "M";
-        City = "New York";
-        State = "NY";
-        ZipCode = "10001";
-        AddressLine1 = "123 Main St";
+        DateOfBirth = new DateTimeOffset(2009, 7, 23, 0, 0, 0, TimeSpan.Zero);
+        ShirtSize = "L";
+        City = "Kansas City";
+        State = "Missouri";
+        ZipCode = "64129";
+        AddressLine1 = "7601 E. 47th Ter.";
     }
 }
 

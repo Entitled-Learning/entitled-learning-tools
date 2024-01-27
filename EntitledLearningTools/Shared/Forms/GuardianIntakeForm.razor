@@ -1,169 +1,141 @@
 <div class="my-4">
-     <h1 class="text-2xl leading-loose">Add Parent/Guardian Information</h1>
+     <h1 class="text-2xl leading-loose ml-6">Add Parent/Guardian Information</h1>
 
     <EditForm Model="@guardian" OnValidSubmit="@HandleValidSubmit">
         <DataAnnotationsValidator />
             <div class="form-group p-4 mt-2">
                 <div class="flex flex-wrap mb-6">
                     <div class="w-full md:w-1/12 pr-3 mb-6 md:mb-0">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                            for="GuardianPrefix">Prefix</label>
-                        <InputText id="GuardianPrefix" @bind-Value="guardian.Prefix" class="form-input" />
+                        <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Prefix" Variant="@variant">
+                            <RadzenTextBox @bind-Value="guardian.Prefix" />
+                        </RadzenFormField>
                         <ValidationMessage For="@(() => guardian.Prefix)" />
                     </div>
 
                     <div class="w-full md:w-4/12 pr-3 mb-6 md:mb-0">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                            for="GuardianFirstName">FirstName</label>
-                        <InputText id="GuardianFirstName" @bind-Value="guardian.FirstName" class="form-input" />
+                        <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="First Name" Variant="@variant">
+                            <RadzenTextBox @bind-Value="guardian.FirstName" />
+                        </RadzenFormField>
                         <ValidationMessage For="@(() => guardian.FirstName)" />
                     </div>
 
                     <div class="w-full md:w-2/12 pr-3 mb-6 md:mb-0">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                            for="GuardianMiddleName">MiddleName</label>
-                        <InputText id="GuardianMiddleName" @bind-Value="guardian.MiddleName" class="form-input" />
+                        <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Middle Name" Variant="@variant">
+                            <RadzenTextBox @bind-Value="guardian.MiddleName" />
+                        </RadzenFormField>
                         <ValidationMessage For="@(() => guardian.MiddleName)" />
                     </div>
 
                     <div class="w-full md:w-4/12 pr-3 mb-6 md:mb-0">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                            for="GuardianLastName">LastName</label>
-                        <InputText id="GuardianLastName" @bind-Value="guardian.LastName" class="form-input" />
+                        <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Last Name" Variant="@variant">
+                            <RadzenTextBox @bind-Value="guardian.LastName" />
+                        </RadzenFormField>
                         <ValidationMessage For="@(() => guardian.LastName)" />
                     </div>
 
                     <div class="w-full md:w-1/12 mb-6 md:mb-0">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                            for="GuardianSuffix">Suffix</label>
-                        <InputText id="GuardianSuffix" @bind-Value="guardian.Suffix" class="form-input" />
+                        <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Suffix" Variant="@variant">
+                            <RadzenTextBox @bind-Value="guardian.Suffix" />
+                        </RadzenFormField>
                         <ValidationMessage For="@(() => guardian.Suffix)" />
                     </div>
                 </div>
 
                 <div class="flex flex-wrap mb-6">
                 <div class="w-full md:w-1/3 pr-3 mb-6 md:mb-0">
-                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="CellPhoneNumber">
-                        Cell Phone Number
-                    </label>
-                    <InputText id="PhoneNumber" @bind-Value="guardian.CellPhoneNumber" class="form-input" />
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Cell Phone Number" Variant="@variant">
+                        <RadzenNumeric @bind-Value="@guardian.CellPhoneNumber" />
+                    </RadzenFormField>
                     <ValidationMessage For="@(() => guardian.CellPhoneNumber)" />
                 </div>
 
                 <div class="w-full md:w-1/3 pr-3 mb-6 md:mb-0">
-                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="EmailAddress">
-                        Email Address
-                    </label>
-                    <InputText id="EmailAddress" @bind-Value="guardian.EmailAddress" class="form-input" />
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Email Address" Variant="@variant">
+                        <RadzenTextBox @bind-Value="guardian.EmailAddress" />
+                    </RadzenFormField>
                     <ValidationMessage For="@(() => guardian.EmailAddress)" />
                 </div>
 
                 <div class="w-full md:w-1/3 mb-6 md:mb-0">
-                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="Relationship">
-                        Relationship
-                    </label>
-                    <InputText id="Relationship" @bind-Value="guardian.Relationship" class="form-input" />
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Relationship" Variant="@variant">
+                        <RadzenTextBox @bind-Value="guardian.Relationship" />
+                    </RadzenFormField>
                     <ValidationMessage For="@(() => guardian.Relationship)" />
                 </div>
             </div>
 
                 <div class="flex flex-wrap mb-6">
                     <div class="w-full">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                            for="AddressLine1">
-                            Address Line 1
-                        </label>
-                        <InputText id="AddressLine1" @bind-Value="guardian.AddressLine1"
-                            class="form-input" />
+                        <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="AddressLine 1" Variant="@variant">
+                            <RadzenTextBox @bind-Value="guardian.AddressLine1" />
+                        </RadzenFormField>
                         <ValidationMessage For="@(() => guardian.AddressLine1)" />
                     </div>
                 </div>
 
                 <div class="flex flex-wrap mb-6">
                     <div class="w-full">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                            for="AddressLine2">
-                            Address Line 2
-                        </label>
-                        <InputText id="AddressLine2" @bind-Value="guardian.AddressLine2"
-                            class="form-input" />
+                        <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Address Line 2" Variant="@variant">
+                            <RadzenTextBox @bind-Value="guardian.AddressLine2" />
+                        </RadzenFormField>
                         <ValidationMessage For="@(() => guardian.AddressLine2)" />
                     </div>
                 </div>
 
                 <div class="flex flex-wrap mb-6">
                     <div class="w-full md:w-1/3 mb-6 md:mb-0">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="City">
-                            City
-                        </label>
-                        <InputText id="City" @bind-Value="guardian.City" class="form-input" />
+                        <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="City" Variant="@variant">
+                            <RadzenTextBox @bind-Value="guardian.City" />
+                        </RadzenFormField>
                         <ValidationMessage For="@(() => guardian.City)" />
                     </div>
 
                     <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="State">
-                            State
-                        </label>
-                        <InputSelect id="State" class="form-input" @bind-Value="guardian.State">
-                            <option value="N/A">select state</option>
-                            @foreach (var item in states)
-                            {
-                                <option value="@item">@item</option>
-                            }
-                        </InputSelect>
+                        <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="State" Variant="@variant">
+                            <RadzenDropDown Data=@states @bind-Value="@guardian.State" />
+                        </RadzenFormField>
                         <ValidationMessage For="@(() => guardian.State)" />
                     </div>
 
                     <div class="w-full md:w-1/3 mb-6 md:mb-0">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="ZipCode">
-                            ZipCode
-                        </label>
-                        <InputText id="ZipCode" @bind-Value="guardian.ZipCode" class="form-input" />
+                        <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Zipcode" Variant="@variant">
+                            <RadzenNumeric @bind-Value="@guardian.ZipCode" />
+                        </RadzenFormField>
                         <ValidationMessage For="@(() => guardian.ZipCode)" />
                     </div>
                 </div>
 
                 <div class="flex flex-wrap mb-6">
                     <div class="w-full md:w-1/3 mb-6 md:mb-0">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="IsEmergencyContact">
-                            Is emergency contact?
-                        </label>
-                        <InputCheckbox id="IsEmergencyContact" @bind-Value="guardian.IsEmergencyContact" class="checkbox-form-input" />
+                        <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Is Emergency Contact?" Variant="@variant">
+                            <RadzenCheckBox @bind-Value=@guardian.IsEmergencyContact Name="IsEmergencyContact" />
+                        </RadzenFormField>
                         <ValidationMessage For="@(() => guardian.IsEmergencyContact)" />
                     </div>
 
                     <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-                        <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="IsAuthorizedPickup">
-                            Is authorized pickup?
-                        </label>
-                        <InputCheckbox id="IsAuthorizedPickup" @bind-Value="guardian.IsAuthorizedPickup" class="checkbox-form-input" />
+                        <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Is Authorized Pickup?" Variant="@variant">
+                            <RadzenCheckBox @bind-Value=@guardian.IsAuthorizedPickup Name="IsAuthorizedPickup" />
+                        </RadzenFormField>
                         <ValidationMessage For="@(() => guardian.IsAuthorizedPickup)" />
                     </div>
                 </div>
 
-                <p type="button" @onclick="HandleCancel" class="btn bg-red-600 text-white my-4 mr-2">Cancel</p>
-                <button type="submit" class="btn btn-primary my-4">Save</button>
+                <RadzenButton type="button" Text="Cancel" Icon="" ButtonStyle="ButtonStyle.Danger" Click="HandleCancel"/>
+                <RadzenButton type="submit" Text="Save" Icon="" ButtonStyle="ButtonStyle.Primary" />
             </div>
     </EditForm>
 </div>
         
 
 @code {   
-
-    [Parameter]
-    public EventCallback<Guardian> OnCompleteGuardianForm { get; set; }
-
-    [Parameter]
-    public EventCallback OnCancel { get; set; }
-
-    [Parameter]
-    public Guardian? EditGuardian { get; set; }
-
+    [Parameter] public EventCallback<Guardian> OnCompleteGuardianForm { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public Guardian? EditGuardian { get; set; }
     private DataMapper mapper = new DataMapper();
-
     public Guardian guardian = new Guardian();
-
     private string[] states = new string[] { "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming" };
+    Variant variant = Variant.Outlined;
 
     protected override void OnParametersSet()
     {

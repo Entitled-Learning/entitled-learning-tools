@@ -1,0 +1,79 @@
+@page "/student/{studentId}"
+@inject StudentRepository _db
+@inject GuardianStudentRelationshipRepository _relationshipDB
+@inject IJSRuntime JSRuntime
+@inject DialogService DialogService
+
+<AuthorizeView>
+    <Authorized>
+        <section class="flex flex-col p-4 w-full">
+            <RadzenBreadCrumb>
+                <RadzenBreadCrumbItem Path="/explore-data" Text="Data Exploer" />
+                <RadzenBreadCrumbItem Icon="" Text="@($"{_student.Prefix} {_student.FirstName} {_student.MiddleName} {_student.LastName} {_student.Suffix}")" />
+            </RadzenBreadCrumb>
+
+            <div class="flex flex-col">
+                <div class="mb-8">
+                    <h1 class="text-2xl font-bold leading-loose">@_student.Prefix @_student.FirstName @_student.MiddleName @_student.LastName @_student.Suffix</h1>
+                    <h2 class="leading-loose">Select the data type you want to add, and then complete the data intake form.</h2>
+                </div>
+
+                <h1 class="text-lg font-bold leading-loose">Parents/Guardians</h1>
+                <RadzenDataGrid AllowFiltering="false" AllowColumnResize="true" AllowAlternatingRows="false"
+                    FilterMode="FilterMode.SimpleWithMenu" AllowSorting="true"  AllowPaging="false"
+                    PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="false" Data="@_guardians"
+                    TItem="StudentGuardian" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or"
+                    SelectionMode="DataGridSelectionMode.Single">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="StudentGuardian" Title="Name" Width="200px" >
+                            <Template Context="guardian">
+                                @guardian.Prefix @guardian.FirstName @guardian.MiddleName @guardian.LastName @guardian.Suffix
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="StudentGuardian" Property="IsEmergencyContact" Title="Emergency Contact?" Width="200px">
+                            <Template Context="guardian">
+                                @(guardian.IsEmergencyContact ? "✅" : "❌")
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="StudentGuardian" Property="IsAuthorizedPickup" Title="Authorized Pickup?" Width="200px">
+                            <Template Context="guardian">
+                                @(guardian.IsAuthorizedPickup ? "✅" : "❌")
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="StudentGuardian" Property="CellPhoneNumber" Title="Cell Phone Number" Width="200px" />
+                        <RadzenDataGridColumn TItem="StudentGuardian" Property="EmailAddress" Title="Email" Width="200px" />
+                        <RadzenDataGridColumn TItem="StudentGuardian" Property="AddressLine1" Title="Address Line 1" Width="120px" />
+                        <RadzenDataGridColumn TItem="StudentGuardian" Property="AddressLine2" Title="Address Line 2" Width="160px" />
+                        <RadzenDataGridColumn TItem="StudentGuardian" Property="City" Title="City" Width="160px" />
+                        <RadzenDataGridColumn TItem="StudentGuardian" Property="State" Title="State" Width="160px" />
+                        <RadzenDataGridColumn TItem="StudentGuardian" Property="ZipCode" Title="Zipcode" Width="160px" />
+                    </Columns>
+                </RadzenDataGrid>
+            </div>            
+        </section>
+    </Authorized>
+    <NotAuthorized>
+        <h1 class="text-2xl leading-loose">Please Log in to access this page</h1>
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+    [Parameter] public string? studentId { get; set; }
+    private StudentStorageContractV1 _student = new StudentStorageContractV1();
+    private IEnumerable<StudentGuardian> _guardians = new List<StudentGuardian>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync(); 
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        if(studentId is not null){
+            _student = await _db.GetByIdAsync(studentId);
+            _guardians = await _relationshipDB.GetByStudentIdAsync(studentId);
+        }
+    }
+}
