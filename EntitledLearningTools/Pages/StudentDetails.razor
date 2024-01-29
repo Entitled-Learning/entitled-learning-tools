@@ -20,9 +20,9 @@
                             @_student.MiddleName @_student.LastName @_student.Suffix</h1>
                         <h2 class="leading-loose"> </h2>
                     </div>
-                    <div class="flex items-center mb-2">
-                        <RadzenButton Text="Delete" Icon="delete" ButtonStyle="ButtonStyle.Danger"
-                            Size="ButtonSize.Small" />
+                    <div class="flex items-center justify-content-start mb-2">
+                        <RadzenButton class="align-self-start" Text="Delete" Icon="delete" ButtonStyle="ButtonStyle.Danger"
+                            Size="ButtonSize.Small" Click=@(args => DialogService.Alert("Be patient. This functionality is coming soon!", "Coming Soon", new AlertOptions() { OkButtonText = "Ok, cool." })) />
                     </div>
                 </div>
 
@@ -39,6 +39,8 @@
                                 @guardian.Suffix
                             </Template>
                         </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="StudentGuardian" Property="Relationship" Title="Relationship"
+                            Width="200px" />
                         <RadzenDataGridColumn TItem="StudentGuardian" Property="IsEmergencyContact"
                             Title="Emergency Contact?" Width="200px">
                             <Template Context="guardian">

@@ -2,11 +2,14 @@
     <Authorized>
         <nav class="flex fixed top-0 w-full items-normal md:items-center h-16 px-4" style="background: rgba(247, 248, 252, 1);">
             <div class="flex flex-wrap items-center w-full justify-between">
-                @if(Authorized){
-                    <a class="site-name flex items-center pr-4 cursor-pointer">
-                        <RadzenButton class="bg-transparent text-black" Icon="menu" Click="ToggleDrawer" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Large"/>
-                    </a>    
-                }
+                <div class="flex">
+                    @if(Authorized){
+                        <a class="site-name flex items-center pr-4 cursor-pointer">
+                            <RadzenButton class="bg-transparent" Icon="menu" Click="ToggleDrawer" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Large"/>
+                        </a>    
+                    }
+                    <RadzenButton class="my-4" Text="BETA" ButtonStyle="ButtonStyle.Warning" Size="ButtonSize.ExtraSmall"/>
+                </div>
                 <div class="flex items-center md:order-2">
                     <LoginDisplay />
                 </div>
@@ -16,11 +19,14 @@
     <NotAuthorized>
         <nav class="flex fixed top-0 w-full items-normal md:items-center h-16 px-4" style="background: rgba(0, 0, 0, 1);">
             <div class="flex flex-wrap items-center w-full justify-between">
-                @if(Authorized){
-                    <a class="site-name flex items-center pr-4 cursor-pointer">
-                        <RadzenButton class="bg-transparent" Icon="menu" Click="ToggleDrawer" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Large"/>
-                    </a>    
-                }
+                <div class="flex">
+                    @if(Authorized){
+                        <a class="site-name flex items-center pr-4 cursor-pointer">
+                            <RadzenButton class="bg-transparent" Icon="menu" Click="ToggleDrawer" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Large"/>
+                        </a>    
+                    }
+                    <RadzenButton class="my-4" Text="BETA" ButtonStyle="ButtonStyle.Warning" Size="ButtonSize.ExtraSmall"/>
+                </div>
                 <div class="flex items-center md:order-2">
                     <LoginDisplay />
                 </div>

@@ -3,18 +3,9 @@
 @inject GuardianRepository _guardianDB
 @inject GuardianStudentRelationshipRepository _relationshipDB
 
-<h1 class="text-2xl leading-loose">Student Information</h1>
-<ListTable Data="@students.Select(x => x.ToDictionary())" OnItemClick="@HandleEditStudent" />
 
-<RadzenButton class="my-4" Text="Add a student" Icon="add" ButtonStyle="ButtonStyle.Success" Click="ShowStudentModalForm" />
-
-
-<Modal @ref="studentnModalRef">
-    <!-- Dynamic content for the modal body -->
-    <StudentIntakeForm OnCompleteStudentFormForm="@SubmitStudentModalForm" OnCancel="@CancelStudentModalForm" EditStudent="@studentToEdit" />
-</Modal>
-
-<h1 class="text-2xl leading-loose mt-8">Parent/Guardian Information</h1>
+@* Parent/Guardian Section *@
+<h1 class="text-2xl leading-loose">Parent/Guardian Information</h1>
 <p class="text-sm text-gray-600 mb-4">Please provide information for at least one parent/guardian.</p>   
 <ListTable Data="@guardians.Select(x => x.ToDictionary())" OnItemClick="@HandleEditGuardian" />
 
@@ -23,6 +14,17 @@
 <Modal @ref="guardianModalRef">
     <!-- Dynamic content for the modal body -->
     <GuardianIntakeForm OnCompleteGuardianForm="@SubmitGuardianModalForm" OnCancel="@CancelGuardianModalForm" EditGuardian="@guardianToEdit" />
+</Modal>
+
+@* Student Section *@
+<h1 class="text-2xl leading-loose mt-8">Student Information</h1>
+<ListTable Data="@students.Select(x => x.ToDictionary())" OnItemClick="@HandleEditStudent" />
+
+<RadzenButton class="my-4" Text="Add a student" Icon="add" ButtonStyle="ButtonStyle.Success" Click="ShowStudentModalForm" />
+
+<Modal @ref="studentnModalRef">
+    <!-- Dynamic content for the modal body -->
+    <StudentIntakeForm OnCompleteStudentFormForm="@SubmitStudentModalForm" OnCancel="@CancelStudentModalForm" EditStudent="@studentToEdit" />
 </Modal>
 
 <ConfirmationModal @ref="confirmationModalRef" OnConfirmation="HandleConfirmation" />
