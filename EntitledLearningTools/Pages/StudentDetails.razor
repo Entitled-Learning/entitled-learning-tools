@@ -33,6 +33,8 @@
                     TItem="StudentGuardian" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or"
                     SelectionMode="DataGridSelectionMode.Single">
                     <Columns>
+                        <RadzenDataGridColumn TItem="StudentGuardian" Property="Id"
+                            Title="Student Id" Width="200px" />
                         <RadzenDataGridColumn TItem="StudentGuardian" Title="Name" Width="200px">
                             <Template Context="guardian">
                                 @guardian.Prefix @guardian.FirstName @guardian.MiddleName @guardian.LastName
