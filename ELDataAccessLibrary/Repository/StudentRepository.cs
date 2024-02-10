@@ -44,7 +44,10 @@ public class StudentRepository : RepositoryBase, IDataRepository<StudentStorageC
     public async Task UpdateAsync(StudentStorageContractV1 entity)
     {
         entity.UpdatedOn = DateTimeOffset.UtcNow;
-        await Task.Delay(1000); 
+
+        string sql = "UPDATE dbo." + tableName + " SET Prefix = @Prefix, FirstName = @FirstName, MiddleName = @MiddleName, LastName = @LastName, Suffix = @Suffix, EmailAddress = @EmailAddress, AddressLine1 = @AddressLine1, AddressLine2 = @AddressLine2, City = @City, State = @State, ZipCode = @ZipCode, Race = @Race, DateOfBirth = @DateOfBirth, HouseholdIncomeRange = @HouseholdIncomeRange, ShirtSize = @ShirtSize, ContractVersion = @ContractVersion WHERE Id = @Id;";
+
+        await _db.SaveData(sql, entity);
     }
 
     public async Task DeleteAsync(string id)

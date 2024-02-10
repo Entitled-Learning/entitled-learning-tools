@@ -1,5 +1,5 @@
 @page "/student/{studentId}"
-@inject StudentRepository _db
+@inject StudentRepository _studentDB
 @inject GuardianStudentRelationshipRepository _relationshipDB
 @inject IJSRuntime JSRuntime
 @inject DialogService DialogService
@@ -17,14 +17,48 @@
                 <div class="flex flex-wrap items-start justify-between mb-8">
                     <div>
                         <h1 class="text-2xl font-bold leading-loose">@_student.Prefix @_student.FirstName
-                            @_student.MiddleName @_student.LastName @_student.Suffix</h1>
+                            @_student.MiddleName @_student.LastName @_student.Suffix (@_student.Id)</h1>
                         <h2 class="leading-loose"> </h2>
                     </div>
-                    <div class="flex items-center justify-content-start mb-2">
+                    <div class="action-buttons flex items-center justify-content-start mb-2">
+                        <RadzenButton class="align-self-start" Text="Edit" Icon="edit" ButtonStyle="ButtonStyle.Primary"
+                            Size="ButtonSize.Small" Click="@(() => studentnModalRef?.ShowModal())" />
+
                         <RadzenButton class="align-self-start" Text="Delete" Icon="delete" ButtonStyle="ButtonStyle.Danger"
                             Size="ButtonSize.Small" Click=@(args => DialogService.Alert("Be patient. This functionality is coming soon!", "Coming Soon", new AlertOptions() { OkButtonText = "Ok, cool." })) />
                     </div>
                 </div>
+
+                <h1 class="text-lg font-bold leading-loose">Personal Information</h1>
+                <div class="personal-details bg-blue-50 p-4 mb-8 grid">
+                    <div>
+                        <h1 class="font-medium text-lg mt-6">Address</h1>
+                        <p class="text-gray-600 text-sm">@_student.AddressLine1</p>
+                        <p class="text-gray-600 text-sm">@_student.AddressLine2</p>
+                        <p class="text-gray-600 text-sm">@_student.City, @_student.State @_student.ZipCode</p>
+                    </div>
+                    <div>
+                        <h1 class="font-medium text-lg mt-6">Race</h1>
+                        <p class="text-gray-600 text-sm">@_student.Race</p>
+                    </div>
+                    <div>
+                        <h1 class="font-medium text-lg mt-6">Age</h1>
+                        @{
+                            TimeSpan? age = DateTimeOffset.UtcNow - _student.DateOfBirth;
+                            int approximateAge = age.HasValue ? (int)(age.Value.TotalDays / 365.25) : 0;
+                        }
+                        <p class="text-gray-600 text-sm">@approximateAge</p>
+                    </div>
+                    <div>
+                        <h1 class="font-medium text-lg mt-6">House Hold Imcome Range</h1>
+                        <p class="text-gray-600 text-sm">@_student.HouseholdIncomeRange</p>
+                    </div>
+                    <div>
+                        <h1 class="font-medium text-lg mt-6">Shirt Size</h1>
+                        <p class="text-gray-600 text-sm">@_student.ShirtSize</p>
+                    </div>
+                </div>
+
 
                 <h1 class="text-lg font-bold leading-loose">Parents/Guardians</h1>
                 <RadzenDataGrid AllowFiltering="false" AllowColumnResize="true" AllowAlternatingRows="false"
@@ -71,6 +105,11 @@
                 </RadzenDataGrid>
             </div>
         </section>
+
+        <Modal @ref="studentnModalRef">
+            <!-- Dynamic content for the modal body -->
+            <StudentIntakeForm OnCompleteStudentFormForm="@SubmitStudentModalForm" OnCancel="@CancelStudentModalForm" EditStudent="@_studentToEdit" />
+        </Modal>
     </Authorized>
     <NotAuthorized>
         <h1 class="text-2xl leading-loose">Please Log in to access this page</h1>
@@ -82,7 +121,9 @@
     [Parameter] public string? studentId { get; set; }
     private StudentStorageContractV1 _student = new StudentStorageContractV1();
     private IEnumerable<StudentGuardian> _guardians = new List<StudentGuardian>();
-
+    private Modal? studentnModalRef; 
+    private Student? _studentToEdit = null;
+    private DataMapper _mapper = new DataMapper();
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
@@ -91,10 +132,35 @@
     {
         await base.OnParametersSetAsync();
 
+        await FetchData();
+    }
+
+    private async Task FetchData()
+    {
         if (studentId is not null)
         {
-            _student = await _db.GetByIdAsync(studentId);
+            _student = await _studentDB.GetByIdAsync(studentId);
             _guardians = await _relationshipDB.GetByStudentIdAsync(studentId);
+
+            _studentToEdit = _mapper.ToStudent(_student);
         }
+    }
+
+    private async Task SubmitStudentModalForm(Student editedModel)
+    {
+        // Update the student
+        var storageContract = _mapper.ToStudentStorageContractV1(editedModel);
+        await _studentDB.UpdateAsync(storageContract);
+
+        await FetchData();
+
+        // Close the modal 
+        studentnModalRef?.CloseModal();
+    }
+
+    private void CancelStudentModalForm()
+    {
+        _studentToEdit = null;
+        studentnModalRef?.CloseModal();
     }
 }
