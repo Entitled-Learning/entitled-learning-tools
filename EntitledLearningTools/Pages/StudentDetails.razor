@@ -30,7 +30,7 @@
                     </div>
                 </div>
 
-                <h1 class="text-lg font-bold leading-loose">Personal Information</h1>
+                <h1 class="text-lg font-bold leading-loose mb-2">Personal Information</h1>
                 <div class="personal-details bg-blue-50 p-4 mb-8 grid">
                     <div>
                         <h1 class="font-medium text-lg mt-6">Address</h1>
@@ -44,11 +44,7 @@
                     </div>
                     <div>
                         <h1 class="font-medium text-lg mt-6">Age</h1>
-                        @{
-                            TimeSpan? age = DateTimeOffset.UtcNow - _student.DateOfBirth;
-                            int approximateAge = age.HasValue ? (int)(age.Value.TotalDays / 365.25) : 0;
-                        }
-                        <p class="text-gray-600 text-sm">@approximateAge</p>
+                        <p class="text-gray-600 text-sm">@CalculateAge(_student.DateOfBirth)</p>
                     </div>
                     <div>
                         <h1 class="font-medium text-lg mt-6">House Hold Imcome Range</h1>
@@ -61,7 +57,12 @@
                 </div>
 
 
-                <h1 class="text-lg font-bold leading-loose">Parents/Guardians</h1>
+                <div class="flex items-center mb-2">
+                    <h1 class="text-lg font-bold leading-loose mr-2">Parents/Guardians</h1>
+                    <RadzenButton Text="Add guardian" Icon="add" ButtonStyle="ButtonStyle.Success"
+                            Size="ButtonSize.Small" Click=@(() => OpenGuardianDetails()) />
+                </div>
+                    
                 <RadzenDataGrid AllowFiltering="false" AllowColumnResize="true" AllowAlternatingRows="false"
                     FilterMode="FilterMode.SimpleWithMenu" AllowSorting="true" AllowPaging="false"
                     PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="false" Data="@_guardians"
@@ -132,6 +133,8 @@
     private Student? _studentToEdit = null;
     private Guardian? _guardianToEdit = null;
     private DataMapper _mapper = new DataMapper();
+    private bool _addGuardian = false;
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
@@ -154,9 +157,18 @@
         }
     }
 
-    private void OpenGuardianDetails(StudentGuardian guardian)
+    private void OpenGuardianDetails(StudentGuardian? guardian = null)
     {
-        _guardianToEdit = _mapper.ToGuardian(guardian);
+        if (guardian is not null)
+        {
+            _guardianToEdit = _mapper.ToGuardian(guardian);
+        }
+        else
+        {
+            _addGuardian = true;
+            _guardianToEdit = new Guardian();
+        }
+
         guardianModalRef?.ShowModal();
     }
 
@@ -174,22 +186,45 @@
 
     private async Task SubmitGuardianModalForm(Guardian editedModel)
     {
-        
-        // Update the guardian
-        var guardianStorageContract = _mapper.ToGuardianStorageContractV1(editedModel);
-        await _guardianDB.UpdateAsync(guardianStorageContract);
+        try {
+            Console.WriteLine("SubmitGuardianModalForm");
+            // Update the guardian
+            var guardianStorageContract = _mapper.ToGuardianStorageContractV1(editedModel);
+            GuardianStorageContractV1? result = null;
 
-        // Update the relationship
-        var relationship = new GuardianStudentRelationshipStorageContractV1
-        {
-            StudentId = _student.Id,
-            GuardianId = editedModel.Id,
-            Relationship = editedModel.Relationship,
-            IsEmergencyContact = editedModel.IsEmergencyContact,
-            IsAuthorizedPickup = editedModel.IsAuthorizedPickup
-        };
+            if (_addGuardian)
+            {
+                Console.WriteLine("Add Guardian");
+                result = await _guardianDB.AddAsync(guardianStorageContract);
+            }
+            else{
+                Console.WriteLine("Update Guardian");
+                await _guardianDB.UpdateAsync(guardianStorageContract);
+            }
 
-        await _relationshipDB.UpdateAsync(relationship);
+            // Update the relationship
+            var relationship = new GuardianStudentRelationshipStorageContractV1
+            {
+                StudentId = _student.Id,
+                GuardianId = result is not null ? result.Id : editedModel.Id,
+                Relationship = editedModel.Relationship,
+                IsEmergencyContact = editedModel.IsEmergencyContact,
+                IsAuthorizedPickup = editedModel.IsAuthorizedPickup
+            };
+
+            if (_addGuardian)
+            {
+                Console.WriteLine("Add Relationship");
+                await _relationshipDB.AddAsync(relationship);
+            }
+            else {
+                Console.WriteLine("Update Relationship");
+                await _relationshipDB.UpdateAsync(relationship);
+            }
+        } catch (Exception ex) {
+            _addGuardian = false;
+            Console.WriteLine(ex.Message);
+        }
 
         await FetchData();
 
@@ -208,4 +243,21 @@
         _guardianToEdit = null;
         guardianModalRef?.CloseModal();
     } 
+
+    public static int CalculateAge(DateTimeOffset? birthdate)
+    {
+        if (birthdate == null)
+        {
+            return 0;
+        }
+
+        int age = DateTimeOffset.Now.Year - birthdate.Value.Year;
+
+        if (DateTimeOffset.Now.Date < birthdate.Value.AddYears(age).Date)
+        {
+            age--;
+        }
+                
+        return age;
+    }
 }
