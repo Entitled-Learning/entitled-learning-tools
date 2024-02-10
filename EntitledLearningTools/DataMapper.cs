@@ -1,6 +1,7 @@
 using EntitledLearningTools.Models;
 using ELDataAccessLibrary.StorageContracts;
 using Riok.Mapperly.Abstractions;
+using ELDataAccessLibrary.Models;
 
 namespace EntitledLearningTools;
 
@@ -10,6 +11,7 @@ public partial class DataMapper
     public partial Student CopyStudent(Student student);
     public partial Guardian CopyGuardian(Guardian guardian);
     public partial StudentStorageContractV1 ToStudentStorageContractV1(Student student);
+    public partial Guardian ToGuardian(StudentGuardian guardian);
     public partial Student ToStudent(StudentStorageContractV1 student);
     public partial GuardianStorageContractV1 ToGuardianStorageContractV1(Guardian guardian);
     public partial CommunityPartnerStorageContractV1 ToCommunityPartnerStorageContractV1(CommunityPartner communityPartner);

@@ -44,7 +44,12 @@ public class GuardianRepository : RepositoryBase, IDataRepository<GuardianStorag
     public async Task UpdateAsync(GuardianStorageContractV1 entity)
     {
         entity.UpdatedOn = DateTimeOffset.UtcNow;
-        await Task.Delay(1000);
+
+        string sql = "UPDATE dbo." + tableName + " SET Prefix = @Prefix, FirstName = @FirstName, MiddleName = @MiddleName, LastName = @LastName, Suffix = @Suffix, " +
+            "CellPhoneNumber = @CellPhoneNumber, EmailAddress = @EmailAddress, AddressLine1 = @AddressLine1, AddressLine2 = @AddressLine2, City = @City, State = @State, " +
+            "ZipCode = @ZipCode, ContractVersion = @ContractVersion WHERE Id = @Id;";
+
+        await _db.SaveData(sql, entity);
     }
 
     public async Task DeleteAsync(string id)

@@ -56,7 +56,11 @@ public class GuardianStudentRelationshipRepository : IDataRepository<GuardianStu
     public async Task UpdateAsync(GuardianStudentRelationshipStorageContractV1 entity)
     {
         entity.UpdatedOn = DateTimeOffset.UtcNow;
-        await Task.Delay(1000); 
+
+        string sql = "UPDATE dbo." + tableName + " SET Relationship = @Relationship, IsEmergencyContact = @IsEmergencyContact, IsAuthorizedPickup = @IsAuthorizedPickup " +
+                     "WHERE StudentId = @StudentId AND GuardianId = @GuardianId;";
+
+        await _db.SaveData(sql, entity);
     }
 
     public async Task DeleteAsync(string id)

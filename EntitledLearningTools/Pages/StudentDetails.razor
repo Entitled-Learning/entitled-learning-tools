@@ -1,5 +1,6 @@
 @page "/student/{studentId}"
 @inject StudentRepository _studentDB
+@inject GuardianRepository _guardianDB
 @inject GuardianStudentRelationshipRepository _relationshipDB
 @inject IJSRuntime JSRuntime
 @inject DialogService DialogService
@@ -65,10 +66,10 @@
                     FilterMode="FilterMode.SimpleWithMenu" AllowSorting="true" AllowPaging="false"
                     PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="false" Data="@_guardians"
                     TItem="StudentGuardian" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or"
-                    SelectionMode="DataGridSelectionMode.Single">
+                    SelectionMode="DataGridSelectionMode.Single" @bind-Value=@_selectedGuardians RowSelect="(row) => OpenGuardianDetails(row)">
                     <Columns>
                         <RadzenDataGridColumn TItem="StudentGuardian" Property="Id"
-                            Title="Student Id" Width="200px" />
+                            Title="Guardian Id" Width="200px" />
                         <RadzenDataGridColumn TItem="StudentGuardian" Title="Name" Width="200px">
                             <Template Context="guardian">
                                 @guardian.Prefix @guardian.FirstName @guardian.MiddleName @guardian.LastName
@@ -110,6 +111,10 @@
             <!-- Dynamic content for the modal body -->
             <StudentIntakeForm OnCompleteStudentFormForm="@SubmitStudentModalForm" OnCancel="@CancelStudentModalForm" EditStudent="@_studentToEdit" />
         </Modal>
+        <Modal @ref="guardianModalRef">
+            <!-- Dynamic content for the modal body -->
+            <GuardianIntakeForm OnCompleteGuardianForm="@SubmitGuardianModalForm" OnCancel="@CancelGuardianModalForm" EditGuardian="@_guardianToEdit" />
+        </Modal>
     </Authorized>
     <NotAuthorized>
         <h1 class="text-2xl leading-loose">Please Log in to access this page</h1>
@@ -121,8 +126,11 @@
     [Parameter] public string? studentId { get; set; }
     private StudentStorageContractV1 _student = new StudentStorageContractV1();
     private IEnumerable<StudentGuardian> _guardians = new List<StudentGuardian>();
+    private IList<StudentGuardian>? _selectedGuardians;
     private Modal? studentnModalRef; 
+    private Modal? guardianModalRef; 
     private Student? _studentToEdit = null;
+    private Guardian? _guardianToEdit = null;
     private DataMapper _mapper = new DataMapper();
     protected override async Task OnInitializedAsync()
     {
@@ -146,6 +154,12 @@
         }
     }
 
+    private void OpenGuardianDetails(StudentGuardian guardian)
+    {
+        _guardianToEdit = _mapper.ToGuardian(guardian);
+        guardianModalRef?.ShowModal();
+    }
+
     private async Task SubmitStudentModalForm(Student editedModel)
     {
         // Update the student
@@ -158,9 +172,40 @@
         studentnModalRef?.CloseModal();
     }
 
+    private async Task SubmitGuardianModalForm(Guardian editedModel)
+    {
+        
+        // Update the guardian
+        var guardianStorageContract = _mapper.ToGuardianStorageContractV1(editedModel);
+        await _guardianDB.UpdateAsync(guardianStorageContract);
+
+        // Update the relationship
+        var relationship = new GuardianStudentRelationshipStorageContractV1
+        {
+            StudentId = _student.Id,
+            GuardianId = editedModel.Id,
+            Relationship = editedModel.Relationship,
+            IsEmergencyContact = editedModel.IsEmergencyContact,
+            IsAuthorizedPickup = editedModel.IsAuthorizedPickup
+        };
+
+        await _relationshipDB.UpdateAsync(relationship);
+
+        await FetchData();
+
+        // Close the modal 
+        guardianModalRef?.CloseModal();
+    } 
+
     private void CancelStudentModalForm()
     {
         _studentToEdit = null;
         studentnModalRef?.CloseModal();
     }
+
+    private void CancelGuardianModalForm()
+    {
+        _guardianToEdit = null;
+        guardianModalRef?.CloseModal();
+    } 
 }
