@@ -1,0 +1,117 @@
+﻿@inject NavigationManager NavManager
+@inject InventoryItemRepository _db
+
+<div class="my-4">
+    <EditForm Model="@item" OnValidSubmit="@HandleValidSubmit">
+        <DataAnnotationsValidator />
+
+        <div class="form-group">
+            <div class="flex flex-wrap mb-6">
+                <div class="w-full">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Name" Variant="@variant">
+                        <RadzenTextBox @bind-Value="item.Name" />
+                    </RadzenFormField>
+                    <ValidationMessage class="text-xs text-danger" For="@(() => item.Name)" />
+                </div>
+            </div>
+
+            <div class="flex flex-wrap mb-6">
+                <div class="w-full md:w-1/2 pr-3 mb-6 md:mb-0">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Description" Variant="@variant">
+                        <RadzenTextBox @bind-Value="@item.Description" />
+                    </RadzenFormField>
+                    <ValidationMessage class="text-xs text-danger" For="@(() => item.Description)" />
+                </div>
+
+                <div class="w-full md:w-1/2 mb-6 md:mb-0">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Cost" Variant="@variant">
+                        <RadzenNumeric @bind-Value="item.Cost" />
+                    </RadzenFormField>
+                    <ValidationMessage class="text-xs text-danger" For="@(() => item.Cost)" />
+                </div>
+            </div>
+
+            <div class="flex flex-wrap mb-6">
+                <div class="w-full">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Physical Location" Variant="@variant">
+                        <RadzenTextBox @bind-Value="item.PhysicalLocation" />
+                    </RadzenFormField>
+                    <ValidationMessage class="text-xs text-danger" For="@(() => item.PhysicalLocation)" />
+                </div>
+            </div>
+
+            <div class="flex flex-wrap mb-6">
+                <div class="w-full">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Expiration Date" Variant="@variant">
+                        <RadzenDatePicker @bind-Value=@item.ExpirationDate Name="ExpirationDate" DateFormat="MM/dd/yyyy" ShowCalendarWeek />
+                    </RadzenFormField>
+                    <ValidationMessage For="@(() => item.ExpirationDate)" />
+                </div>
+            </div>
+
+            <div class="flex flex-wrap mb-6">
+                <div class="w-full md:w-1/3 mb-6 md:mb-0">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Sku" Variant="@variant">
+                        <RadzenTextBox @bind-Value="item.Sku" />
+                    </RadzenFormField>
+                    <ValidationMessage class="text-xs text-danger" For="@(() => item.Sku)" />
+                </div>
+
+                <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Quantity" Variant="@variant">
+                        <RadzenNumeric @bind-Value="@item.Quantity" />
+                    </RadzenFormField>
+                    <ValidationMessage class="text-xs text-danger" For="@(() => item.Quantity)" />
+                </div>
+            </div>
+        </div>
+
+        <RadzenButton type="button" Text="Cancel" Icon="" ButtonStyle="ButtonStyle.Danger" Click="HandleCancel"/>
+        <RadzenButton type="submit" Text="Save" Icon="" ButtonStyle="ButtonStyle.Primary" />
+    </EditForm>
+</div>
+
+@code {
+
+    [Parameter] public EventCallback<InventoryItem> OnCompleteForm { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public InventoryItem? EditItem { get; set; }
+    private InventoryItem item = new InventoryItem();
+    private DataMapper mapper = new DataMapper();
+    Variant variant = Variant.Outlined;
+
+    protected override void OnParametersSet()
+    {
+        if(EditItem is not null){
+            item = mapper.Copy(EditItem);
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if(EditItem is not null){
+            var result = mapper.Copy(item);
+            item = new InventoryItem();
+
+            // Pass the edited data back to the parent component
+            await OnCompleteForm.InvokeAsync(result);
+        } else{
+            try
+            {
+                var storageContract = mapper.ToInventoryItemStorageContractV1(item);
+                await _db.AddAsync(storageContract);
+                NavManager.NavigateTo($"/explore-data?option=Inventory");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+    }
+
+    private void HandleCancel()
+    {
+        item = new InventoryItem();
+        OnCancel.InvokeAsync();
+    }
+}

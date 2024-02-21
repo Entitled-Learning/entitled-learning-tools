@@ -29,6 +29,7 @@ builder.Services.AddScoped<GuardianRepository>();
 builder.Services.AddScoped<GuardianStudentRelationshipRepository>();
 builder.Services.AddScoped<CommunityPartnerRepository>();
 builder.Services.AddScoped<CommunityPartnerContactRepository>();
+builder.Services.AddScoped<InventoryItemRepository>();
 builder.Services.AddSingleton<ISqlDataAccess, SqlDataAccess>();
 builder.Services.AddRadzenComponents();
 

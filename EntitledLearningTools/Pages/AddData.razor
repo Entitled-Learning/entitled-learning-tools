@@ -35,6 +35,11 @@
                 {
                     <CommunityPartnerContactIntakeForm />
                 }
+
+                @if (_selectedOption == DataTypes.Inventory.ToString())
+                {
+                    <InventoryIntakeForm />
+                }
             </div>  
         </section>
     </Authorized>
@@ -47,7 +52,8 @@
     private IEnumerable<string> _segments = new List<string>() {
         DataTypes.Students.ToString(),
         DataTypes.CommunityPartners.ToString(),
-        DataTypes.CommunityPartnerContacts.ToString()
+        DataTypes.CommunityPartnerContacts.ToString(),
+        DataTypes.Inventory.ToString()
     };
 
     [Parameter]

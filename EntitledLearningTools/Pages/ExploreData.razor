@@ -1,5 +1,6 @@
 ﻿@page "/explore-data"
 @inject IJSRuntime JSRuntime
+@inject NavigationManager NavManager
 @inherits ComponentBase
 
 <AuthorizeView>
@@ -12,22 +13,22 @@
 
             <div class="flex flex-col">
                 <h1 class="text-2xl font-bold leading-loose">Explore Data</h1>
-                <h2 class="leading-loose">Select the data type you want to view.</h2>
+                <h2 class="leading-loose"></h2>
             </div>
             
-            <RadzenDropDown @bind-Value=@_selectedOption Data=@_segments class="my-4" Style="width: 100%; max-width: 400px;"/>
-
-            <div class="mt-8">
-                @if (_selectedOption == DataTypes.Students.ToString())
-                {
-                    <StudentDataGrid />
-                }
-
-                @if (_selectedOption == DataTypes.CommunityPartners.ToString())
-                {
-                    <CommunityPartnerDataGrid />
-                }
-            </div>
+            <RadzenTabs @bind-SelectedIndex=@_selectedIndex Change="@(args => Navigate(_tabs[args]))" TabPosition="TabPosition.Top" RenderMode="TabRenderMode.Client" >
+                <Tabs>
+                    <RadzenTabsItem Text="Students">
+                        <StudentDataGrid />
+                    </RadzenTabsItem>
+                    <RadzenTabsItem Text="Community Partners">
+                        <CommunityPartnerDataGrid />
+                    </RadzenTabsItem>
+                    <RadzenTabsItem Text="Inventory">
+                        <InventoryDataGrid />
+                    </RadzenTabsItem>
+                </Tabs>
+            </RadzenTabs>
         </section>
     </Authorized>
     <NotAuthorized>
@@ -37,10 +38,39 @@
 
 
     @code {
-        private IEnumerable<string> _segments = new List<string>() {
-            DataTypes.Students.ToString(), 
+        [Parameter]
+        [SupplyParameterFromQuery(Name = "option")]
+        public string _selectedOption { get; set; } = DataTypes.Students.ToString();
+
+        private int _selectedIndex = 0;
+
+        private List<string> _tabs = new List<string>() {
+            DataTypes.Students.ToString(),
             DataTypes.CommunityPartners.ToString(),
+            DataTypes.Inventory.ToString()
         };
+
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+
+            if (_selectedOption == null)
+            {
+                NavManager.NavigateTo("/explore-data?option=Students");
+            }
+        }
+
+        protected override async Task OnParametersSetAsync()
+        {
+            await base.OnParametersSetAsync();
+
+            if(_selectedOption is not null){
+                _selectedIndex = _tabs.IndexOf(_selectedOption) == -1 ? 0 : _tabs.IndexOf(_selectedOption);
+            }
+        }
         
-        private string _selectedOption = DataTypes.Students.ToString();
+        private void Navigate(object e)
+        {
+            NavManager.NavigateTo($"/explore-data?option={e}");
+        }
     }

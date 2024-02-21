@@ -136,7 +136,7 @@
     protected override void OnParametersSet()
     {
         if(EditStudent is not null){
-            student = mapper.CopyStudent(EditStudent);
+            student = mapper.Copy(EditStudent);
         }
     }
 
@@ -144,7 +144,7 @@
     {
         if (student is not null)
         {
-            var result = mapper.CopyStudent(student);
+            var result = mapper.Copy(student);
             student = new Student();
 
             // Pass the edited data back to the parent component

@@ -5,7 +5,7 @@ namespace EntitledLearningTools.Models;
 
 public class Student : TestModelBase
 {
-    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public string? Id { get; set; }
 
     public string? Prefix { get; set; }
 

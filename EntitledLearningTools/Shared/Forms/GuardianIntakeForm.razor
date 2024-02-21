@@ -140,7 +140,7 @@
     protected override void OnParametersSet()
     {
         if(EditGuardian is not null){
-            guardian = mapper.CopyGuardian(EditGuardian);
+            guardian = mapper.Copy(EditGuardian);
         }
     }
 
@@ -148,7 +148,7 @@
     {
         if (guardian is not null)
         {
-            var result = mapper.CopyGuardian(guardian);
+            var result = mapper.Copy(guardian);
             guardian = new Guardian();
 
             // Pass the edited data back to the parent component

@@ -12,6 +12,9 @@ public enum DataTypes
     CommunityPartners,
 
     [EnumMember(Value = "communityPartnerContacts")]
-    CommunityPartnerContacts
+    CommunityPartnerContacts,
+
+    [EnumMember(Value = "inventory")]
+    Inventory
 }
 
