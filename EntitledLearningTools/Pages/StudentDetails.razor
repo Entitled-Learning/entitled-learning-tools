@@ -46,7 +46,7 @@
                     </div>
                     <div>
                         <h1 class="font-medium text-lg mt-6">Age</h1>
-                        <p class="text-gray-600 text-sm">@CalculateAge(_student.DateOfBirth)</p>
+                        <p class="text-gray-600 text-sm">@_student.Age</p>
                     </div>
                     <div>
                         <h1 class="font-medium text-lg mt-6">House Hold Imcome Range</h1>
@@ -245,21 +245,4 @@
         _guardianToEdit = null;
         guardianModalRef?.CloseModal();
     } 
-
-    public static int CalculateAge(DateTimeOffset? birthdate)
-    {
-        if (birthdate == null)
-        {
-            return 0;
-        }
-
-        int age = DateTimeOffset.Now.Year - birthdate.Value.Year;
-
-        if (DateTimeOffset.Now.Date < birthdate.Value.AddYears(age).Date)
-        {
-            age--;
-        }
-                
-        return age;
-    }
 }
