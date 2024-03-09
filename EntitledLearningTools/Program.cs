@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 using Microsoft.AspNetCore.Rewrite;
+using Microsoft.Extensions.Logging.AzureAppServices;
 using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
