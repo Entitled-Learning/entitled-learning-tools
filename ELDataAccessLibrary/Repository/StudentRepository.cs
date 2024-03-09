@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Extensions.Logging;
 using ELDataAccessLibrary.StorageContracts;
 
 namespace ELDataAccessLibrary.Repository;
@@ -7,16 +8,20 @@ public class StudentRepository : RepositoryBase, IDataRepository<StudentStorageC
 {
     private readonly ISqlDataAccess _db;
     private readonly string tableName = "Student";
+    private readonly ILogger<StudentRepository> _logger;
 
-    public StudentRepository(ISqlDataAccess db)
+    public StudentRepository(ISqlDataAccess db, ILogger<StudentRepository> logger)
     {
-       _db = db;
+        _db = db;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<StudentStorageContractV1>> GetAllAsync()
     {
         string sql = "select * from dbo." + tableName + ";";
         var data = await _db.LoadData<StudentStorageContractV1, dynamic>(sql, new { });
+
+        _logger.LogInformation("Fetched all students from the database.");
 
         return data;
     }
