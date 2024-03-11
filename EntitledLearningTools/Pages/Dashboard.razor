@@ -1,0 +1,97 @@
+@page "/enrollment-dashboard"
+@using System.Globalization
+@using EntitledLearningTools.Shared.Charts
+
+<PageTitle>Entitled Tooling | Enrollment Dashboard</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <section class="flex flex-col p-4 w-full">
+            <RadzenBreadCrumb class="mb-8">
+                <RadzenBreadCrumbItem Path="/" Text="Home" />
+                <RadzenBreadCrumbItem Icon="" Text="Enrollment Dashboard" />
+            </RadzenBreadCrumb>
+
+            <section class="header-section p-8">
+              <RadzenAlert AlertStyle="AlertStyle.Warning" Variant="Variant.Flat" Shade="Shade.Lighter">
+                  Note: The data shown here is for demonstration purposes only and does not represent actual data.
+              </RadzenAlert>
+                <div class="container-fluid">
+                    <div class="flex flex-wrap -mx-4 mb-4">
+                        <div class="flex flex-col w-full xl:mb-0 xl:w-2/3 pr-4">
+                            <h3 class="flex flex-col items-center text-2xl font-bold my-3">Student Enrollment Details</h3>
+                            <EnrollmentDetails/>
+                        </div>
+                        <div class="flex flex-col w-full xl:mb-0 xl:w-1/3 pr-4">
+                            <h3 class="flex flex-col items-center text-2xl font-bold my-3">Scholars vs Others</h3>
+                            <ScholarVsOther/>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap -mx-4 mb-4">
+                        <div class="flex flex-col w-full xl:mb-0 xl:w-2/3 pr-4">
+                            <h3 class="flex flex-col items-center text-2xl font-bold my-3">Student Details</h3>
+                            <StudentDataGrid ShowButtons="false"/>
+                        </div>
+                        <div class="flex flex-col w-full xl:mb-0 xl:w-1/3 pr-4">
+                          <RadzenCard Variant="Variant.Flat">
+                              <div class="flex flex-col w-full items-center">
+                                <h3 class="text-2xl font-bold mb-3">Faculty to Student Ratio</h3>
+                                <h3 class="text-2xl font-normal mb-3">1:4</h3>
+                              </div>
+                          </RadzenCard>
+                          @* cards *@
+                          <div class="flex">
+                            <div class="flex flex-col w-full xl:mb-0 xl:w-1/2 my-4 pr-4">
+                              <RadzenCard Variant="Variant.Flat">
+                                <div class="mx-5">
+                                    <h4 class="text-2xl font-semibold text-gray-700">44</h4>
+                                    <div class="text-gray-500">Total Students</div>
+                                </div>
+                              </RadzenCard>
+                            </div>
+                            <div class="flex flex-col w-full xl:mb-0 xl:w-1/2 my-4">
+                              <RadzenCard Variant="Variant.Flat">
+                                <div class="mx-5">
+                                    <h4 class="text-2xl font-semibold text-gray-700">11</h4>
+                                    <div class="text-gray-500">Total Faculty</div>
+                                </div>
+                              </RadzenCard>
+                            </div>
+                          </div>
+                          <div class="flex">
+                            <div class="flex flex-col w-full xl:mb-0 xl:w-1/2 my-2 pr-4">
+                              <RadzenCard Variant="Variant.Flat">
+                                <div class="mx-5">
+                                    <h4 class="text-2xl font-semibold text-gray-700">90.63%</h4>
+                                    <div class="text-gray-500">Student Attendance</div>
+                                </div>
+                              </RadzenCard>
+                            </div>
+                            <div class="flex flex-col w-full xl:mb-0 xl:w-1/2 my-2">
+                              <RadzenCard Variant="Variant.Flat">
+                                <div class="mx-5">
+                                    <h4 class="text-2xl font-semibold text-gray-700">98.41%</h4>
+                                    <div class="text-gray-500">Faculty Attendance</div>
+                                </div>
+                              </RadzenCard>
+                            </div>
+                          </div>
+                          <div class="flex flex-col w-full xl:mb-0">
+                            <h3 class="flex flex-col items-center text-2xl font-bold my-3">Average Test Scores per Subject</h3>
+                            <ScorePerSubject/>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+            </section>           
+        </section>
+    </Authorized>
+    <NotAuthorized>
+        <h1 class="text-2xl leading-loose">Please Log in to access this page</h1>
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+
+}

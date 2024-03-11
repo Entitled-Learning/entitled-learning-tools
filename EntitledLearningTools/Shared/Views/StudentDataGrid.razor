@@ -3,12 +3,14 @@
 @inject DialogService DialogService
 @inject NavigationManager NavManager
 
-<div class="flex items-center mb-2">
-    <a href="/add-data?option=Students" class="mr-2">
-        <RadzenButton Text="Add New" Icon="add" ButtonStyle="ButtonStyle.Primary" />
-    </a>
-    <RadzenButton Text="Download as Excel" Icon="file_download" ButtonStyle="ButtonStyle.Success" Click="DownloadAsExcel" />
-</div>
+@if(ShowButtons) {
+    <div class="flex items-center mb-2">
+        <a href="/add-data?option=Students" class="mr-2">
+            <RadzenButton Text="Add New" Icon="add" ButtonStyle="ButtonStyle.Primary" />
+        </a>
+        <RadzenButton Text="Download as Excel" Icon="file_download" ButtonStyle="ButtonStyle.Success" Click="DownloadAsExcel" />
+    </div>
+}
 
 <div class="flex my-4">
     <RadzenTextBox class="flex-1 py-3 border-none rounded-full bg-gray-200/30" @oninput="UpdateFilteredData" placeholder="Search..." aria-label="Default TextBox" />
@@ -42,6 +44,9 @@ Data="@_filteredData"TItem="StudentStorageContractV1" ColumnWidth="300px" Logica
 </RadzenDataGrid>
 
 @code {
+
+    [Parameter] public bool ShowButtons { get; set; } = true;
+
     private IEnumerable<StudentStorageContractV1>? _students;
     private IList<StudentStorageContractV1>? _selectedStudents;
     private IList<StudentStorageContractV1>? _filteredData;
