@@ -13,7 +13,7 @@
 </RadzenCard>
 
 @code {
-    bool showDataLabels = false;
+    bool showDataLabels = true;
 
     void OnSeriesClick(SeriesClickEventArgs args)
     {
@@ -29,23 +29,13 @@
     DataItem[] revenue = new DataItem[] {
         new DataItem
         {
-            Quarter = "Q1",
-            Revenue = 30000
+            Quarter = "Scholars",
+            Revenue = 40
         },
         new DataItem
         {
-            Quarter = "Q2",
-            Revenue = 40000
-        },
-        new DataItem
-        {
-            Quarter = "Q3",
-            Revenue = 50000
-        },
-        new DataItem
-        {
-            Quarter = "Q4",
-            Revenue = 80000
-        },
+            Quarter = "Non-Scholars",
+            Revenue = 15
+        }
     };
 }

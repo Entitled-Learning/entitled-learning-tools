@@ -16,6 +16,8 @@ CREATE TABLE [dbo].[Student]
 	[DateOfBirth] [DATE] NULL,
 	[HouseholdIncomeRange] [nvarchar](50) NULL,
 	[ShirtSize] [nvarchar](50) NULL,
+	[IsScholar] [tinyint] NOT NULL,
+	[AllowPhotoRelease] [tinyint] NOT NULL,
 	[ContractVersion] [nvarchar](50) NULL,
 	[CreatedOn] DATETIME DEFAULT GETDATE(),
 	[UpdatedOn] DATETIME NULL

@@ -33,8 +33,8 @@ public class GuardianRepository : RepositoryBase, IDataRepository<GuardianStorag
     {
         entity.Id = GenerateId(entity.FirstName, entity.LastName);
 
-        string sql = "insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, CellPhoneNumber, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, ContractVersion) " +
-        "values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @CellPhoneNumber, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @ContractVersion);";
+        string sql = "insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, CellPhoneNumber, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, ReceiveUpdates, ContractVersion) " +
+        "values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @CellPhoneNumber, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @ReceiveUpdates, @ContractVersion);";
 
         await _db.SaveData(sql, entity);
 
@@ -47,7 +47,7 @@ public class GuardianRepository : RepositoryBase, IDataRepository<GuardianStorag
 
         string sql = "UPDATE dbo." + tableName + " SET Prefix = @Prefix, FirstName = @FirstName, MiddleName = @MiddleName, LastName = @LastName, Suffix = @Suffix, " +
             "CellPhoneNumber = @CellPhoneNumber, EmailAddress = @EmailAddress, AddressLine1 = @AddressLine1, AddressLine2 = @AddressLine2, City = @City, State = @State, " +
-            "ZipCode = @ZipCode, ContractVersion = @ContractVersion WHERE Id = @Id;";
+            "ZipCode = @ZipCode, ReceiveUpdates = @ReceiveUpdates, ContractVersion = @ContractVersion WHERE Id = @Id;";
 
         await _db.SaveData(sql, entity);
     }

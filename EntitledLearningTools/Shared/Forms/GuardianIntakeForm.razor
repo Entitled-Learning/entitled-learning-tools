@@ -119,6 +119,13 @@
                         </RadzenFormField>
                         <ValidationMessage For="@(() => guardian.IsAuthorizedPickup)" />
                     </div>
+
+                    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+                        <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Receive Texts and Emails?" Variant="@variant">
+                            <RadzenCheckBox @bind-Value=@guardian.ReceiveUpdates Name="ReceiveUpdates" />
+                        </RadzenFormField>
+                        <ValidationMessage For="@(() => guardian.ReceiveUpdates)" />
+                    </div>
                 </div>
 
                 <RadzenButton type="button" Text="Cancel" Icon="" ButtonStyle="ButtonStyle.Danger" Click="HandleCancel"/>

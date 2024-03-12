@@ -20,6 +20,8 @@ namespace ELDataAccessLibrary.StorageContracts
         public DateTimeOffset? DateOfBirth { get; set; }
         public string? HouseholdIncomeRange { get; set; }
         public string? ShirtSize { get; set; }
+        public bool IsScholar { get; set; }
+        public bool AllowPhotoRelease { get; set; }
         public string? ContractVersion { get; } = nameof(StudentStorageContractV1);
         public int Age => CalculateAge();
 

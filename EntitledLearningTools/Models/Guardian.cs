@@ -48,6 +48,8 @@ public class Guardian : TestModelBase
 
     public bool IsAuthorizedPickup { get; set; }
 
+    public bool ReceiveUpdates { get; set; }
+
     public void initWithTestData(){
         FirstName = GenerateRandomFirstName();
         LastName = GenerateRandomLastName();

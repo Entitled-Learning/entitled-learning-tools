@@ -34,6 +34,11 @@ Data="@_filteredData"TItem="StudentStorageContractV1" ColumnWidth="300px" Logica
         </RadzenDataGridColumn>        
         <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="HouseholdIncomeRange" Title="Household Income Range" Width="200px" />
         <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="ShirtSize" Title="Shirt Size" Width="200px" />
+        <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="AllowPhotoRelease" Title="Allow Photo Release" Width="200px">
+            <Template>
+                @(context.AllowPhotoRelease ? "✅" : "❌")
+            </Template>
+        </RadzenDataGridColumn> 
         <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="EmailAddress" Title="Email" Width="200px" />
         <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="AddressLine1" Title="Address Line 1" Width="120px" />
         <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="AddressLine2" Title="Address Line 2" Width="160px" />

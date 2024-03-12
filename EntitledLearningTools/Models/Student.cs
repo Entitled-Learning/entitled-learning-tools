@@ -47,6 +47,10 @@ public class Student : TestModelBase
 
     public string? ShirtSize { get; set; }
 
+    public bool IsScholar { get; set; }
+    
+    public bool AllowPhotoRelease { get; set; }
+
     public Student(bool initTestData = false)
     {
         if (initTestData)

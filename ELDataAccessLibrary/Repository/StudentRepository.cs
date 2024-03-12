@@ -38,8 +38,8 @@ public class StudentRepository : RepositoryBase, IDataRepository<StudentStorageC
     {
         entity.Id = GenerateId(entity.FirstName, entity.LastName);
 
-        string sql = "insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, Race, DateOfBirth, HouseholdIncomeRange, ShirtSize, ContractVersion) " +
-        "values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @Race, @DateOfBirth, @HouseholdIncomeRange, @ShirtSize, @ContractVersion);";
+        string sql = "insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, Race, DateOfBirth, HouseholdIncomeRange, ShirtSize, IsScholar, AllowPhotoRelease, ContractVersion) " +
+        "values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @Race, @DateOfBirth, @HouseholdIncomeRange, @ShirtSize, @IsScholar, @AllowPhotoRelease, @ContractVersion);";
 
         await _db.SaveData(sql, entity);
 
@@ -50,7 +50,7 @@ public class StudentRepository : RepositoryBase, IDataRepository<StudentStorageC
     {
         entity.UpdatedOn = DateTimeOffset.UtcNow;
 
-        string sql = "UPDATE dbo." + tableName + " SET Prefix = @Prefix, FirstName = @FirstName, MiddleName = @MiddleName, LastName = @LastName, Suffix = @Suffix, EmailAddress = @EmailAddress, AddressLine1 = @AddressLine1, AddressLine2 = @AddressLine2, City = @City, State = @State, ZipCode = @ZipCode, Race = @Race, DateOfBirth = @DateOfBirth, HouseholdIncomeRange = @HouseholdIncomeRange, ShirtSize = @ShirtSize, ContractVersion = @ContractVersion WHERE Id = @Id;";
+        string sql = "UPDATE dbo." + tableName + " SET Prefix = @Prefix, FirstName = @FirstName, MiddleName = @MiddleName, LastName = @LastName, Suffix = @Suffix, EmailAddress = @EmailAddress, AddressLine1 = @AddressLine1, AddressLine2 = @AddressLine2, City = @City, State = @State, ZipCode = @ZipCode, Race = @Race, DateOfBirth = @DateOfBirth, HouseholdIncomeRange = @HouseholdIncomeRange, ShirtSize = @ShirtSize, IsScholar = @IsScholar, AllowPhotoRelease = @AllowPhotoRelease, ContractVersion = @ContractVersion WHERE Id = @Id;";
 
         await _db.SaveData(sql, entity);
     }

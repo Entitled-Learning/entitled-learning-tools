@@ -29,6 +29,8 @@ public record GuardianStorageContractV1 : StorageContractBase
     public string? ZipCode { get; set; }
 
     public string? CellPhoneNumber { get; set; }
+    
+    public bool ReceiveUpdates { get; set; }
 
     public string? ContractVersion { get; } = nameof(GuardianStorageContractV1);
 }

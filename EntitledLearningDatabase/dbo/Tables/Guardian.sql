@@ -13,6 +13,7 @@ CREATE TABLE [dbo].[Guardian]
 	[City] [nvarchar](50) NULL,
 	[State] [nvarchar](50) NULL,
 	[ZipCode] [nvarchar](10) NULL,
+	[ReceiveUpdates] [tinyint] NOT NULL,
 	[ContractVersion] [nvarchar](50) NULL,
 	[CreatedOn] DATETIME DEFAULT GETDATE(),
 	[UpdatedOn] DATETIME NULL

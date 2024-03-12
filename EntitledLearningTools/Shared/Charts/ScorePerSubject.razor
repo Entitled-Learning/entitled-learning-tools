@@ -1,11 +1,14 @@
 @using System.Globalization
 
 <RadzenChart>
-    <RadzenStackedColumnSeries Data="@revenue2020" CategoryProperty="Quarter" Title="2020" LineType="LineType.Dashed" ValueProperty="Revenue" />
-    <RadzenStackedColumnSeries Data="@revenue2019" CategoryProperty="Quarter" Title="2019" ValueProperty="Revenue" />
-    <RadzenColumnOptions Radius="5" Width="20" />
-    <RadzenCategoryAxis Padding="20" />
-    <RadzenValueAxis Formatter="@FormatAsUSD" Min="0" Max="800000" Step="100000">
+    <RadzenColumnSeries Data="@revenue2020" CategoryProperty="Quarter" Title="2020" LineType="LineType.Dashed" ValueProperty="Revenue">
+        <RadzenSeriesDataLabels Visible="@showDataLabels" />
+    </RadzenColumnSeries>
+    <RadzenColumnSeries Data="@revenue2019" CategoryProperty="Quarter" Title="2019" ValueProperty="Revenue">
+        <RadzenSeriesDataLabels Visible="@showDataLabels" />
+    </RadzenColumnSeries>
+    <RadzenColumnOptions Radius="5" />
+    <RadzenValueAxis Formatter="@FormatAsUSD">
         <RadzenGridLines Visible="true" />
         <RadzenAxisTitle Text="Revenue in USD" />
     </RadzenValueAxis>
@@ -22,53 +25,52 @@
 
     string FormatAsUSD(object value)
     {
-        return ((double)value).ToString("C0", CultureInfo.CreateSpecificCulture("en-US"));
+        return ((double)value).ToString();
     }
 
     DataItem[] revenue2019 = new DataItem[] {
         new DataItem
         {
-            Quarter = "Q1",
-            Revenue = 234000
+            Quarter = "Math",
+            Revenue = 80
         },
         new DataItem
         {
-            Quarter = "Q2",
-            Revenue = 284000
+            Quarter = "Reading",
+            Revenue = 75
         },
         new DataItem
         {
-            Quarter = "Q3",
-            Revenue = 274000
+            Quarter = "Science",
+            Revenue = 76
         },
         new DataItem
         {
-            Quarter = "Q4",
-            Revenue = 294000
+            Quarter = "Art",
+            Revenue = 94
         },
     };
 
     DataItem[] revenue2020 = new DataItem[] {
         new DataItem
         {
-            Quarter = "Q1",
-            Revenue = 254000
+            Quarter = "Math",
+            Revenue = 90
         },
         new DataItem
         {
-            Quarter = "Q2",
-            Revenue = 324000
+            Quarter = "Reading",
+            Revenue = 85
         },
         new DataItem
         {
-            Quarter = "Q3",
-            Revenue = 354000
+            Quarter = "Science",
+            Revenue = 86
         },
         new DataItem
         {
-            Quarter = "Q4",
-            Revenue = 394000
+            Quarter = "Art",
+            Revenue = 99
         },
-
     };
 }
