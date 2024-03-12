@@ -16,8 +16,26 @@ public interface ISqlDataAccess
     /// Saves data to the database using the provided stored procedure and parameters.
     /// </summary>
     /// <typeparam name="T">The type of the parameters used in the stored procedure.</typeparam>
-    /// <param name="storedProcedure">The name of the stored procedure to execute.</param>
-    /// <param name="parameters">The parameters used in the stored procedure.</param>
+    /// <param name="sql">The SQL query or stored procedure to execute.</param>
+    /// <param name="parameters">The parameters used in the SQL query or stored procedure.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public Task SaveData<T>(string sql, T parameters);
-}
 
+    /// <summary>
+    /// Begins a new database transaction.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    public Task BeginTransactionAsync();
+
+    /// <summary>
+    /// Commits the current database transaction.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    public Task CommitTransactionAsync();
+
+    /// <summary>
+    /// Rolls back the current database transaction.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    public Task RollbackTransactionAsync();
+}

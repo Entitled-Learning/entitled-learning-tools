@@ -1,4 +1,5 @@
 @page "/student/{studentId}"
+@inject NavigationManager NavManager
 @inject StudentRepository _studentDB
 @inject GuardianRepository _guardianDB
 @inject GuardianStudentRelationshipRepository _relationshipDB
@@ -28,7 +29,7 @@
                             Size="ButtonSize.Small" Click="@(() => studentnModalRef?.ShowModal())" />
 
                         <RadzenButton class="align-self-start" Text="Delete" Icon="delete" ButtonStyle="ButtonStyle.Danger"
-                            Size="ButtonSize.Small" Click=@(args => DialogService.Alert("Be patient. This functionality is coming soon!", "Coming Soon", new AlertOptions() { OkButtonText = "Ok, cool." })) />
+                            Size="ButtonSize.Small" Click="@(() => confirmationModalRef?.ShowModal())" />
                     </div>
                 </div>
 
@@ -118,6 +119,7 @@
             <!-- Dynamic content for the modal body -->
             <GuardianIntakeForm OnCompleteGuardianForm="@SubmitGuardianModalForm" OnCancel="@CancelGuardianModalForm" EditGuardian="@_guardianToEdit" />
         </Modal>
+        <ConfirmationModal @ref="confirmationModalRef" OnConfirmation="HandleDeleteConfirmation" />
     </Authorized>
     <NotAuthorized>
         <h1 class="text-2xl leading-loose">Please Log in to access this page</h1>
@@ -132,6 +134,7 @@
     private IList<StudentGuardian>? _selectedGuardians;
     private Modal? studentnModalRef; 
     private Modal? guardianModalRef; 
+    private ConfirmationModal? confirmationModalRef; 
     private Student? _studentToEdit = null;
     private Guardian? _guardianToEdit = null;
     private DataMapper _mapper = new DataMapper();
@@ -245,4 +248,24 @@
         _guardianToEdit = null;
         guardianModalRef?.CloseModal();
     } 
+
+    private async Task HandleDeleteConfirmation(bool confirmed)
+    {
+        confirmationModalRef?.CloseModal();
+        
+        if (confirmed)
+        {
+            try
+            {
+                await _studentDB.DeleteAsync(_student.Id);
+
+                NavManager.NavigateTo("/explore-data?option=Students");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+    }
+
 }

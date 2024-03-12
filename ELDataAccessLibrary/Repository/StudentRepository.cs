@@ -57,7 +57,37 @@ public class StudentRepository : RepositoryBase, IDataRepository<StudentStorageC
 
     public async Task DeleteAsync(string id)
     {
-        await Task.Delay(1000);
+        try
+        {
+            string studentIdParameter = id;
+
+            // Begin transaction
+            await _db.BeginTransactionAsync();
+
+            // Delete GuardianStudentRelationships associated with the student
+            string deleteRelationshipsSql = "DELETE FROM [dbo].[GuardianStudentRelationship] WHERE [StudentId] = @StudentId;";
+            await _db.SaveData<object>(deleteRelationshipsSql, new { StudentId = studentIdParameter });
+
+            // Delete Guardians not associated with any other students
+            string deleteGuardiansSql = "DELETE FROM [dbo].[Guardian] WHERE [Id] IN (SELECT [g].[Id] FROM [dbo].[Guardian] [g] LEFT JOIN [dbo].[GuardianStudentRelationship] [gsr] ON [g].[Id] = [gsr].[GuardianId] WHERE [gsr].[GuardianId] IS NULL);";
+            await _db.SaveData<object>(deleteGuardiansSql, new { });
+
+            // Delete the student
+            string deleteStudentSql = "DELETE FROM [dbo].[Student] WHERE [Id] = @StudentId;";
+            await _db.SaveData<object>(deleteStudentSql, new { StudentId = studentIdParameter });
+
+            // Commit transaction
+            await _db.CommitTransactionAsync();
+        }
+        catch (Exception ex)
+        {
+            // Handle exception, log, or throw as needed
+            _logger.LogError($"Error deleting student with ID {id}: {ex.Message}");
+
+            // Rollback transaction in case of an error
+            await _db.RollbackTransactionAsync();
+            throw;
+        }
     }
 }
 
