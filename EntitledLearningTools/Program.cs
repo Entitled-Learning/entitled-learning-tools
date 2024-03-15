@@ -5,19 +5,20 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 using Microsoft.AspNetCore.Rewrite;
-using Microsoft.Extensions.Logging.AzureAppServices;
 using Radzen;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Build the configuration
+var Configuration = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json")
+    .Build();
+
 // Configure logging
-builder.Logging.AddAzureWebAppDiagnostics();
-builder.Services.Configure<AzureFileLoggerOptions>(options => 
-{
-    options.FileName = "logs-";
-    options.FileSizeLimit = 50 * 1024;
-    options.RetainedFileCountLimit = 5;
-});
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(Configuration)
+    .CreateLogger();
 
 // Add services to the container.
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
@@ -42,8 +43,11 @@ builder.Services.AddScoped<CommunityPartnerContactRepository>();
 builder.Services.AddScoped<InventoryItemRepository>();
 builder.Services.AddSingleton<ISqlDataAccess, SqlDataAccess>();
 builder.Services.AddRadzenComponents();
+builder.Services.AddSerilog();
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -75,5 +79,17 @@ app.MapControllers();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
-app.Run();
+
+try{
+    Log.Information("Starting Entitled Learning Tools");
+    Log.Information("Configuration loaded successfully");
+
+    app.Run();
+}
+catch(Exception ex){
+    Log.Fatal(ex, "Application failed to start");
+}
+finally{
+    Log.CloseAndFlush();
+}
 

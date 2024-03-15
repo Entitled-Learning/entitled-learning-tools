@@ -257,7 +257,7 @@
         {
             try
             {
-                await _studentDB.DeleteAsync(_student.Id);
+                await _studentDB.DeleteAsync(_student.Id!);
 
                 NavManager.NavigateTo("/explore-data?option=Students");
             }

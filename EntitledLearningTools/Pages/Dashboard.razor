@@ -1,6 +1,7 @@
 @page "/enrollment-dashboard"
 @using System.Globalization
 @using EntitledLearningTools.Shared.Charts
+@inject ILogger<Dashboard> _logger
 
 <PageTitle>Entitled Tooling | Enrollment Dashboard</PageTitle>
 
@@ -93,5 +94,12 @@
 
 
 @code {
+
+  protected override void OnInitialized()
+  {
+      base.OnInitialized();
+
+      _logger.LogInformation("Enrollment Dashboard Page Loaded");
+  }
 
 }

@@ -407,3 +407,6 @@ guard
 
 # Development appsettings
 EntitledLearningTools/appsettings.Development.json
+
+# Development logs
+EntitledLearningTools/eltools_application_logs
