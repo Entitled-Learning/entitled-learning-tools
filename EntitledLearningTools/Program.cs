@@ -11,8 +11,12 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 // Build the configuration
+var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+
 var Configuration = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json")
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables()
     .Build();
 
 // Configure logging
@@ -82,7 +86,7 @@ app.MapFallbackToPage("/_Host");
 
 try{
     Log.Information("Starting Entitled Learning Tools");
-    Log.Information("Configuration loaded successfully");
+    Log.Information("Environment: {environment}", environment);
 
     app.Run();
 }
