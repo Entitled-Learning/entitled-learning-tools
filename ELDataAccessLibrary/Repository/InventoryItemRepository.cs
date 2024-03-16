@@ -4,34 +4,47 @@
 // </copyright>
 // ----------------------------------------------------------------
 
+using Microsoft.Extensions.Logging;
 using ELDataAccessLibrary.StorageContracts;
 
 namespace ELDataAccessLibrary.Repository;
 
 public class InventoryItemRepository : RepositoryBase, IDataRepository<InventoryItemStorageContractV1>
 {
-    private readonly ISqlDataAccess _db;
     private readonly string tableName = "InventoryItem";
+    private readonly ISqlDataAccess _db;
+    private readonly ILogger<InventoryItemRepository> _logger;
 
-    public InventoryItemRepository(ISqlDataAccess db)
+    public InventoryItemRepository(ISqlDataAccess db, ILogger<InventoryItemRepository> logger)
     {
-       _db = db;
+        _db = db;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<InventoryItemStorageContractV1>> GetAllAsync()
     {
         string sql = "select * from dbo." + tableName + " order by CreatedOn;";
-        var data = await _db.LoadData<InventoryItemStorageContractV1, dynamic>(sql, new { });
 
-        return data;
+        try{
+            var data = await _db.LoadData<InventoryItemStorageContractV1, dynamic>(sql, new { });
+            return data;
+        } catch (Exception ex) {
+            _logger.GetInventoryError(ex);
+            throw;
+        }
     }
 
     public async Task<InventoryItemStorageContractV1> GetByIdAsync(string id)
     {
         string sql = "select * from dbo." + tableName + " where Id = @Id;";
-        var data = await _db.LoadData<InventoryItemStorageContractV1, dynamic>(sql, new { Id = id });
 
-        return data.FirstOrDefault()!;
+        try{
+            var data = await _db.LoadData<InventoryItemStorageContractV1, dynamic>(sql, new { Id = id });
+            return data.FirstOrDefault()!;
+        } catch (Exception ex) {
+            _logger.GetInventoryError(ex);
+            throw;
+        }
     }
 
     public async Task<InventoryItemStorageContractV1> AddAsync(InventoryItemStorageContractV1 entity)
@@ -41,9 +54,13 @@ public class InventoryItemRepository : RepositoryBase, IDataRepository<Inventory
         string sql = "insert into dbo." + tableName + " (Id, Name, Description, Cost, PhysicalLocation, ExpirationDate, Sku, Quantity, ContractVersion) " +
         "values (@Id, @Name, @Description, @Cost, @PhysicalLocation, @ExpirationDate, @Sku, @Quantity, @ContractVersion);";
 
-        await _db.SaveData(sql, entity);
-
-        return entity;
+        try{
+            await _db.SaveData(sql, entity);
+            return entity;
+        } catch (Exception ex) {
+            _logger.CreateInventoryError(ex);
+            throw;
+        }
     }
 
     public async Task UpdateAsync(InventoryItemStorageContractV1 entity)
@@ -52,12 +69,23 @@ public class InventoryItemRepository : RepositoryBase, IDataRepository<Inventory
 
         string sql = "update dbo." + tableName + " set Name = @Name, Description = @Description, Cost = @Cost, PhysicalLocation = @PhysicalLocation, ExpirationDate = @ExpirationDate, Sku = @Sku, Quantity = @Quantity, ContractVersion = @ContractVersion, UpdatedOn = @UpdatedOn where Id = @Id;";
 
-        await _db.SaveData(sql, entity);
+        try{
+            await _db.SaveData(sql, entity);
+        } catch (Exception ex) {
+            _logger.UpdateInventoryError(ex);
+            throw;
+        }
     }
 
     public async Task DeleteAsync(string id)
-    {
-        await Task.Delay(1000);
+    {   
+        try{
+            string sql = "delete from dbo." + tableName + " where Id = @Id;";
+            await _db.SaveData(sql, new { Id = id });
+        } catch (Exception ex) {
+            _logger.DeleteInventoryError(ex);
+            throw;
+        }
     }
 }
 

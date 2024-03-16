@@ -1,5 +1,6 @@
 ﻿@inject NavigationManager NavManager
 @inject InventoryItemRepository _db
+@inject PageNotificationService PageNotificationService
 @inject ILogger<InventoryIntakeForm> _logger
 
 <div class="my-4">
@@ -103,9 +104,9 @@
                 await _db.AddAsync(storageContract);
                 NavManager.NavigateTo($"/explore-data?option=Inventory");
             }
-            catch (Exception ex)
+            catch 
             {
-                _logger.CreateInventoryError(ex);
+                PageNotificationService.NotifyErrorOccured();
             }
         }
     }

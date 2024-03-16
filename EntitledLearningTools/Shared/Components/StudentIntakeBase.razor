@@ -2,6 +2,7 @@
 @inject StudentRepository _studentDB
 @inject GuardianRepository _guardianDB
 @inject GuardianStudentRelationshipRepository _relationshipDB
+@inject PageNotificationService PageNotificationService
 @inject ILogger<StudentIntakeBase> _logger
 
 
@@ -178,9 +179,9 @@
             
                 NavManager.NavigateTo("/explore-data?option=Students");
             }
-            catch (Exception ex)
+            catch 
             {
-                _logger.CreateStudentError(ex);
+                PageNotificationService.NotifyErrorOccured();
             }
         }
     }

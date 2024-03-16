@@ -1,10 +1,13 @@
 @page "/student/{studentId}"
+@inherits BasePage
+
 @inject NavigationManager NavManager
 @inject StudentRepository _studentDB
 @inject GuardianRepository _guardianDB
 @inject GuardianStudentRelationshipRepository _relationshipDB
 @inject IJSRuntime JSRuntime
 @inject DialogService DialogService
+@inject PageNotificationService PageNotificationService
 @inject ILogger<StudentIntakeBase> _logger
 
 <PageTitle>Entitled Tooling | Student Details</PageTitle>
@@ -227,9 +230,11 @@
                 Console.WriteLine("Update Relationship");
                 await _relationshipDB.UpdateAsync(relationship);
             }
-        } catch (Exception ex) {
+        }
+        catch
+        {
             _addGuardian = false;
-            _logger.UpdateStudentError(ex);
+            PageNotificationService.NotifyErrorOccured();
         }
 
         await FetchData();
@@ -262,9 +267,9 @@
 
                 NavManager.NavigateTo("/explore-data?option=Students");
             }
-            catch (Exception ex)
+            catch 
             {
-                _logger.DeleteStudentError(ex);
+                PageNotificationService.NotifyErrorOccured();
             }
         }
     }

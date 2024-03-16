@@ -4,34 +4,47 @@
 // </copyright>
 // ----------------------------------------------------------------
 
+using Microsoft.Extensions.Logging;
 using ELDataAccessLibrary.StorageContracts;
 
 namespace ELDataAccessLibrary.Repository;
 
 public class GuardianRepository : RepositoryBase, IDataRepository<GuardianStorageContractV1>
 {
-    private readonly ISqlDataAccess _db;
     private readonly string tableName = "Guardian";
+    private readonly ISqlDataAccess _db;
+    private readonly ILogger<GuardianRepository> _logger;
 
-    public GuardianRepository(ISqlDataAccess db)
+    public GuardianRepository(ISqlDataAccess db, ILogger<GuardianRepository> logger)
     {
-       _db = db;
+        _db = db;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<GuardianStorageContractV1>> GetAllAsync()
     {
         string sql = "select * from dbo." + tableName + ";";
-        var data = await _db.LoadData<GuardianStorageContractV1, dynamic>(sql, new { });
 
-        return data;
+        try{
+            var data = await _db.LoadData<GuardianStorageContractV1, dynamic>(sql, new { });
+            return data;
+        } catch (Exception ex) {
+            _logger.GetGuardianError(ex);
+            throw;
+        }
     }
 
     public async Task<GuardianStorageContractV1> GetByIdAsync(string id)
     {
         string sql = "select * from dbo." + tableName + " where Id = @Id;";
-        var data = await _db.LoadData<GuardianStorageContractV1, dynamic>(sql, new { Id = id });
 
-        return data.FirstOrDefault()!;
+        try{
+            var data = await _db.LoadData<GuardianStorageContractV1, dynamic>(sql, new { Id = id });
+            return data.FirstOrDefault()!;
+        } catch (Exception ex) {
+            _logger.GetGuardianError(ex);
+            throw;
+        }
     }
 
     public async Task<GuardianStorageContractV1> AddAsync(GuardianStorageContractV1 entity)
@@ -41,9 +54,13 @@ public class GuardianRepository : RepositoryBase, IDataRepository<GuardianStorag
         string sql = "insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, CellPhoneNumber, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, ReceiveUpdates, ContractVersion) " +
         "values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @CellPhoneNumber, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @ReceiveUpdates, @ContractVersion);";
 
-        await _db.SaveData(sql, entity);
-
-        return entity;
+        try{
+            await _db.SaveData(sql, entity);
+            return entity;
+        } catch (Exception ex) {
+            _logger.CreateGuardianError(ex);
+            throw;
+        }
     }
 
     public async Task UpdateAsync(GuardianStorageContractV1 entity)
@@ -54,12 +71,24 @@ public class GuardianRepository : RepositoryBase, IDataRepository<GuardianStorag
             "CellPhoneNumber = @CellPhoneNumber, EmailAddress = @EmailAddress, AddressLine1 = @AddressLine1, AddressLine2 = @AddressLine2, City = @City, State = @State, " +
             "ZipCode = @ZipCode, ReceiveUpdates = @ReceiveUpdates, ContractVersion = @ContractVersion WHERE Id = @Id;";
 
-        await _db.SaveData(sql, entity);
+        try{
+            await _db.SaveData(sql, entity);
+        } catch (Exception ex) {
+            _logger.UpdateGuardianError(ex);
+            throw;
+        }
     }
 
     public async Task DeleteAsync(string id)
     {
-        await Task.Delay(1000);
+        try{
+            string guardianIdParameter = id;
+            string sql = "delete from dbo." + tableName + " where Id = @guardianIdParameter;";
+            await _db.SaveData(sql, new { guardianIdParameter });
+        } catch (Exception ex) {
+            _logger.DeleteGuardianError(ex);
+            throw;
+        }
     }
 }
 

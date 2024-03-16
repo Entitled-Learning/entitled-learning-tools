@@ -53,6 +53,7 @@ builder.Services.AddScoped<CommunityPartnerContactRepository>();
 builder.Services.AddScoped<InventoryItemRepository>();
 builder.Services.AddSingleton<ISqlDataAccess, SqlDataAccess>();
 builder.Services.AddRadzenComponents();
+builder.Services.AddScoped<PageNotificationService>();
 builder.Services.AddSerilog();
 
 var app = builder.Build();

@@ -1,6 +1,8 @@
 @page "/enrollment-dashboard"
 @using System.Globalization
 @using EntitledLearningTools.Shared.Charts
+
+@inherits BasePage
 @inject ILogger<Dashboard> _logger
 
 <PageTitle>Entitled Tooling | Enrollment Dashboard</PageTitle>
@@ -91,15 +93,3 @@
         <h1 class="text-2xl leading-loose">Please Log in to access this page</h1>
     </NotAuthorized>
 </AuthorizeView>
-
-
-@code {
-
-  protected override void OnInitialized()
-  {
-      base.OnInitialized();
-
-      _logger.LogInformation("Enrollment Dashboard Page Loaded");
-  }
-
-}

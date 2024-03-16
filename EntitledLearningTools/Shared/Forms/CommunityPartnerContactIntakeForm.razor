@@ -1,6 +1,7 @@
 ﻿@inject NavigationManager NavManager
 @inject CommunityPartnerContactRepository _db
 @inject CommunityPartnerRepository _partnerDb
+@inject PageNotificationService PageNotificationService
 @inject ILogger<CommunityPartnerContactIntakeForm> _logger
 
 <div class="my-4">
@@ -166,9 +167,9 @@
             await _db.AddAsync(storageContract);
             NavManager.NavigateTo($"/community-partner/{storageContract.CommunityPartnerName}");
         }
-        catch (Exception ex)
+        catch 
         {
-            _logger.CreateCommunityPartnerContactError(ex);
+            PageNotificationService.NotifyErrorOccured();
         }
     }
 }
