@@ -7,15 +7,15 @@ using Microsoft.Identity.Web.UI;
 using Microsoft.AspNetCore.Rewrite;
 using Radzen;
 using Serilog;
+using System.Collections;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Build the configuration
-var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+var appsettings = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production" ? "appsettings.json" : "appsettings.Development.json";
 
 var Configuration = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-    .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
+    .AddJsonFile(appsettings, optional: true, reloadOnChange: true)
     .AddEnvironmentVariables()
     .Build();
 
@@ -23,6 +23,13 @@ var Configuration = new ConfigurationBuilder()
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(Configuration)
     .CreateLogger();
+
+foreach (DictionaryEntry entry in Environment.GetEnvironmentVariables())
+{
+    var key = entry.Key?.ToString();
+    var value = entry.Value?.ToString();
+    Log.Information($"{key}: {value}");
+}
 
 // Add services to the container.
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
@@ -86,7 +93,7 @@ app.MapFallbackToPage("/_Host");
 
 try{
     Log.Information("Starting Entitled Learning Tools");
-    Log.Information("Environment: {environment}", environment);
+    Log.Information("Environment: {environment}", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
 
     app.Run();
 }
