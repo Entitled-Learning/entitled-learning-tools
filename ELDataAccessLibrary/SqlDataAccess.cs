@@ -1,9 +1,13 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿// ----------------------------------------------------------------
+// <copyright company="Tope Daramola">
+//     Copyright (c) Tope Daramola. All rights reserved.
+// </copyright>
+// ----------------------------------------------------------------
+
+using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
 using Dapper;
 using System.Data;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace ELDataAccessLibrary
 {
@@ -48,7 +52,7 @@ namespace ELDataAccessLibrary
             TransactionContext.CurrentConnection = connection;
         }
 
-        public async Task CommitTransactionAsync()
+        public void CommitTransactionAsync()
         {
             var transaction = TransactionContext.CurrentTransaction;
             if (transaction != null)
@@ -57,11 +61,15 @@ namespace ELDataAccessLibrary
                 transaction.Commit();
                 TransactionContext.CurrentTransaction = null;
                 TransactionContext.CurrentConnection = null;
-                connection.Close();
+
+                if(connection is not null)
+                {
+                    connection.Close();
+                }
             }
         }
 
-        public async Task RollbackTransactionAsync()
+        public void RollbackTransactionAsync()
         {
             var transaction = TransactionContext.CurrentTransaction;
             if (transaction != null)
@@ -70,7 +78,11 @@ namespace ELDataAccessLibrary
                 transaction.Rollback();
                 TransactionContext.CurrentTransaction = null;
                 TransactionContext.CurrentConnection = null;
-                connection.Close();
+
+                if (connection is not null)
+                {
+                    connection.Close();
+                }
             }
         }
     }

@@ -1,5 +1,9 @@
-using System;
-using System.Collections.Generic;
+// ----------------------------------------------------------------
+// <copyright company="Tope Daramola">
+//     Copyright (c) Tope Daramola. All rights reserved.
+// </copyright>
+// ----------------------------------------------------------------
+
 using System.Reflection;
 
 namespace EntitledLearningTools;

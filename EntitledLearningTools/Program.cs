@@ -1,4 +1,10 @@
-﻿using EntitledLearningTools;
+﻿// ----------------------------------------------------------------
+// <copyright company="Tope Daramola">
+//     Copyright (c) Tope Daramola. All rights reserved.
+// </copyright>
+// ----------------------------------------------------------------
+
+using EntitledLearningTools;
 using ELDataAccessLibrary;
 using ELDataAccessLibrary.Repository;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -7,7 +13,6 @@ using Microsoft.Identity.Web.UI;
 using Microsoft.AspNetCore.Rewrite;
 using Radzen;
 using Serilog;
-using System.Collections;
 
 var builder = WebApplication.CreateBuilder(args);
 

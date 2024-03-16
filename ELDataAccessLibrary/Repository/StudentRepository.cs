@@ -1,4 +1,9 @@
-﻿using System;
+﻿// ----------------------------------------------------------------
+// <copyright company="Tope Daramola">
+//     Copyright (c) Tope Daramola. All rights reserved.
+// </copyright>
+// ----------------------------------------------------------------
+
 using Microsoft.Extensions.Logging;
 using ELDataAccessLibrary.StorageContracts;
 
@@ -77,7 +82,7 @@ public class StudentRepository : RepositoryBase, IDataRepository<StudentStorageC
             await _db.SaveData<object>(deleteStudentSql, new { StudentId = studentIdParameter });
 
             // Commit transaction
-            await _db.CommitTransactionAsync();
+            _db.CommitTransactionAsync();
         }
         catch (Exception ex)
         {
@@ -85,7 +90,7 @@ public class StudentRepository : RepositoryBase, IDataRepository<StudentStorageC
             _logger.LogError($"Error deleting student with ID {id}: {ex.Message}");
 
             // Rollback transaction in case of an error
-            await _db.RollbackTransactionAsync();
+            _db.RollbackTransactionAsync();
             throw;
         }
     }

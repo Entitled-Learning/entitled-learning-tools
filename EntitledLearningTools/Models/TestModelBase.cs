@@ -1,5 +1,8 @@
-using System;
-using System.ComponentModel.DataAnnotations;
+// ----------------------------------------------------------------
+// <copyright company="Tope Daramola">
+//     Copyright (c) Tope Daramola. All rights reserved.
+// </copyright>
+// ----------------------------------------------------------------
 
 namespace EntitledLearningTools.Models;
 

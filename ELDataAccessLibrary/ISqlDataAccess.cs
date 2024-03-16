@@ -1,4 +1,10 @@
-﻿namespace ELDataAccessLibrary;
+﻿// ----------------------------------------------------------------
+// <copyright company="Tope Daramola">
+//     Copyright (c) Tope Daramola. All rights reserved.
+// </copyright>
+// ----------------------------------------------------------------
+
+namespace ELDataAccessLibrary;
 
 public interface ISqlDataAccess
 {
@@ -30,12 +36,12 @@ public interface ISqlDataAccess
     /// <summary>
     /// Commits the current database transaction.
     /// </summary>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    public Task CommitTransactionAsync();
+    /// <returns>void</returns>
+    public void CommitTransactionAsync();
 
     /// <summary>
     /// Rolls back the current database transaction.
     /// </summary>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    public Task RollbackTransactionAsync();
+    /// <returns>void</returns>
+    public void RollbackTransactionAsync();
 }

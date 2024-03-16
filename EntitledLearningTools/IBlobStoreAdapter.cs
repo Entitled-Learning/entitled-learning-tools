@@ -1,4 +1,10 @@
-﻿using Azure.Storage.Blobs;
+﻿// ----------------------------------------------------------------
+// <copyright company="Tope Daramola">
+//     Copyright (c) Tope Daramola. All rights reserved.
+// </copyright>
+// ----------------------------------------------------------------
+
+using Azure.Storage.Blobs;
 
 namespace EntitledLearningTools;
 

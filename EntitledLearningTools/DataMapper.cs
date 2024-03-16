@@ -1,3 +1,9 @@
+// ----------------------------------------------------------------
+// <copyright company="Tope Daramola">
+//     Copyright (c) Tope Daramola. All rights reserved.
+// </copyright>
+// ----------------------------------------------------------------
+
 using EntitledLearningTools.Models;
 using ELDataAccessLibrary.StorageContracts;
 using Riok.Mapperly.Abstractions;
