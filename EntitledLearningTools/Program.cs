@@ -24,13 +24,6 @@ Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(Configuration)
     .CreateLogger();
 
-foreach (DictionaryEntry entry in Environment.GetEnvironmentVariables())
-{
-    var key = entry.Key?.ToString();
-    var value = entry.Value?.ToString();
-    Log.Information($"{key}: {value}");
-}
-
 // Add services to the container.
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
@@ -57,8 +50,6 @@ builder.Services.AddRadzenComponents();
 builder.Services.AddSerilog();
 
 var app = builder.Build();
-
-app.UseSerilogRequestLogging();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -90,6 +81,7 @@ app.MapControllers();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
+app.UseSerilogRequestLogging();
 
 try{
     Log.Information("Starting Entitled Learning Tools");
