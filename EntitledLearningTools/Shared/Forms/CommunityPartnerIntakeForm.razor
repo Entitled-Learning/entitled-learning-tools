@@ -1,5 +1,6 @@
 ﻿@inject NavigationManager NavManager
 @inject CommunityPartnerRepository _db
+@inject ILogger<CommunityPartnerIntakeForm> _logger
 
 <div class="my-4">
     <EditForm Model="@communityPartner" OnValidSubmit="@HandleValidSubmit">
@@ -93,7 +94,7 @@
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.ToString());
+            _logger.CreateCommunityPartnerError(ex);
         }
     }
 }

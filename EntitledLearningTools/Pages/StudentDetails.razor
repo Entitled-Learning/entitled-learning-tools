@@ -5,6 +5,7 @@
 @inject GuardianStudentRelationshipRepository _relationshipDB
 @inject IJSRuntime JSRuntime
 @inject DialogService DialogService
+@inject ILogger<StudentIntakeBase> _logger
 
 <PageTitle>Entitled Tooling | Student Details</PageTitle>
 
@@ -228,7 +229,7 @@
             }
         } catch (Exception ex) {
             _addGuardian = false;
-            Console.WriteLine(ex.Message);
+            _logger.UpdateStudentError(ex);
         }
 
         await FetchData();
@@ -263,7 +264,7 @@
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                _logger.DeleteStudentError(ex);
             }
         }
     }

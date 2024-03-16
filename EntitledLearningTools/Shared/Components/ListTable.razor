@@ -32,14 +32,17 @@
     {
         var itemId = item["Id"];
 
-        foreach (var (index, row) in Data.Select((item, index) => (index, item)))
+        if (Data != null)
         {
-            if (row["Id"] == itemId)
+            foreach (var (index, row) in Data.Select((item, index) => (index, item)))
             {
-                InvokeAsync(async () => {
-                    await OnItemClick.InvokeAsync(index);
-                });
-                break;
+                if (row["Id"] == itemId)
+                {
+                    InvokeAsync(async () => {
+                        await OnItemClick.InvokeAsync(index);
+                    });
+                    break;
+                }
             }
         }
     }

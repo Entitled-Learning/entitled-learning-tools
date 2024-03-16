@@ -12,10 +12,11 @@ using System.Collections;
 var builder = WebApplication.CreateBuilder(args);
 
 // Build the configuration
-var appsettings = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production" ? "appsettings.json" : "appsettings.Development.json";
+var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
 
 var Configuration = new ConfigurationBuilder()
-    .AddJsonFile(appsettings, optional: true, reloadOnChange: true)
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
     .AddEnvironmentVariables()
     .Build();
 
@@ -82,6 +83,8 @@ app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
 app.UseSerilogRequestLogging();
+
+app.UseMiddleware<UserToScopeFilter>();
 
 try{
     Log.Information("Starting Entitled Learning Tools");

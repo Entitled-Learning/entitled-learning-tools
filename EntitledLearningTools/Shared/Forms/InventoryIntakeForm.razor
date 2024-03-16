@@ -1,5 +1,6 @@
 ﻿@inject NavigationManager NavManager
 @inject InventoryItemRepository _db
+@inject ILogger<InventoryIntakeForm> _logger
 
 <div class="my-4">
     <EditForm Model="@item" OnValidSubmit="@HandleValidSubmit">
@@ -104,7 +105,7 @@
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                _logger.CreateInventoryError(ex);
             }
         }
     }

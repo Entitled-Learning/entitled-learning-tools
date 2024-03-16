@@ -2,6 +2,7 @@
 @inject StudentRepository _studentDB
 @inject GuardianRepository _guardianDB
 @inject GuardianStudentRelationshipRepository _relationshipDB
+@inject ILogger<StudentIntakeBase> _logger
 
 
 @* Parent/Guardian Section *@
@@ -144,6 +145,7 @@
         {
             try
             {
+                
                 var storedStudents = new List<StudentStorageContractV1>();
                 var storedGuardians = new List<GuardianStorageContractV1>();
 
@@ -173,12 +175,12 @@
                         await _relationshipDB.AddAsync(relationship);
                     }
                 }
-
+            
                 NavManager.NavigateTo("/explore-data?option=Students");
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                _logger.CreateStudentError(ex);
             }
         }
     }
