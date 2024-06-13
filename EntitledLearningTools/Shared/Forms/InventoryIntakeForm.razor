@@ -70,6 +70,13 @@
 
         <RadzenButton type="button" Text="Cancel" Icon="" ButtonStyle="ButtonStyle.Danger" Click="HandleCancel"/>
         <RadzenButton type="submit" Text="Save" Icon="" ButtonStyle="ButtonStyle.Primary" />
+
+        <div class="mt-8">
+            @if(showDelete){
+                <RadzenButton type="button" Text="Delete" Icon="" ButtonStyle="ButtonStyle.Danger" Click="HaneleDelete"/>
+            }
+        </div>
+        
     </EditForm>
 </div>
 
@@ -77,6 +84,8 @@
 
     [Parameter] public EventCallback<InventoryItem> OnCompleteForm { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback OnDelete { get; set; }
+    [Parameter] public bool showDelete { get; set; } = false;
     [Parameter] public InventoryItem? EditItem { get; set; }
     private InventoryItem item = new InventoryItem();
     private DataMapper mapper = new DataMapper();
@@ -115,5 +124,10 @@
     {
         item = new InventoryItem();
         OnCancel.InvokeAsync();
+    }
+
+    private async Task HaneleDelete()
+    {
+        await OnDelete.InvokeAsync();
     }
 }

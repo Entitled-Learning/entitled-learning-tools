@@ -2,6 +2,8 @@
 @inject IJSRuntime JSRuntime
 @inject DialogService DialogService
 @inject NavigationManager NavManager
+@inject PageNotificationService PageNotificationService
+@inject ILogger<InventoryDataGrid> _logger
 
 <div class="flex items-center mb-2">
     <a href="/add-data?option=Inventory" class="mr-2">
@@ -34,13 +36,17 @@ Data="@_filteredData"TItem=" InventoryItemStorageContractV1" ColumnWidth="300px"
 
 <Modal @ref="_itemModalRef">
     <!-- Dynamic content for the modal body -->
-    <InventoryIntakeForm OnCompleteForm="@SubmitItemModalForm" OnCancel="@CancelItemModalForm" EditItem="@_itemToEdit" />
+    <InventoryIntakeForm OnCompleteForm="@SubmitItemModalForm" OnCancel="@CancelItemModalForm" OnDelete="@HandleDelete" ShowDelete="@(true)" EditItem="@_itemToEdit" />
 </Modal>
+
+<ConfirmationModal @ref="confirmationModalRef" OnConfirmation="HandleDeleteConfirmation" />
 
 @code {
     private IEnumerable< InventoryItemStorageContractV1>? _inventory;
     private IList< InventoryItemStorageContractV1>? _selectedItems;
     private IList< InventoryItemStorageContractV1>? _filteredData;
+
+    private ConfirmationModal? confirmationModalRef; 
     private string _searchTerm = string.Empty;
     private Modal? _itemModalRef; 
     private InventoryItem? _itemToEdit = null;
@@ -121,7 +127,6 @@ Data="@_filteredData"TItem=" InventoryItemStorageContractV1" ColumnWidth="300px"
 
     private void CancelItemModalForm()
     {
-        _itemToEdit = null;
         _itemModalRef?.CloseModal();
     }
 
@@ -172,6 +177,33 @@ Data="@_filteredData"TItem=" InventoryItemStorageContractV1" ColumnWidth="300px"
                         contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                         fileName = "InventoryData.xlsx"
                     });
+            }
+        }
+    }
+
+    private async Task HandleDelete()
+    {
+        // close item modal
+        _itemModalRef?.CloseModal();
+
+        // show confirmation modal
+        confirmationModalRef?.ShowModal();
+    }
+
+    private async Task HandleDeleteConfirmation(bool confirmed)
+    {
+        confirmationModalRef?.CloseModal();
+        
+        if (confirmed)
+        {
+            try
+            {
+                await _db.DeleteAsync(_itemToEdit.Id!);
+                await FetchData();
+            }
+            catch 
+            {
+                PageNotificationService.NotifyErrorOccured();
             }
         }
     }

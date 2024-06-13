@@ -2,7 +2,7 @@
   <div class="modal-dialog max-w-full">
     <div class="modal-content">
         <div class="modal-body">
-            <p>Are you sure you want to submit the form?</p>
+            <p>@(ConfirmationText ?? "Are you sure?")</p>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn bg-red-600 text-white my-4 mr-2" @onclick="CloseModal">Cancel</button>
@@ -16,6 +16,9 @@
     [Parameter]
     public EventCallback<bool> OnConfirmation { get; set; }
 
+    [Parameter]
+    public string? ConfirmationText { get; set; }
+    
     private bool _isVisible = false;
 
     public void ShowModal()
