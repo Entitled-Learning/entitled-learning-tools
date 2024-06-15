@@ -1540,6 +1540,10 @@ select {
     width: 33.333333%;
   }
 
+  .md\:w-64 {
+    width: 16rem;
+  }
+
   .md\:items-center {
     align-items: center;
   }

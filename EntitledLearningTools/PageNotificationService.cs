@@ -17,14 +17,14 @@ public class PageNotificationService
         _notificationService = notificationService;
     }
 
-    public void NotifyErrorOccured()
+    public void NotifyErrorOccured(string? message = null)
     {
         _notificationService.Notify(new NotificationMessage
         {
             Severity = NotificationSeverity.Error,
             Duration = 4000,
             Summary = "An error has occurred.", 
-            Detail = "Our team has been notified. Please try again later.",
+            Detail = message ?? "Our team has been notified. Please try again later.",
         });
     }
 }

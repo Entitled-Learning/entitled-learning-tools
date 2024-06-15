@@ -12,7 +12,7 @@
     </h1>
 
     <p>
-        <abbr title="entitled learning tools">EntitledTooling</abbr>
+        <abbr class="cursor-pointer" title="entitled learning tools">EntitledTooling</abbr>
         helps ease the management of data for the organization.
     </p>
 
@@ -28,21 +28,25 @@
             }
         }
     </div>
+
+    <p>
+        Explore the <abbr class="cursor-pointer" title="github repository">GitHub repository →</abbr>
+    </p>
 </div>
 
 @code {
     private Dictionary<string, string> _links = new Dictionary<string, string>() {
         { "Dashboard", "/enrollment-dashboard" },
         { "Explore Data", "/explore-data" },
+        { "Quiz Grader", "/grading-tool" },
         { "Main Site", "https://www.entitledlearning.com/" },
-        { "GitHub Repo", "https://github.com/Entitled-Learning/entitled-learning-tools" }
     };
 
     private Dictionary<string, string> _descriptions = new Dictionary<string, string>() {
         { "Dashboard", "View metrics and visualizations" },
         { "Explore Data", "View and export program data" },
+        { "Quiz Grader", "Auto-grade your Jotform quizzes" },
         { "Main Site", "Navigate to the Entitled Learing website" },
-        { "GitHub Repo", "Navigate to the code repo for this website" }
     };
 
 }

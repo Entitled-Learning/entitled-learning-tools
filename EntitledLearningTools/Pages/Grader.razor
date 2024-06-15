@@ -1,0 +1,107 @@
+@page "/grading-tool"
+@inherits BasePage
+
+@inject TooltipService tooltipService;
+@inject IJSRuntime JSRuntime;
+@inject NavigationManager NavManager;
+@inject PageNotificationService PageNotificationService;
+@inject ILogger<Grader> _logger;
+
+<PageTitle>Entitled Tooling | Grader</PageTitle>
+
+<AuthorizeView  Context="auth_context">
+    <Authorized>
+        <section class="flex flex-col p-4 w-full">
+            <RadzenBreadCrumb class="mb-8">
+                <RadzenBreadCrumbItem Path="/" Text="Home" />
+                <RadzenBreadCrumbItem Icon="" Text="Grader" />
+            </RadzenBreadCrumb>
+
+            <div class="flex flex-col">
+                <h1 class="text-2xl font-bold leading-loose">Grader</h1>
+                <h2 class="leading-loose">Enter the form Id of the JotForm that you woule like to grade.</h2>
+                <p><a href="#">Click here</a> for more information on formatting forms for the grader</p>
+            </div>
+
+            <div class="my-4 w-full md:w-64">
+                <EditForm Model="@formId" OnValidSubmit="@HandleValidSubmit">
+                    <DataAnnotationsValidator />
+
+                    <div class="form-group">
+                        <div class="flex flex-wrap mb-6">
+                            <div class="w-full">
+                                <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="FormId"
+                                    Variant="@variant">
+                                    <RadzenTextBox @bind-Value="formId" />
+                                </RadzenFormField>
+                                <ValidationMessage class="text-xs text-danger" For="@(() => formId)" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <RadzenButton type="submit" Text="Grade" Icon="" ButtonStyle="ButtonStyle.Primary" />
+
+                </EditForm>
+            </div>
+
+            <ListTable Data="@_scores.Select(x => x.ToDictionary())"/>
+
+        </section>
+    </Authorized>
+    <NotAuthorized>
+        <h1 class="text-2xl leading-loose">Please Log in to access this page</h1>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+
+    Variant variant = Variant.Outlined;
+    List<ScoreData> _scores = new List<ScoreData>();
+    private string formId = "";
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            _scores = await JSRuntime.InvokeAsync<List<ScoreData>>("gradeForm", formId);
+            StateHasChanged();
+
+            if (_scores is not null)
+            {
+                foreach (var score in _scores)
+                {
+                    Console.WriteLine($"Student ID: {score.StudentId}, Score: {score.Score}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No scores returned.");
+            }
+        }
+        catch (Exception ex)
+        {
+            if (ex.Message.Contains("Error: formId is required"))
+            {
+                PageNotificationService.NotifyErrorOccured("Please provide a valid JorForm Id");
+            }
+            else
+            {
+                PageNotificationService.NotifyErrorOccured();
+            }
+
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+
+    public class ScoreData
+    {
+        public string FormTitle { get; set; }
+        public string StudentId { get; set; }
+        public int Score { get; set; }
+    }
+}

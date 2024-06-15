@@ -30,6 +30,11 @@
 
     private void HandleRowClick(IDictionary<string, object> item)
     {
+        if (!OnItemClick.HasDelegate)
+        {
+            return;
+        }
+
         var itemId = item["Id"];
 
         if (Data != null)
