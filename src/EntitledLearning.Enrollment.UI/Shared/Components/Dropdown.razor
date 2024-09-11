@@ -1,0 +1,44 @@
+﻿@inherits InputBase<string>
+<div>
+    <div class="@(Class is not null ? "":"dropdown")">
+        <select @onchange="ChangeHandler" class="@Class">
+            @if (Options is not null)
+                @foreach (var option in Options)
+                {
+                    <option value="@option">@option</option>
+                }
+        </select>
+    </div>
+
+</div>
+
+
+@code {
+    [Parameter] public string[]? Options { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public Action? ParentChangeHandler { get; set; }
+
+    private void ChangeHandler(ChangeEventArgs e)
+    {
+        if(e.Value is not null)
+        {
+            CurrentValue = e.Value.ToString();
+            StateHasChanged();
+        }
+
+        if(ParentChangeHandler is not null)
+        {
+                ParentChangeHandler.Invoke();
+        }
+    }
+
+    // Implement the TryParseValueFromString method
+    protected override bool TryParseValueFromString(string? value, out string result, out string validationErrorMessage)
+    {
+        Guard.IsNotNull(value);
+        result = value;
+        validationErrorMessage = "Could not parse value in dropdown"; // Set to an error message if the parsing fails
+
+        return true; // Return false if parsing fails
+    }
+}

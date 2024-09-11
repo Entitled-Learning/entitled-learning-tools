@@ -1,0 +1,87 @@
+﻿@page "/add-data"
+@inherits BasePage
+
+@inject TooltipService tooltipService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavManager
+
+
+
+<PageTitle>Entitled Tooling | Add Data</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+         <section class="flex flex-col p-4 w-full">
+            <RadzenBreadCrumb class="mb-8">
+                <RadzenBreadCrumbItem Path="/" Text="Home" />
+                <RadzenBreadCrumbItem Icon="" Text="Add Data" />
+            </RadzenBreadCrumb>
+
+            <div class="flex flex-col">
+                <h1 class="text-2xl font-bold leading-loose">Add New Data</h1>
+                <h2 class="leading-loose">Select the data type you want to add, and then complete the data intake form.</h2>
+                <RadzenButton class="bg-transparent text-black self-start" Icon="help" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small" MouseEnter="@(args => tooltipService.Open(args, "Data is uploaded in real-time to Entitled Learning's cloud databse.", null))"/>
+            </div>
+            
+            <RadzenDropDown @bind-Value=@_selectedOption Data=@_segments Change="@(args => Navigate(args))" class="my-4" Style="width: 100%; max-width: 400px;"/>
+
+            <div class="mt-8">
+                @if (_selectedOption == DataTypes.Students.ToString())
+                {
+                    <StudentIntakeBase />
+                }
+
+                @if (_selectedOption == DataTypes.CommunityPartners.ToString())
+                {
+                    <CommunityPartnerIntakeForm />
+                }
+
+                @if (_selectedOption == DataTypes.CommunityPartnerContacts.ToString())
+                {
+                    <CommunityPartnerContactIntakeForm />
+                }
+
+                @if (_selectedOption == DataTypes.Inventory.ToString())
+                {
+                    <InventoryIntakeForm OnCancel="NavigateToInventory" />
+                }
+            </div>  
+        </section>
+    </Authorized>
+    <NotAuthorized>
+        <h1 class="text-2xl leading-loose">Please Log in to access this page</h1>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private IEnumerable<string> _segments = new List<string>() {
+        DataTypes.Students.ToString(),
+        DataTypes.CommunityPartners.ToString(),
+        DataTypes.CommunityPartnerContacts.ToString(),
+        DataTypes.Inventory.ToString()
+    };
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "option")]
+    public string _selectedOption { get; set; } = DataTypes.Students.ToString();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        if (_selectedOption == null)
+        {
+            NavManager.NavigateTo("/add-data?option=Students");
+        }
+    }
+
+    private void Navigate(object e)
+    {
+        NavManager.NavigateTo($"/add-data?option={e}");
+    }
+
+    private void NavigateToInventory()
+    {
+        NavManager.NavigateTo("/explore-data?option=Inventory");
+    }
+}

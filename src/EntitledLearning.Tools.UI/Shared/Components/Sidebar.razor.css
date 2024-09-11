@@ -1,0 +1,74 @@
+﻿.sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: space-between;
+    background: rgba(60, 60, 60, 1);
+    z-index: 111;
+}
+
+.sidebar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: transparent;
+    width: 100%;
+    margin-top: 18px;
+    background: transparent; /* (37, 50, 125, 1); */
+}
+
+.sidebar-icon {
+    color: rgba(125, 125, 125, 1);
+    cursor: pointer;
+    margin: 1rem 0;
+    font-size: 1.25rem;
+}
+
+.sidebar-icon:hover {
+    color: rgba(185, 185, 185, 1);
+    -webkit-transition: all 0.3s ease-in-out;
+    -moz-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+.navbar-brand {
+    font-size: 1.1rem;
+}
+
+.oi {
+    width: 2rem;
+    font-size: 1.1rem;
+    vertical-align: text-top;
+    top: -2px;
+}
+
+.nav-item {
+    font-size: 0.9rem;
+    padding-bottom: 0.5rem;
+}
+
+.nav-item:first-of-type {
+    /* padding-top: 1rem; */
+}
+
+.nav-item:last-of-type {
+    padding-bottom: 1rem;
+}
+
+.nav-item ::deep a {
+    color: rgba(37, 50, 125, 1);
+    border-radius: 4px;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    line-height: 3rem;
+}
+
+.nav-item ::deep a.active {
+    background-color: rgba(37, 50, 125, 1);
+    color: white;
+}
+
+.nav-item ::deep a:hover {
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+}

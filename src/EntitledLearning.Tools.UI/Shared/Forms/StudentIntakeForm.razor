@@ -1,0 +1,169 @@
+﻿<div class="my-4">
+      <h1 class="text-2xl leading-loose ml-6">Student Information</h1>
+      <EditForm Model="@student" OnValidSubmit="@HandleValidSubmit">
+        <DataAnnotationsValidator />
+
+        <!-- Student Form Fields -->
+        <div class="form-group p-4 mt-2">
+            <div class="flex flex-wrap mb-6">
+                <div class="w-full md:w-1/12 pr-3 mb-6 md:mb-0">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Prefix" Variant="@variant">
+                        <RadzenTextBox @bind-Value="student.Prefix" />
+                    </RadzenFormField>
+                    <ValidationMessage For="@(() => student.Prefix)" />
+                </div>
+
+                <div class="w-full md:w-4/12 pr-3 mb-6 md:mb-0">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="First Name" Variant="@variant">
+                        <RadzenTextBox @bind-Value="student.FirstName" />
+                    </RadzenFormField>
+                    <ValidationMessage For="@(() => student.FirstName)" />
+                </div>
+
+                <div class="w-full md:w-2/12 pr-3 mb-6 md:mb-0">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Middle Name" Variant="@variant">
+                        <RadzenTextBox @bind-Value="student.MiddleName" />
+                    </RadzenFormField>
+                    <ValidationMessage For="@(() => student.MiddleName)" />
+                </div>
+
+                <div class="w-full md:w-4/12 pr-3 mb-6 md:mb-0">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Last Name" Variant="@variant">
+                        <RadzenTextBox @bind-Value="student.LastName" />
+                    </RadzenFormField>
+                    <ValidationMessage For="@(() => student.LastName)" />
+                </div>
+
+                <div class="w-full md:w-1/12 mb-6 md:mb-0">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Suffix" Variant="@variant">
+                        <RadzenTextBox @bind-Value="student.Suffix" />
+                    </RadzenFormField>
+                    <ValidationMessage For="@(() => student.Suffix)" />
+                </div>
+            </div>
+
+            <div class="flex flex-wrap mb-6">
+                <div class="w-full md:w-1/4 pr-3 mb-6 md:mb-0">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Race" Variant="@variant">
+                        <RadzenDropDown Data=@raceOptions @bind-Value="@student.Race" />
+                    </RadzenFormField>
+                    <ValidationMessage For="@(() => student.Race)" />
+                </div>
+
+                <div class="w-full md:w-1/4 pr-3 mb-6 md:mb-0">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Date of Birth" Variant="@variant">
+                        <RadzenDatePicker @bind-Value=@student.DateOfBirth Name="RadzenDatePickerBindValue" DateFormat="MM/dd/yyyy" ShowCalendarWeek />
+                    </RadzenFormField>
+                    <ValidationMessage For="@(() => student.DateOfBirth)" />
+                </div>
+
+                <div class="w-full md:w-1/4 pr-3 mb-6 md:mb-0">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Household Income Range" Variant="@variant">
+                        <RadzenDropDown Data=@incomeOptions @bind-Value="@student.HouseholdIncomeRange" />
+                    </RadzenFormField>
+                    <ValidationMessage For="@(() => student.HouseholdIncomeRange)" />
+                </div>
+                
+                <div class="w-full md:w-1/4 mb-6 md:mb-0">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Shirt Size" Variant="@variant">
+                        <RadzenDropDown Data=@shirtSizeOptions @bind-Value="@student.ShirtSize" />
+                    </RadzenFormField>
+                    <ValidationMessage For="@(() => student.ShirtSize)" />
+                </div>
+            </div>
+
+            <div class="flex flex-wrap mb-6">
+                <div class="w-full">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Address Line 1" Variant="@variant">
+                        <RadzenTextBox @bind-Value="student.AddressLine1" />
+                    </RadzenFormField>
+                    <ValidationMessage For="@(() => student.AddressLine1)" />
+                </div>
+            </div>
+
+            <div class="flex flex-wrap mb-6">
+                <div class="w-full">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Address Line 2" Variant="@variant">
+                        <RadzenTextBox @bind-Value="student.AddressLine2" />
+                    </RadzenFormField>
+                    <ValidationMessage For="@(() => student.AddressLine2)" />
+                </div>
+            </div>
+
+            <div class="flex flex-wrap mb-6">
+                <div class="w-full md:w-1/3 mb-6 md:mb-0">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="City" Variant="@variant">
+                        <RadzenTextBox @bind-Value="student.City" />
+                    </RadzenFormField>
+                    <ValidationMessage For="@(() => student.City)" />
+                </div>
+
+                <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="State" Variant="@variant">
+                        <RadzenDropDown Data=@states @bind-Value="@student.State" />
+                    </RadzenFormField>
+                    <ValidationMessage For="@(() => student.State)" />
+                </div>
+
+                <div class="w-full md:w-1/3 mb-6 md:mb-0">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Zipcode" Variant="@variant">
+                        <RadzenNumeric @bind-Value="@student.ZipCode" />
+                    </RadzenFormField>
+                    <ValidationMessage For="@(() => student.ZipCode)" />
+                </div>
+            </div>   
+
+            <div class="flex flex-wrap mb-6">
+                <div class="w-full md:w-1/3 mb-6 md:mb-0">
+                    <RadzenFormField class="w-full" AllowFloatingLabel="false" Text="Authorize photo release?" Variant="@variant">
+                        <RadzenCheckBox @bind-Value=@student.AllowPhotoRelease Name="AllowPhotoRelease" />
+                    </RadzenFormField>
+                    <ValidationMessage For="@(() => student.AllowPhotoRelease)" />
+                </div>
+            </div>         
+        </div>
+
+        <RadzenButton type="button" Text="Cancel" Icon="" ButtonStyle="ButtonStyle.Danger" Click="HandleCancel"/>
+        <RadzenButton type="submit" Text="Save" Icon="" ButtonStyle="ButtonStyle.Primary" />
+    </EditForm>
+</div>
+
+@code {
+    [Parameter] public EventCallback<Student> OnCompleteStudentFormForm { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public Student? EditStudent { get; set; }
+
+    private DataMapper mapper = new DataMapper();
+    public Student student = new Student();
+    private string[] states = new string[] { "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming" };
+    private string[] raceOptions = new string[] { "Black", "White", "Asian", "Hispanic", "Mixed Race" };
+    private string[] incomeOptions = new string[] { "N/A", "$0 to $11,000", "$11,000 to $44,725", "$44,725 to $95,375", "$95,375 to $182,100", "$182,100 to $231,250", "$231,250 to $578,125", "$578,125 or more" };
+    private string[] shirtSizeOptions = new string[] { "Adult S", "Adult M", "Adult L", "Adult XL", "Adult 2XL", "Youth S", "Youth M", "Youth L", "Youth XL", "Youth 2XL", };  
+    Variant variant = Variant.Outlined;
+
+
+    protected override void OnParametersSet()
+    {
+        if(EditStudent is not null){
+            student = mapper.Copy(EditStudent);
+        }
+    }
+
+    private void HandleValidSubmit()
+    {
+        if (student is not null)
+        {
+            var result = mapper.Copy(student);
+            student = new Student();
+
+            // Pass the edited data back to the parent component
+            OnCompleteStudentFormForm.InvokeAsync(result);
+        }
+    }
+
+    private void HandleCancel()
+    {
+        student = new Student();
+        OnCancel.InvokeAsync();
+    }
+}

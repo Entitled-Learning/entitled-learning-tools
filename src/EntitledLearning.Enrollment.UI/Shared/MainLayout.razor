@@ -1,0 +1,26 @@
+﻿@inherits LayoutComponentBase
+
+<RadzenComponents/>
+<PageTitle>EntitledLearningTools</PageTitle>
+<div class="min-h-screen">
+    <Navbar/>
+    <Sidebar/>
+    <section class="content content-section flex justify-center p-2 max-w-screen m-auto">
+        @Body
+    </section>
+</div>
+
+@code{
+
+    public Type? PageType { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        var routeView = (this.Body!.Target as RouteView);
+
+        if (routeView is not null)
+        {
+            PageType = routeView.RouteData.PageType;
+        }
+    }
+}
