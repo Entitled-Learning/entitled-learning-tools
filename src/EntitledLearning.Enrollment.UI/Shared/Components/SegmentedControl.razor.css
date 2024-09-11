@@ -1,0 +1,20 @@
+﻿.segmented-control {
+    display: flex;
+    overflow: hidden;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin: 50px 0;
+}
+
+.segmented-control button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    outline: none;
+}
+
+.segmented-control button.selected {
+    background-color: #007bff;
+    color: #fff;
+}

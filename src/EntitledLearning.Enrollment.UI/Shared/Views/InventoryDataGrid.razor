@@ -1,0 +1,210 @@
+@inject InventoryItemRepository _db
+@inject IJSRuntime JSRuntime
+@inject DialogService DialogService
+@inject NavigationManager NavManager
+@inject PageNotificationService PageNotificationService
+@inject ILogger<InventoryDataGrid> _logger
+
+<div class="flex items-center mb-2">
+    <a href="/add-data?option=Inventory" class="mr-2">
+        <RadzenButton Text="Add New" Icon="add" ButtonStyle="ButtonStyle.Primary" />
+    </a>
+    <RadzenButton Text="Download as Excel" Icon="file_download" ButtonStyle="ButtonStyle.Success" Click="DownloadAsExcel" />
+</div>
+
+<div class="flex my-4">
+    <RadzenTextBox class="flex-1 py-3 border-none rounded-full bg-gray-200/30" @oninput="UpdateFilteredData" placeholder="Search..." aria-label="Default TextBox" />
+</div>
+ 
+<RadzenDataGrid  AllowColumnResize="true" AllowAlternatingRows="false" AllowSorting="true" PageSize="_pageSize" AllowPaging="true"PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" 
+Data="@_filteredData"TItem=" InventoryItemStorageContractV1" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or"
+    SelectionMode="DataGridSelectionMode.Single" @bind-Value=@_selectedItems RowSelect="(row) => OpenDetails(row)">
+    <Columns>
+        <RadzenDataGridColumn TItem=" InventoryItemStorageContractV1" Property="Name" Title="Name" Width="200px"/>
+        <RadzenDataGridColumn TItem=" InventoryItemStorageContractV1" Property="Description" Title="Description" Width="200px" />
+        <RadzenDataGridColumn TItem=" InventoryItemStorageContractV1" Property="Quantity" Title="Quantity" Width="200px" />
+        <RadzenDataGridColumn TItem=" InventoryItemStorageContractV1" Property="Description" Title="Description" Width="200px" />
+        <RadzenDataGridColumn TItem=" InventoryItemStorageContractV1" Property="PhysicalLocation" Title="Physical Location" Width="200px" />
+        <RadzenDataGridColumn TItem=" InventoryItemStorageContractV1" Title="Expiration Date" Width="200px" >
+            <Template>
+                @(context.ExpirationDate?.ToString("MM/dd/yyy"))
+            </Template>
+        </RadzenDataGridColumn>        
+        <RadzenDataGridColumn TItem=" InventoryItemStorageContractV1" Property="Sku" Title="Sku" Width="200px" />
+    </Columns>
+</RadzenDataGrid>
+
+<Modal @ref="_itemModalRef">
+    <!-- Dynamic content for the modal body -->
+    <InventoryIntakeForm OnCompleteForm="@SubmitItemModalForm" OnCancel="@CancelItemModalForm" OnDelete="@HandleDelete" ShowDelete="@(true)" EditItem="@_itemToEdit" />
+</Modal>
+
+<ConfirmationModal @ref="confirmationModalRef" OnConfirmation="HandleDeleteConfirmation" />
+
+@code {
+    private IEnumerable< InventoryItemStorageContractV1>? _inventory;
+    private IList< InventoryItemStorageContractV1>? _selectedItems;
+    private IList< InventoryItemStorageContractV1>? _filteredData;
+
+    private ConfirmationModal? confirmationModalRef; 
+    private string _searchTerm = string.Empty;
+    private Modal? _itemModalRef; 
+    private InventoryItem? _itemToEdit = null;
+    private DataMapper _mapper = new DataMapper();
+
+    private int _pageSize = 20;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await FetchData();
+    }
+
+    private async Task FetchData()
+    {
+        _inventory = await _db.GetAllAsync();
+        ResetFilterdData();
+        FilterData();
+    }
+
+    private void OpenDetails(InventoryItemStorageContractV1 item)
+    {
+        _itemToEdit = _mapper.ToInventoryItem(item);
+        _itemModalRef?.ShowModal();
+    }
+
+    private void UpdateFilteredData(ChangeEventArgs e)
+    {
+        _searchTerm = e.Value?.ToString() ?? string.Empty;
+        FilterData();
+    }
+
+    private void ResetFilterdData()
+    {
+        if (_inventory is null)
+        {
+            return;
+        }
+
+        _filteredData = new List< InventoryItemStorageContractV1>();
+        foreach (var student in _inventory)
+        {
+            if(_filteredData.Any(t => t.Id == student.Id))
+            {
+                continue;
+            } else {
+                _filteredData.Add(student);
+            }
+        }
+    }
+
+    private void FilterData()
+    {
+         if (_inventory is null)
+        {
+            return;
+        }
+
+        _filteredData = _inventory
+        .Where(t =>
+            (t.Name != null && t.Name.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.Description != null && t.Description.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.PhysicalLocation != null && t.PhysicalLocation.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.Sku != null && t.Sku.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase))).ToList();
+    }
+
+    private async Task SubmitItemModalForm(InventoryItem editedModel)
+    {
+        // Update the item
+        var storageContract = _mapper.ToInventoryItemStorageContractV1(editedModel);
+        await _db.UpdateAsync(storageContract);
+
+        await FetchData();
+
+        // Close the modal
+        _itemModalRef?.CloseModal();
+    }
+
+    private void CancelItemModalForm()
+    {
+        _itemModalRef?.CloseModal();
+    }
+
+    private async Task DownloadAsExcel()
+    {
+        var filteredData = _inventory?.Select(x => x.ToDictionary());
+
+        if (filteredData is not null && filteredData.Any())
+        {
+            var package = new OfficeOpenXml.ExcelPackage();
+            var worksheet = package.Workbook.Worksheets.Add("Sheet1");
+
+            // Header
+            var headerRow = 1;
+            var columnIndex = 1;
+            foreach (var header in filteredData.First().Keys)
+            {
+                worksheet.Cells[headerRow, columnIndex].Value = header;
+                columnIndex++;
+            }
+
+            // Data
+            var dataRow = 2;
+            foreach (var row in filteredData)
+            {
+                columnIndex = 1;
+                foreach (var value in row.Values)
+                {
+                    worksheet.Cells[dataRow, columnIndex].Value = value;
+                    columnIndex++;
+                }
+                dataRow++;
+            }
+
+            // Save the Excel package to a stream
+            using (var stream = new MemoryStream())
+            {
+                await package.SaveAsAsync(stream);
+
+                // Convert the byte array to base64
+                var base64 = Convert.ToBase64String(stream.ToArray());
+                
+                // Invoke JavaScript to trigger the download
+                await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", 
+                    new
+                    {
+                        content = base64,
+                        contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        fileName = "InventoryData.xlsx"
+                    });
+            }
+        }
+    }
+
+    private void HandleDelete()
+    {
+        // close item modal
+        _itemModalRef?.CloseModal();
+
+        // show confirmation modal
+        confirmationModalRef?.ShowModal();
+    }
+
+    private async Task HandleDeleteConfirmation(bool confirmed)
+    {
+        confirmationModalRef?.CloseModal();
+        
+        if (confirmed)
+        {
+            try
+            {
+                await _db.DeleteAsync(_itemToEdit?.Id!);
+                await FetchData();
+            }
+            catch 
+            {
+                PageNotificationService.NotifyErrorOccured();
+            }
+        }
+    }
+}

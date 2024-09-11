@@ -1,11 +1,13 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntitledLearningTools", "EntitledLearningTools\EntitledLearningTools.csproj", "{9E7ED653-9819-4C27-948D-4BD28722F96C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntitledLearning.Data.SqlClient", "src\EntitledLearning.Data.SqlClient\EntitledLearning.Data.SqlClient.csproj", "{1A3388CD-51AD-4E3A-BC03-D964E783237E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ELDataAccessLibrary", "ELDataAccessLibrary\ELDataAccessLibrary.csproj", "{65A38B73-5EE7-4BF9-B443-4231214B2FED}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntitledLearning.Tools.UI", "src\EntitledLearning.Tools.UI\EntitledLearning.Tools.UI.csproj", "{529A02E0-0561-4AF6-8117-3B5B6C4AECB0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntitledLearning.Enrollment.UI", "src\EntitledLearning.Enrollment.UI\EntitledLearning.Enrollment.UI.csproj", "{3234A345-C79A-4037-99BB-220C742777B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,13 +18,17 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9E7ED653-9819-4C27-948D-4BD28722F96C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9E7ED653-9819-4C27-948D-4BD28722F96C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9E7ED653-9819-4C27-948D-4BD28722F96C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9E7ED653-9819-4C27-948D-4BD28722F96C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{65A38B73-5EE7-4BF9-B443-4231214B2FED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{65A38B73-5EE7-4BF9-B443-4231214B2FED}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{65A38B73-5EE7-4BF9-B443-4231214B2FED}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{65A38B73-5EE7-4BF9-B443-4231214B2FED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A3388CD-51AD-4E3A-BC03-D964E783237E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A3388CD-51AD-4E3A-BC03-D964E783237E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A3388CD-51AD-4E3A-BC03-D964E783237E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A3388CD-51AD-4E3A-BC03-D964E783237E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{529A02E0-0561-4AF6-8117-3B5B6C4AECB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{529A02E0-0561-4AF6-8117-3B5B6C4AECB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{529A02E0-0561-4AF6-8117-3B5B6C4AECB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{529A02E0-0561-4AF6-8117-3B5B6C4AECB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3234A345-C79A-4037-99BB-220C742777B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3234A345-C79A-4037-99BB-220C742777B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3234A345-C79A-4037-99BB-220C742777B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3234A345-C79A-4037-99BB-220C742777B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

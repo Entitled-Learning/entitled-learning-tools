@@ -1,0 +1,11 @@
+<!-- BasePage.razor -->
+@inherits ComponentBase
+@inject ILogger<BasePage> Logger
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        Logger.LogInformation($"Successfully routed to {GetType().Name}!");
+        await base.OnInitializedAsync();
+    }
+}

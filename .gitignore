@@ -406,7 +406,10 @@ ASALocalRun/
 guard
 
 # Development appsettings
-EntitledLearningTools/appsettings.Development.json
+src/EntitledLearning.Tools.UI/appsettings.Development.json
+src/EntitledLearning.Enrollment.UI/appsettings.Development.json
+
 
 # Development logs
-EntitledLearningTools/eltools_application_logs
+src/EntitledLearning.Tools.UI/eltools_application_logs
+src/EntitledLearning.Enrollment.UI/eltools_application_logs

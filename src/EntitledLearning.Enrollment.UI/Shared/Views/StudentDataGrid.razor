@@ -1,0 +1,187 @@
+@inject StudentRepository _db
+@inject IJSRuntime JSRuntime
+@inject DialogService DialogService
+@inject NavigationManager NavManager
+
+@if(ShowButtons) {
+    <div class="flex items-center mb-2">
+        <a href="/add-data?option=Students" class="mr-2">
+            <RadzenButton Text="Add New" Icon="add" ButtonStyle="ButtonStyle.Primary" />
+        </a>
+        <RadzenButton Text="Download as Excel" Icon="file_download" ButtonStyle="ButtonStyle.Success" Click="DownloadAsExcel" />
+    </div>
+}
+
+<div class="flex my-4">
+    <RadzenTextBox class="flex-1 py-3 border-none rounded-full bg-gray-200/30" @oninput="UpdateFilteredData" placeholder="Search..." aria-label="Default TextBox" />
+</div>
+ 
+<RadzenDataGrid  AllowColumnResize="true" AllowAlternatingRows="false" AllowSorting="true" PageSize="_pageSize" AllowPaging="true"PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true" 
+Data="@_filteredData"TItem="StudentStorageContractV1" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or"
+    SelectionMode="DataGridSelectionMode.Single" @bind-Value=@_selectedStudents RowSelect="(row) => OpenDetails(row)">
+    <Columns>
+        <RadzenDataGridColumn TItem="StudentStorageContractV1" Title="Name" Width="200px" >
+            <Template>
+                @context.Prefix @context.FirstName @context.MiddleName @context.LastName @context.Suffix
+            </Template>
+        </RadzenDataGridColumn>
+
+        <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="Race" Title="Race" Width="200px" />
+        <RadzenDataGridColumn TItem="StudentStorageContractV1" Title="Age" Width="200px" >
+            <Template>
+                @(context.Age)
+            </Template>
+        </RadzenDataGridColumn>        
+        <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="HouseholdIncomeRange" Title="Household Income Range" Width="200px" />
+        <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="ShirtSize" Title="Shirt Size" Width="200px" />
+        <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="AllowPhotoRelease" Title="Allow Photo Release" Width="200px">
+            <Template>
+                @(context.AllowPhotoRelease ? "✅" : "❌")
+            </Template>
+        </RadzenDataGridColumn> 
+        <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="EmailAddress" Title="Email" Width="200px" />
+        <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="AddressLine1" Title="Address Line 1" Width="120px" />
+        <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="AddressLine2" Title="Address Line 2" Width="160px" />
+        <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="City" Title="City" Width="160px" />
+        <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="State" Title="State" Width="160px" />
+        <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="ZipCode" Title="Zipcode" Width="160px" />
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+
+    [Parameter] public bool ShowButtons { get; set; } = true;
+
+    private IEnumerable<StudentStorageContractV1>? _students;
+    private IList<StudentStorageContractV1>? _selectedStudents;
+    private IList<StudentStorageContractV1>? _filteredData;
+    private string _searchTerm = string.Empty;
+
+    private int _pageSize = 20;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        _students = await _db.GetAllAsync();
+        ResetFilterdData();
+    }
+
+    private void OpenDetails(StudentStorageContractV1 student)
+    {
+        NavManager.NavigateTo("/student/" + student.Id);
+        @* Console.WriteLine(_selectedStudents?[0].FirstName);
+        InvokeAsync(async () => {
+            await BusyDialog();
+        }); *@
+    }
+
+    // Busy dialog from markup
+    async Task BusyDialog()
+    {
+       var result = await DialogService.OpenAsync("Student Details", ds =>
+        @<RadzenStack Gap="1.5rem">
+            <p>@_selectedStudents?[0].FirstName</p>
+            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+                <RadzenStack Orientation="Orientation.Horizontal">
+                    <RadzenButton Text="Ok" Click="() => ds.Close(true)" Style="width: 80px;" />
+                </RadzenStack>
+            </RadzenStack>
+        </RadzenStack>);
+    }
+
+    private void UpdateFilteredData(ChangeEventArgs e)
+    {
+        _searchTerm = e.Value?.ToString() ?? string.Empty;
+        FilterData();
+    }
+
+    private void ResetFilterdData()
+    {
+        if (_students is null)
+        {
+            return;
+        }
+
+        _filteredData = new List<StudentStorageContractV1>();
+        foreach (var student in _students)
+        {
+            if(_filteredData.Any(t => t.Id == student.Id))
+            {
+                continue;
+            } else {
+                _filteredData.Add(student);
+            }
+        }
+    }
+
+    private void FilterData()
+    {
+         if (_students is null)
+        {
+            return;
+        }
+
+        _filteredData = _students
+        .Where(t =>
+            (t.FirstName != null && t.FirstName.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.LastName != null && t.LastName.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.Race != null && t.Race.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.AddressLine1 != null && t.AddressLine1.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.AddressLine2 != null && t.AddressLine2.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.City != null && t.City.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.State != null && t.State.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
+            (t.ZipCode != null && t.ZipCode.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase))).ToList();
+    }
+
+    private async Task DownloadAsExcel()
+    {
+        var filteredData = _students?.Select(x => x.ToDictionary());
+
+        if (filteredData is not null && filteredData.Any())
+        {
+            var package = new OfficeOpenXml.ExcelPackage();
+            var worksheet = package.Workbook.Worksheets.Add("Sheet1");
+
+            // Header
+            var headerRow = 1;
+            var columnIndex = 1;
+            foreach (var header in filteredData.First().Keys)
+            {
+                worksheet.Cells[headerRow, columnIndex].Value = header;
+                columnIndex++;
+            }
+
+            // Data
+            var dataRow = 2;
+            foreach (var row in filteredData)
+            {
+                columnIndex = 1;
+                foreach (var value in row.Values)
+                {
+                    worksheet.Cells[dataRow, columnIndex].Value = value;
+                    columnIndex++;
+                }
+                dataRow++;
+            }
+
+            // Save the Excel package to a stream
+            using (var stream = new MemoryStream())
+            {
+                await package.SaveAsAsync(stream);
+
+                // Convert the byte array to base64
+                var base64 = Convert.ToBase64String(stream.ToArray());
+                
+                // Invoke JavaScript to trigger the download
+                await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", 
+                    new
+                    {
+                        content = base64,
+                        contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        fileName = "StudentData.xlsx"
+                    });
+            }
+        }
+    }
+}
