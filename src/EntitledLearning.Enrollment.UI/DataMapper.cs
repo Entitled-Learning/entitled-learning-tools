@@ -4,12 +4,12 @@
 // </copyright>
 // ----------------------------------------------------------------
 
-using EntitledLearning.Tools.UI.Models;
+using EntitledLearning.Enrollment.UI.Models;
 using EntitledLearning.Data.StorageContracts;
 using Riok.Mapperly.Abstractions;
 using EntitledLearning.Data.Models;
 
-namespace EntitledLearning.Tools.UI;
+namespace EntitledLearning.Enrollment.UI;
 
 [Mapper]
 public partial class DataMapper

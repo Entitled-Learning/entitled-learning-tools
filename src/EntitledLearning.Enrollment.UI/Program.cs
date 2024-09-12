@@ -12,7 +12,7 @@ using Radzen;
 using Serilog;
 using EntitledLearning.Data.SqlClient;
 using EntitledLearning.Data.Repository;
-using EntitledLearning.Tools.UI;
+using EntitledLearning.Enrollment.UI;
 
 var builder = WebApplication.CreateBuilder(args);
 

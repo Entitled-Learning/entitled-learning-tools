@@ -6,7 +6,7 @@
 
 using Azure.Storage.Blobs;
 
-namespace EntitledLearning.Tools.UI;
+namespace EntitledLearning.Enrollment.UI;
 
 public interface IBlobStoreAdapter
 {

@@ -6,7 +6,7 @@
 
 using System.Security.Claims;
 
-namespace EntitledLearning.Tools.UI;
+namespace EntitledLearning.Enrollment.UI;
 
 public class UserToScopeFilter
 {

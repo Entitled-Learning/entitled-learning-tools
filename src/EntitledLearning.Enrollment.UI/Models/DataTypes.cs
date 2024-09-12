@@ -6,7 +6,7 @@
 
 using System.Runtime.Serialization;
 
-namespace EntitledLearning.Tools.UI.Models;
+namespace EntitledLearning.Enrollment.UI.Models;
 
 public enum DataTypes
 {

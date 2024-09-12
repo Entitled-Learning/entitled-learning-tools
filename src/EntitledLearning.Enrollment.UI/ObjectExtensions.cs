@@ -6,7 +6,7 @@
 
 using System.Reflection;
 
-namespace EntitledLearning.Tools.UI;
+namespace EntitledLearning.Enrollment.UI;
 
 public static class ObjectExtensions
 {

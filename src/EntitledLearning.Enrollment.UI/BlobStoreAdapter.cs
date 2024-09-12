@@ -7,7 +7,7 @@
 using Azure.Storage.Blobs;
 using CommunityToolkit.Diagnostics;
 
-namespace EntitledLearning.Tools.UI;
+namespace EntitledLearning.Enrollment.UI;
 
 public class BlobStoreAdapter
 {

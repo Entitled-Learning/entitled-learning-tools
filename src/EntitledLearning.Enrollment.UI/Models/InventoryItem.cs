@@ -6,7 +6,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace EntitledLearning.Tools.UI.Models;
+namespace EntitledLearning.Enrollment.UI.Models;
 
 public class InventoryItem
 {

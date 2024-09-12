@@ -7,7 +7,7 @@
 using Radzen;
 using Radzen.Blazor;
 
-namespace EntitledLearning.Tools.UI;
+namespace EntitledLearning.Enrollment.UI;
 
 public class PageNotificationService
 {
