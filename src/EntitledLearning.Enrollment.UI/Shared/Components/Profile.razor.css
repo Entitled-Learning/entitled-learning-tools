@@ -1,0 +1,12 @@
+﻿* {
+    color: rgba(65, 74, 113, 1);
+}
+
+.row-title {
+    font-size: 12px;
+    color: rgba(201, 207, 219, 1);
+}
+
+.row-data {
+    color: rgba(65, 74, 113, 1);
+}

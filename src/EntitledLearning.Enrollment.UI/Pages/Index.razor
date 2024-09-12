@@ -1,52 +1,72 @@
 ﻿@page "/"
 @inherits BasePage
 
-<PageTitle>Entitled Tooling | Home</PageTitle>
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavManager
 
-<div class="container mx-auto mt-10 sm:mt-0 flex flex-col justify-center items-center">
-    <h1 class="text-4xl tracking-tighter mb-3 text-center lg:text-7xl">
-        Welcome to
-        <strong class="bg-clip-text text-transparent bg-gradient-to-r from-yellow-500 to-red-500">
-            EntitledTooling
-        </strong>
-    </h1>
+<PageTitle>Entitled Learning | Enrollment Home</PageTitle>
 
-    <p>
-        <abbr class="cursor-pointer" title="entitled learning tools">EntitledTooling</abbr>
-        helps ease the management of data for the organization.
-    </p>
+<AuthorizeView>
+    <Authorized>
+        <div class="flex flex-col w-full xl:w-2/3 border-x-1">
+            <div class="py-5">
+                <h1 class="text-base tracking-tighter mb-3 lg:text-3xl">Tope Daramola</h1>
+            </div>
+            <div class="w-full">
+                <RadzenTabs @bind-SelectedIndex=@_selectedIndex Change="@(args => Navigate(_tabs[args]))" TabPosition="TabPosition.Top" RenderMode="TabRenderMode.Client">
+                    <Tabs>
+                        <RadzenTabsItem Text="Profile">
+                            <Profile/>
+                        </RadzenTabsItem>
+                        <RadzenTabsItem Text="Students">
 
-    <div class="w-full max-w-2xl grid grid-cols-1 lg:grid-cols-2 gap-4 my-8 px-4 lg:mx-0">
+                        </RadzenTabsItem>
+                    </Tabs>
+                </RadzenTabs>
+            </div>
+        </div>
+    </Authorized>
+    <NotAuthorized>
 
-        @if(_links.Count > 0){
-
-            @foreach(var link in _links){
-                <a href="@link.Value" class="p-5 border text-slate-600 rounded border-gray-200 hover:border-purple-400">
-                    <h3 class="text-2xl font-bold mb-3">@link.Key →</h3>
-                    <p>@_descriptions[link.Key]</p>
-                </a>
-            }
-        }
-    </div>
-
-    <p>
-        Explore the <abbr class="cursor-pointer" title="github repository"><a href="https://github.com/Entitled-Learning/entitled-learning-tools/tree/main">GitHub repository →</a></abbr>
-    </p>
-</div>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
-    private Dictionary<string, string> _links = new Dictionary<string, string>() {
-        { "Dashboard", "/enrollment-dashboard" },
-        { "Explore Data", "/explore-data" },
-        { "Quiz Grader", "/grading-tool" },
-        { "Main Site", "https://www.entitledlearning.com/" },
-    };
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "option")]
+    public string _selectedOption { get; set; } = DataTypes.Students.ToString();
 
-    private Dictionary<string, string> _descriptions = new Dictionary<string, string>() {
-        { "Dashboard", "View metrics and visualizations" },
-        { "Explore Data", "View and export program data" },
-        { "Quiz Grader", "Auto-grade your Jotform quizzes" },
-        { "Main Site", "Navigate to the Entitled Learing website" },
-    };
+    private int _selectedIndex = 0;
+
+    private List<string> _tabs = new List<string>() {
+            DataTypes.Students.ToString(),
+            DataTypes.CommunityPartners.ToString(),
+            DataTypes.Inventory.ToString()
+        };
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        if (_selectedOption == null)
+        {
+            NavManager.NavigateTo("/?option=Students");
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        if (_selectedOption is not null)
+        {
+            _selectedIndex = _tabs.IndexOf(_selectedOption) == -1 ? 0 : _tabs.IndexOf(_selectedOption);
+        }
+    }
+
+    private void Navigate(object e)
+    {
+        NavManager.NavigateTo($"/?option={e}");
+    }
 
 }

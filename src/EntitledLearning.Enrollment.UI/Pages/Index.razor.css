@@ -6,3 +6,26 @@ body pre[class*="language-"] {
 .cursor-pointer {
     cursor: pointer !important;
 }
+
+
+::deep .rz-tabview-nav {
+        background: rgba(244, 244, 244, 1);
+}
+
+::deep .rz-tabview-nav li {
+    background: rgba(244, 244, 244, 1);
+    border: none;
+    padding: 10px;
+}
+
+::deep .rz-tabview-nav span {
+    font-size: 1rem;
+}
+
+::deep .rz-tabview-nav li:hover {
+    color: red !important;
+}
+
+::deep .rz-tabview-nav li.rz-tabview-selected {
+    border-bottom: 3px solid red;
+}
