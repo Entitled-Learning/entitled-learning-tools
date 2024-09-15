@@ -1,6 +1,7 @@
 ﻿@page "/"
 @inherits BasePage
 
+@inject AuthenticationStateProvider AuthenticationStateProvider;
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavManager
 
@@ -10,13 +11,13 @@
     <Authorized>
         <div class="flex flex-col w-full xl:w-2/3 border-x-1">
             <div class="py-5">
-                <h1 class="text-base tracking-tighter mb-3 lg:text-3xl">Tope Daramola</h1>
+                <h1 class="text-base tracking-tighter mb-3 lg:text-3xl">@_currentUser.FirstName @_currentUser.LastName</h1>
             </div>
             <div class="w-full">
                 <RadzenTabs @bind-SelectedIndex=@_selectedIndex Change="@(args => Navigate(_tabs[args]))" TabPosition="TabPosition.Top" RenderMode="TabRenderMode.Client">
                     <Tabs>
                         <RadzenTabsItem Text="Profile">
-                            <Profile/>
+                            <Profile />
                         </RadzenTabsItem>
                         <RadzenTabsItem Text="Students">
 
@@ -32,6 +33,8 @@
 </AuthorizeView>
 
 @code {
+    private EntitledLearningUser _currentUser = new EntitledLearningUser();
+
     [Parameter]
     [SupplyParameterFromQuery(Name = "option")]
     public string _selectedOption { get; set; } = DataTypes.Students.ToString();
@@ -44,9 +47,16 @@
             DataTypes.Inventory.ToString()
         };
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         base.OnInitialized();
+
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+        if (authenticationState?.User != null)
+        {
+            _currentUser.SetClaims(authenticationState.User.Claims);
+        }
 
         if (_selectedOption == null)
         {
