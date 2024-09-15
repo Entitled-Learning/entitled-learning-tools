@@ -1,0 +1,1 @@
+./tailwindcss-macos-arm64 -i input.css -o ../wwwroot/css/tw-output.css --watch

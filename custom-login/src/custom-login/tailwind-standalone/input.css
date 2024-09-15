@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+input {
+    @apply block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 !important;
+}
+
+label {
+    @apply block text-sm font-medium leading-6 text-gray-900 !important;
+}
+
+button {
+    @apply flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 !important;
+}
+
+.create p {
+    @apply mt-10 text-center text-sm text-gray-500 !important;
+}
+
+.create a {
+    @apply font-semibold leading-6 text-indigo-600 hover:text-indigo-500 !important;
+}
+
+.divider,
+.heading,
+.intro {
+    @apply hidden !important;
+}
+
+.buttons {
+    @apply mt-4 !important;
+}
+
+.error.itemLevel {
+    @apply hidden !important;
+}
+
+.entry-item:nth-of-type(1) {
+    @apply mb-4 !important;
+}
+
+.entry-item:nth-of-type(2) {
+    @apply mb-8 !important;
+}
+
+
+/* Signup CSS */
+
+.verifyCode {
+    @apply hidden  !important;
+}
+
+.sendNewCode {
+    @apply hidden mt-4 !important;
+}
+
+.changeClaims {
+    @apply hidden mt-4 !important;
+}
+
+.Password.newPassword_li {
+    @apply hidden !important;
+}
+
+.Password.reenterPassword_li {
+    @apply hidden !important;
+}
+
+.TextBox.givenName_li {
+    @apply hidden !important;
+}
+
+.TextBox.displayName_li {
+    @apply hidden !important;
+}
+
+.TextBox.surname_li {
+    @apply hidden !important;
+}
+
+#continue {
+    @apply hidden mb-4 !important;
+}
