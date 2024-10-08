@@ -9,21 +9,24 @@
 
 <AuthorizeView>
     <Authorized>
-        <div class="flex flex-col w-full xl:w-2/3 border-x-1">
-            <div class="py-5">
-                <h1 class="text-base tracking-tighter mb-3 lg:text-3xl">@_currentUser.FirstName @_currentUser.LastName</h1>
-            </div>
-            <div class="w-full">
-                <RadzenTabs @bind-SelectedIndex=@_selectedIndex Change="@(args => Navigate(_tabs[args]))" TabPosition="TabPosition.Top" RenderMode="TabRenderMode.Client">
-                    <Tabs>
-                        <RadzenTabsItem Text="Profile">
-                            <Profile />
-                        </RadzenTabsItem>
-                        <RadzenTabsItem Text="Students">
+        <div class="fixed w-full">
+            <div class="mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8">
+                <div class="py-5 w-full">
+                    <h1 class="text-base tracking-tighter mb-3 lg:text-3xl">@_currentUser.FirstName @_currentUser.LastName</h1>
+                </div>
+                <div class="w-full">
+                    <RadzenTabs @bind-SelectedIndex=@_selectedIndex Change="@(args => Navigate(_tabs[args]))" TabPosition="TabPosition.Top" RenderMode="TabRenderMode.Client">
+                        <Tabs>
+                            <RadzenTabsItem Text="Profile">
+                                @*<Profile currentUser="_currentUser" />*@
+                                <UserProfile/>
+                            </RadzenTabsItem>
+                            @*<RadzenTabsItem Text="Students">
 
-                        </RadzenTabsItem>
-                    </Tabs>
-                </RadzenTabs>
+                            </RadzenTabsItem>*@
+                        </Tabs>
+                    </RadzenTabs>
+                </div>
             </div>
         </div>
     </Authorized>
@@ -37,14 +40,12 @@
 
     [Parameter]
     [SupplyParameterFromQuery(Name = "option")]
-    public string _selectedOption { get; set; } = DataTypes.Students.ToString();
+    public string _selectedOption { get; set; } = DataTypes.Profile.ToString();
 
     private int _selectedIndex = 0;
 
     private List<string> _tabs = new List<string>() {
-            DataTypes.Students.ToString(),
-            DataTypes.CommunityPartners.ToString(),
-            DataTypes.Inventory.ToString()
+            DataTypes.Profile.ToString()
         };
 
     protected override async Task OnInitializedAsync()
@@ -60,7 +61,7 @@
 
         if (_selectedOption == null)
         {
-            NavManager.NavigateTo("/?option=Students");
+            NavManager.NavigateTo("/?option=Profile");
         }
     }
 

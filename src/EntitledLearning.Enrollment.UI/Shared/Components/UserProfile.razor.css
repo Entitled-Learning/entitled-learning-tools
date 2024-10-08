@@ -1,0 +1,12 @@
+﻿/* General Styles */
+.account-menu-group {
+    padding-bottom: 12px;
+    background-color: rgba(0, 0, 0, 0.12);
+    border-radius: 5px;
+    width: 100%;
+    border: 1px solid #dee2e6;
+}
+
+.account-menu-title {
+    padding: 12px;
+}

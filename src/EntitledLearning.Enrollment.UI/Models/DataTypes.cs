@@ -10,16 +10,7 @@ namespace EntitledLearning.Enrollment.UI.Models;
 
 public enum DataTypes
 {
-    [EnumMember(Value = "students")]
-    Students,
-
-    [EnumMember(Value = "communityPartners")]
-    CommunityPartners,
-
-    [EnumMember(Value = "communityPartnerContacts")]
-    CommunityPartnerContacts,
-
-    [EnumMember(Value = "inventory")]
-    Inventory
+    [EnumMember(Value = "profile")]
+    Profile
 }
 

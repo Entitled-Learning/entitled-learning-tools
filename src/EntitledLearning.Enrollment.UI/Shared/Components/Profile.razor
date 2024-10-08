@@ -9,7 +9,7 @@
         </div>
         <div class="border-1 p-3">
             <div class="row-title">Email Adderess</div>
-            <div class="row-data">tope.daram@gmail.com</div>
+            <div class="row-data">@currentUser.Email</div>
         </div>
         <div class="border-1 p-3">
             <div class="row-title">Mailing Address</div>
@@ -28,16 +28,8 @@
 
 
 @code {
-    private EntitledLearningUser currentUser = new EntitledLearningUser();
+    [Parameter]
+    public EntitledLearningUser currentUser { get; set; } = new EntitledLearningUser();
 
-    protected override async Task OnInitializedAsync()
-    {
-        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-
-        if (authenticationState?.User != null)
-        {
-            currentUser.SetClaims(authenticationState.User.Claims);
-        }
-    }
 }
 

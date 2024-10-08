@@ -1,12 +1,12 @@
 ﻿.content-section {
     min-height: 100vh;
-    padding: 4rem 1rem !important;
+    padding: 8rem 1rem !important;
 }
 
 @media (min-width: 640px) {
     .content-section {
         min-height: 100vh;
-        padding-top: 4rem !important;
+        padding-top: 8rem !important;
         padding-left: 5rem !important;
     }    
 }
