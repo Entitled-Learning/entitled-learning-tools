@@ -1,20 +1,164 @@
 ﻿@inject AuthenticationStateProvider AuthenticationStateProvider;
+@inject StudentRepository _studentDB
+@inject GuardianRepository _guardianDB
+@inject GuardianStudentRelationshipRepository _relationshipDB
+@inject ILogger<UserProfile> _logger
 
-<div class="flex">
+<div class="flex flex-col">
     <div class="account-menu-group">
-        <h1 class="account-menu-title">Account</h1>
+        @if (!_userLoaded)
+        {
+            <div class="account-menu-info">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-indigo" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+        }
+        else
+        {
+            <div class="account-menu-info">
+                <div>
+                    Enrollment Status
+                </div>
+            </div>
 
+            @if (_students is null || !_students.Any())
+            {
+                <h1 class="account-menu-title text-2xl tracking-tighter lg:text-3xl">
+                    <strong class="accent">
+                        No Students Enrolled
+                    </strong>
+                </h1>
+                <div class="account-menu-button-row">
+                    <a href="/enroll">
+                        <RadzenButton class="enrollment-button" type="button" Text="Enroll Now" Icon="" />
+                    </a>
+                </div>
+            }
+            else
+            {
+                <h1 class="account-menu-title text-2xl tracking-tighter lg:text-3xl">
+                    <strong class="accent">
+                        @_students.Count() @(_students.Count() > 1 ? "Students" : "Student") Enrolled
+                    </strong>
+                </h1>
+                <div class="account-menu-button-row">
+                    <a href="/enroll">
+                        <RadzenButton class="manage-button" type="button" Text="Manage Enrollment Now" Icon="" />
+                    </a>
+                </div>
+            }
+        }
     </div>
 
-    <div class="p-8 border border-gray-100 rounded-3xl bg-white dark:bg-gray-800 dark:border-gray-700 shadow-2xl shadow-gray-600/10 dark:shadow-none">
+    <div class="account-menu-group">
+        <h1 class="account-menu-title text-3xl tracking-tighter lg:text-4xl">
+            <strong class="">
+                Account
+            </strong>
+        </h1>
+        <div class="account-menu-row">
+            <div>
+                Edit Guardian Profile
+            </div>
+            <span class="oi oi-chevron-right" title="chevron-right" aria-hidden="true"></span>
+        </div>
+    </div>
+
+    <div class="account-menu-group">
+        <h1 class="account-menu-title text-3xl tracking-tighter lg:text-4xl">
+            <strong class="">
+                Enrollment
+            </strong>
+        </h1>
+        <div class="account-menu-row">
+            <div>
+                Manage Enrollment
+            </div>
+            <span class="oi oi-chevron-right" title="chevron-right" aria-hidden="true"></span>
+        </div>
+        <div class="account-menu-row">
+            <div>
+                Cancel Enrollment
+            </div>
+            <span class="oi oi-chevron-right" title="chevron-right" aria-hidden="true"></span>
+        </div>
+    </div>
+
+    <div class="account-menu-group">
+        <h1 class="account-menu-title text-3xl tracking-tighter lg:text-4xl">
+            <strong class="">
+                Help
+            </strong>
+        </h1>
+        <div class="account-menu-row">
+            <div>
+                Entitled Learning Support
+            </div>
+            <span class="oi oi-chevron-right" title="chevron-right" aria-hidden="true"></span>
+        </div>
+    </div>
 </div>
 
-    </div>
 
+@code {
+    private EntitledLearningUser _currentUser { get; set; } = new EntitledLearningUser();
+    private Guardian? _guardian = null;
+    private List<Student>? _students = null;
+    private DataMapper _mapper = new DataMapper();
+    private bool _userLoaded = false;
 
-    @code {
-        [Parameter]
-        public EntitledLearningUser currentUser { get; set; } = new EntitledLearningUser();
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
 
+        await LoadUser();
     }
+
+    private async Task LoadUser()
+    {
+        //TODO: remove artificial delay
+        await Task.Delay(2000);
+
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+        if (authenticationState?.User != null)
+        {
+            _currentUser.SetClaims(authenticationState.User.Claims);
+
+            try
+            {
+                // fetch guaridan
+                var guardianContract = await _guardianDB.GetByEmailAsync(_currentUser.Email);
+
+                //fetch linked students
+                if (guardianContract is not null)
+                {
+                    _guardian = _mapper.ToGuardian(guardianContract);
+                    _students = (await LoadStudents(_guardian.Id!)).ToList();
+                }
+                else
+                {
+                    _logger.LogWarning("guardian not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("issue checking guardian", ex);
+            }
+        }
+
+        _userLoaded = true;
+        StateHasChanged();
+    }
+
+    private async Task<IEnumerable<Student>> LoadStudents(string guardianId)
+    {
+        var studentContracts = await _relationshipDB.GetStudentsByGuardianIdAsync(guardianId);
+        var students = studentContracts.Select(s => _mapper.ToStudent(s));
+
+        return students;
+    }
+}
 

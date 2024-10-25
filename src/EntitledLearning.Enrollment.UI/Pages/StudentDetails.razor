@@ -136,9 +136,9 @@
     private StudentStorageContractV1 _student = new StudentStorageContractV1();
     private IEnumerable<StudentGuardian> _guardians = new List<StudentGuardian>();
     private IList<StudentGuardian>? _selectedGuardians;
-    private Modal? studentnModalRef; 
-    private Modal? guardianModalRef; 
-    private ConfirmationModal? confirmationModalRef; 
+    private Modal? studentnModalRef;
+    private Modal? guardianModalRef;
+    private ConfirmationModal? confirmationModalRef;
     private Student? _studentToEdit = null;
     private Guardian? _guardianToEdit = null;
     private DataMapper _mapper = new DataMapper();
@@ -196,18 +196,18 @@
     private async Task SubmitGuardianModalForm(Guardian editedModel)
     {
         try {
-            Console.WriteLine("SubmitGuardianModalForm");
+            _logger.LogInformation("SubmitGuardianModalForm");
             // Update the guardian
             var guardianStorageContract = _mapper.ToGuardianStorageContractV1(editedModel);
             GuardianStorageContractV1? result = null;
 
             if (_addGuardian)
             {
-                Console.WriteLine("Add Guardian");
+                _logger.LogInformation("Add Guardian");
                 result = await _guardianDB.AddAsync(guardianStorageContract);
             }
             else{
-                Console.WriteLine("Update Guardian");
+                _logger.LogInformation("Update Guardian");
                 await _guardianDB.UpdateAsync(guardianStorageContract);
             }
 
@@ -223,11 +223,11 @@
 
             if (_addGuardian)
             {
-                Console.WriteLine("Add Relationship");
+                _logger.LogInformation("Add Relationship");
                 await _relationshipDB.AddAsync(relationship);
             }
             else {
-                Console.WriteLine("Update Relationship");
+                _logger.LogInformation("Update Relationship");
                 await _relationshipDB.UpdateAsync(relationship);
             }
         }
@@ -241,7 +241,7 @@
 
         // Close the modal 
         guardianModalRef?.CloseModal();
-    } 
+    }
 
     private void CancelStudentModalForm()
     {
@@ -253,12 +253,12 @@
     {
         _guardianToEdit = null;
         guardianModalRef?.CloseModal();
-    } 
+    }
 
     private async Task HandleDeleteConfirmation(bool confirmed)
     {
         confirmationModalRef?.CloseModal();
-        
+
         if (confirmed)
         {
             try
@@ -267,7 +267,7 @@
 
                 NavManager.NavigateTo("/explore-data?option=Students");
             }
-            catch 
+            catch
             {
                 PageNotificationService.NotifyErrorOccured();
             }

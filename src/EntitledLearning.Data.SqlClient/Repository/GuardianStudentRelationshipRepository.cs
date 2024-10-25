@@ -15,6 +15,7 @@ public class GuardianStudentRelationshipRepository : IDataRepository<GuardianStu
 {
     private readonly string tableName = "GuardianStudentRelationship";
     private readonly string guardianTableName = "Guardian";
+    private readonly string studentTableName = "Student";
     private readonly ISqlDataClient _db;
     private readonly ILogger<GuardianStudentRelationshipRepository> _logger;
 
@@ -45,6 +46,44 @@ public class GuardianStudentRelationshipRepository : IDataRepository<GuardianStu
             var data = await _db.LoadData<GuardianStudentRelationshipStorageContractV1, dynamic>(sql, new { StudentId = id });
             return data.FirstOrDefault()!;
         } catch (Exception ex) {
+            _logger.GetGuardianStudentRelationshipError(ex);
+            throw;
+        }
+    }
+
+    public async Task<IEnumerable<StudentStorageContractV1>> GetStudentsByGuardianIdAsync(string id)
+    { 
+        string sql = "select " +
+                        "C.Id " +
+                        ",C.Prefix " +
+                        ",C.FirstName " +
+                        ",C.MiddleName " +
+                        ",C.LastName " +
+                        ",C.Suffix " +
+                        ",C.EmailAddress " +
+                        ",C.AddressLine1 " +
+                        ",C.AddressLine2 " +
+                        ",C.City " +
+                        ",C.State " +
+                        ",C.ZipCode " +
+                        ",C.Race " +
+                        ",C.DateOfBirth " +
+                        ",C.HouseHoldIncomeRange " +
+                        ",C.ShirtSIze " +
+                        ",C.IsScholar " +
+                        ",C.AllowPhotoRelease " +
+                        "from dbo." + tableName + " as A " +
+                        "join dbo." + guardianTableName + " as B on A.[GuardianId] = B.[Id] " +
+                        "join dbo." + studentTableName + " as C on A.[StudentId] = C.[Id] " +
+                        "where [GuardianId] = @GuardianId;";
+
+        try
+        {
+            var data = await _db.LoadData<StudentStorageContractV1, dynamic>(sql, new { GuardianId = id });
+            return data;
+        }
+        catch (Exception ex)
+        {
             _logger.GetGuardianStudentRelationshipError(ex);
             throw;
         }

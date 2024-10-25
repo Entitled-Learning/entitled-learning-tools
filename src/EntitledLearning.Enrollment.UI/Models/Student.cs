@@ -70,9 +70,9 @@ public class Student : TestModelBase
         Race = "Black";
         DateOfBirth = new DateTimeOffset(2009, 7, 23, 0, 0, 0, TimeSpan.Zero);
         ShirtSize = "L";
-        City = "Kansas City";
-        State = "Missouri";
-        ZipCode = "64129";
+        City = "Jackson";
+        State = "Mississippi";
+        ZipCode = "75126";
         AddressLine1 = "7601 E. 47th Ter.";
     }
 }

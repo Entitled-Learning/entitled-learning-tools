@@ -63,9 +63,9 @@ public class Guardian : TestModelBase
         Relationship = "Father";
         IsEmergencyContact = true;
         IsAuthorizedPickup = true;
-        City = "New York";
-        State = "NY";
-        ZipCode = "10001";
+        City = "Jackson";
+        State = "Mississippi";
+        ZipCode = "75126";
         AddressLine1 = "123 Main St";
     }
 }

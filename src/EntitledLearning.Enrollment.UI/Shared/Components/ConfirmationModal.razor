@@ -1,12 +1,14 @@
 <div class="modal h-screen items-center bg-slate-900/50" tabindex="-1" style="@(_isVisible ? "display: flex;" : "display: none;")">
   <div class="modal-dialog max-w-full">
     <div class="modal-content">
-        <div class="modal-body">
-            <p>@(ConfirmationText ?? "Are you sure?")</p>
+        <div class="modal-body flex justify-between">
+            <b><p>@(ConfirmationText ?? "Are you sure?")</p></b>
+
+            <span class="oi oi-x" title="close" aria-hidden="true"></span>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn bg-red-600 text-white my-4 mr-2" @onclick="CloseModal">Cancel</button>
-            <button type="button" class="btn btn-primary" @onclick="ConfirmSubmit">Yes, Submit</button>
+            <button type="button" class="btn bg-white text-black border border-slate-300 my-4 mr-2" @onclick="CloseModal">Cancel</button>
+            <button type="button" class="btn btn-primary" @onclick="ConfirmSubmit">@(SubmitText ?? "Yes")</button>
         </div>
     </div>
   </div>
@@ -18,7 +20,10 @@
 
     [Parameter]
     public string? ConfirmationText { get; set; }
-    
+
+    [Parameter]
+    public string? SubmitText { get; set; }
+
     private bool _isVisible = false;
 
     public void ShowModal()

@@ -12,20 +12,10 @@
         <div class="fixed w-full">
             <div class="mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8">
                 <div class="py-5 w-full">
-                    <h1 class="text-base tracking-tighter mb-3 lg:text-3xl">@_currentUser.FirstName @_currentUser.LastName</h1>
+                    <h1 class="text-3xl tracking-tighter mb-3 lg:text-3xl">Hi, @_currentUser.FirstName @_currentUser.LastName</h1>
                 </div>
                 <div class="w-full">
-                    <RadzenTabs @bind-SelectedIndex=@_selectedIndex Change="@(args => Navigate(_tabs[args]))" TabPosition="TabPosition.Top" RenderMode="TabRenderMode.Client">
-                        <Tabs>
-                            <RadzenTabsItem Text="Profile">
-                                @*<Profile currentUser="_currentUser" />*@
-                                <UserProfile/>
-                            </RadzenTabsItem>
-                            @*<RadzenTabsItem Text="Students">
-
-                            </RadzenTabsItem>*@
-                        </Tabs>
-                    </RadzenTabs>
+                    <UserProfile />
                 </div>
             </div>
         </div>

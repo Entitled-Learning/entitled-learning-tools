@@ -19,6 +19,7 @@ public partial class DataMapper
     public partial Guardian Copy(Guardian guardian);
     public partial StudentStorageContractV1 ToStudentStorageContractV1(Student student);
     public partial Guardian ToGuardian(StudentGuardian guardian);
+    public partial Guardian ToGuardian(GuardianStorageContractV1 guardian);
     public partial Student ToStudent(StudentStorageContractV1 student);
     public partial InventoryItem ToInventoryItem(InventoryItemStorageContractV1 item);
     public partial GuardianStorageContractV1 ToGuardianStorageContractV1(Guardian guardian);

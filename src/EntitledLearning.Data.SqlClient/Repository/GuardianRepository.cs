@@ -48,6 +48,22 @@ public class GuardianRepository : RepositoryBase, IDataRepository<GuardianStorag
         }
     }
 
+    public async Task<GuardianStorageContractV1> GetByEmailAsync(string value)
+    {
+        string sql = "select * from dbo." + tableName + " where EmailAddress = @EmailAddress;";
+
+        try
+        {
+            var data = await _db.LoadData<GuardianStorageContractV1, dynamic>(sql, new { EmailAddress = value });
+            return data.FirstOrDefault()!;
+        }
+        catch (Exception ex)
+        {
+            _logger.GetGuardianError(ex);
+            throw;
+        }
+    }
+
     public async Task<GuardianStorageContractV1> AddAsync(GuardianStorageContractV1 entity)
     {
         entity.Id = GenerateId(entity.FirstName, entity.LastName);

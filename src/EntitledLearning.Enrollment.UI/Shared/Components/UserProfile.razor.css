@@ -1,12 +1,52 @@
 ﻿/* General Styles */
 .account-menu-group {
+    display: flex;
+    flex-direction: column;
     padding-bottom: 12px;
+    margin-bottom: 16px;
     background-color: rgba(0, 0, 0, 0.12);
     border-radius: 5px;
     width: 100%;
     border: 1px solid #dee2e6;
 }
 
+.accent {
+    color: #ba8e23;
+}
+
+::deep .enrollment-button {
+    background-color: #3F468F !important;
+    cursor: pointer;
+}
+
 .account-menu-title {
-    padding: 12px;
+    padding: 16px;
+    color: rgba(0, 0, 0, 0.65);
+}
+
+.account-menu-info {
+    padding: 16px 16px 0 16px;
+    color: rgba(0, 0, 0, 0.65);
+}
+
+.account-menu-button-row {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer !important;
+}
+
+.account-menu-row {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer !important;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Transition effect */
+}
+
+.account-menu-row:hover {
+    background-color: rgba(0, 0, 0, .75);
+    color: rgba(255, 255, 255, 0.65)  !important;
 }

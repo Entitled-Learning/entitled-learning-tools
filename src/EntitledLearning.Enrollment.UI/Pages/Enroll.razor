@@ -1,49 +1,84 @@
+@page "/enroll"
+@using System.Globalization
+@using EntitledLearning.Enrollment.UI.Shared.Charts
+
+@inherits BasePage
 @inject NavigationManager NavManager
 @inject StudentRepository _studentDB
 @inject GuardianRepository _guardianDB
 @inject GuardianStudentRelationshipRepository _relationshipDB
 @inject PageNotificationService PageNotificationService
-@inject ILogger<StudentIntakeBase> _logger
+@inject AuthenticationStateProvider AuthenticationStateProvider;
+@inject ILogger<Enroll> _logger
+
+<PageTitle>Entitled Learning Enrollment | Enroll</PageTitle>
+
+<AuthorizeView Context="authContext">
+    <Authorized>
+        <section class="flex flex-col p-4 w-full">
+            <section class="header-section p-8">
+                <h1 class="account-menu-title text-3xl tracking-tighter lg:text-4xl">
+                    <strong class="">
+                        Welcome to Entiled Learning Enrollment
+                    </strong>
+                </h1>
+
+                @* Student Section *@
+                <h1 class="text-2xl leading-loose mt-8">Student Information</h1>
+                <p class="text-sm text-gray-600 mb-4">Please provide information for the students you would like to enroll.</p>
+                <ListTable Data="@students.Select(x => x.ToDictionary())" OnItemClick="@HandleEditStudent" />
+
+                <RadzenButton class="my-4" Text="Enroll a student" Icon="add" ButtonStyle="ButtonStyle.Success" Click="ShowStudentModalForm" />
 
 
-@* Parent/Guardian Section *@
-<h1 class="text-2xl leading-loose">Parent/Guardian Information</h1>
-<p class="text-sm text-gray-600 mb-4">Please provide information for at least one parent/guardian.</p>   
-<ListTable Data="@guardians.Select(x => x.ToDictionary())" OnItemClick="@HandleEditGuardian" />
+                @* Parent/Guardian Section *@
+                <h1 class="text-2xl leading-loose">Parent/Guardian Information</h1>
+                <p class="text-sm text-gray-600 mb-4">
+                    Please provide information for at least one parent/guardian.
+                    If you are the guardian, please add your information.
+                </p>
+                <ListTable Data="@guardians.Select(x => x.ToDictionary())" OnItemClick="@HandleEditGuardian" />
 
-<RadzenButton class="my-4" Text="Add a guardian" Icon="add" ButtonStyle="ButtonStyle.Success" Click="ShowGuardianModalForm" />
+                <RadzenButton class="my-4" Text="Add a guardian" Icon="add" ButtonStyle="ButtonStyle.Success" Click="ShowGuardianModalForm" />
 
-<Modal @ref="guardianModalRef">
-    <!-- Dynamic content for the modal body -->
-    <GuardianIntakeForm OnCompleteGuardianForm="@SubmitGuardianModalForm" OnCancel="@CancelGuardianModalForm" EditGuardian="@guardianToEdit" />
-</Modal>
 
-@* Student Section *@
-<h1 class="text-2xl leading-loose mt-8">Student Information</h1>
-<ListTable Data="@students.Select(x => x.ToDictionary())" OnItemClick="@HandleEditStudent" />
 
-<RadzenButton class="my-4" Text="Add a student" Icon="add" ButtonStyle="ButtonStyle.Success" Click="ShowStudentModalForm" />
+                @*Dynamic modals*@
+                <Modal @ref="guardianModalRef">
+                    <!-- Dynamic content for the modal body -->
+                    <GuardianIntakeForm OnCompleteGuardianForm="@SubmitGuardianModalForm" OnCancel="@CancelGuardianModalForm" EditGuardian="@guardianToEdit" />
+                </Modal>
 
-<Modal @ref="studentnModalRef">
-    <!-- Dynamic content for the modal body -->
-    <StudentIntakeForm OnCompleteStudentFormForm="@SubmitStudentModalForm" OnCancel="@CancelStudentModalForm" EditStudent="@studentToEdit" />
-</Modal>
 
-<ConfirmationModal @ref="confirmationModalRef" OnConfirmation="HandleConfirmation" />
+                <Modal @ref="studentnModalRef">
+                    <!-- Dynamic content for the modal body -->
+                    <StudentIntakeForm OnCompleteStudentFormForm="@SubmitStudentModalForm" OnCancel="@CancelStudentModalForm" EditStudent="@studentToEdit" />
+                </Modal>
 
-@foreach(var errorMessage in submitErrorMessages)
-{
-    <div class="flex items-center alert alert-danger my-8 max-w-max" role="alert">
-        <span class="oi oi-circle-x mr-4 text-red-600" aria-hidden="true"></span>
-        @errorMessage
-    </div>
-}
+                <ConfirmationModal @ref="confirmationModalRef" ConfirmationText="Enroll student?" SubmitText="Enroll" OnConfirmation="HandleConfirmation" />
 
-<div class="mt-4">
-    <RadzenButton type="submit" Text="Save" Icon="" ButtonStyle="ButtonStyle.Primary" Click="HandleValidSubmit" />
-</div>
+                @foreach (var errorMessage in submitErrorMessages)
+                {
+                    <div class="flex items-center alert alert-danger my-8 max-w-max" role="alert">
+                        <span class="oi oi-circle-x mr-4 text-red-600" aria-hidden="true"></span>
+                        @errorMessage
+                    </div>
+                }
+
+                <div class="mt-4">
+                    <RadzenButton type="submit" Text="Enroll" Icon="" ButtonStyle="ButtonStyle.Primary" Click="HandleValidSubmit" />
+                </div>
+            </section>
+        </section>
+    </Authorized>
+    <NotAuthorized>
+        <h1 class="text-2xl leading-loose">Please Log in to access this page</h1>
+    </NotAuthorized>
+</AuthorizeView>
+
 
 @code {
+    private EntitledLearningUser _currentUser = new EntitledLearningUser();
 
     private List<Student> students = new List<Student>();
     private List<Guardian> guardians = new List<Guardian>();
@@ -57,15 +92,30 @@
     private ConfirmationModal? confirmationModalRef;
     private List<string> submitErrorMessages = new List<string>();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        //var student = new Student();
-        //student.initWithTestData();
-        //students.Add(student);
+        base.OnInitialized();
 
-        //var testGuardian = new Guardian();
-        //testGuardian.initWithTestData();
-        //guardians.Add(testGuardian); 
+        var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+        if (authenticationState?.User != null)
+        {
+            _currentUser.SetClaims(authenticationState.User.Claims);
+
+            var defaultGuardian = new Guardian();
+
+            defaultGuardian.FirstName = _currentUser.FirstName;
+            defaultGuardian.LastName = _currentUser.LastName;
+            defaultGuardian.EmailAddress = _currentUser.Email;
+
+            guardians.Add(defaultGuardian);
+        }
+
+        var student = new Student();
+        student.initWithTestData();
+        students.Add(student);
+
+
     }
 
     private void ShowGuardianModalForm()
@@ -82,15 +132,18 @@
     {
 
         // Update the parent component's model with the edited data
-        if (guardianToEditIndex is null){
+        if (guardianToEditIndex is null)
+        {
             guardians.Add(editedModel);
-        } else {
+        }
+        else
+        {
             guardians[(int)guardianToEditIndex] = editedModel;
         }
 
         guardianToEdit = null;
         guardianToEditIndex = null;
-        // Close the modal 
+        // Close the modal
         guardianModalRef?.CloseModal();
     }
 
@@ -98,15 +151,18 @@
     {
 
         // Update the parent component's model with the edited data
-        if (studentToEditIndex is null){
+        if (studentToEditIndex is null)
+        {
             students.Add(editedModel);
-        } else {
+        }
+        else
+        {
             students[(int)studentToEditIndex] = editedModel;
         }
 
         studentToEdit = null;
         studentToEditIndex = null;
-        // Close the modal 
+        // Close the modal
         studentnModalRef?.CloseModal();
     }
 
@@ -177,7 +233,7 @@
                     }
                 }
 
-                NavManager.NavigateTo("/explore-data?option=Students");
+                NavManager.NavigateTo("/");
             }
             catch
             {

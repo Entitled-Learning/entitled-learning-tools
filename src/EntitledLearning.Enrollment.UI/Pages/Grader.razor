@@ -74,12 +74,12 @@
             {
                 foreach (var score in _scores)
                 {
-                    Console.WriteLine($"Student ID: {score.StudentId}, Score: {score.Score}");
+                    _logger.LogInformation($"Student ID: {score.StudentId}, Score: {score.Score}");
                 }
             }
             else
             {
-                Console.WriteLine("No scores returned.");
+                _logger.LogInformation("No scores returned.");
             }
         }
         catch (Exception ex)
@@ -93,7 +93,7 @@
                 PageNotificationService.NotifyErrorOccured();
             }
 
-            Console.WriteLine(ex.Message);
+            _logger.LogInformation(ex.Message);
         }
     }
 
