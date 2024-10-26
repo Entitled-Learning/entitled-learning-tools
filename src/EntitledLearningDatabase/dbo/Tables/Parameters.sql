@@ -1,0 +1,10 @@
+CREATE TABLE Parameters (
+    ParameterID INT IDENTITY(1,1) PRIMARY KEY,
+    ParameterName NVARCHAR(100) NOT NULL UNIQUE,
+    ParameterValue NVARCHAR(MAX) NULL,
+    DataType NVARCHAR(50) NOT NULL CHECK (DataType IN ('INT', 'STRING', 'DATETIME', 'BOOLEAN')),
+    Description NVARCHAR(255) NULL,
+    CreatedDate DATETIME2 DEFAULT GETDATE(),
+    ModifiedDate DATETIME2 DEFAULT GETDATE(),
+    ModifiedBy NVARCHAR(100) NULL
+);
