@@ -107,10 +107,14 @@ public class GuardianStudentRelationshipRepository : IDataRepository<GuardianStu
 
     public async Task<GuardianStudentRelationshipStorageContractV1> AddAsync(GuardianStudentRelationshipStorageContractV1 entity)
     {
-        string sql = "insert into dbo." + tableName + " (StudentId, GuardianId, Relationship, IsEmergencyContact, IsAuthorizedPickup) " +
-        "values (@StudentId, @GuardianId, @Relationship, @IsEmergencyContact, @IsAuthorizedPickup);";
-        
-        try{
+        string sql = "if not exists (select 1 from dbo." + tableName + " WHERE Id = @Id) " +
+                     "begin" +
+                     "insert into dbo." + tableName + " (StudentId, GuardianId, Relationship, IsEmergencyContact, IsAuthorizedPickup) " +
+                     "values (@StudentId, @GuardianId, @Relationship, @IsEmergencyContact, @IsAuthorizedPickup) " +
+                     "end;";
+
+        try
+        {
             await _db.SaveData(sql, entity);
             return entity;
         } catch (Exception ex) {
@@ -118,6 +122,34 @@ public class GuardianStudentRelationshipRepository : IDataRepository<GuardianStu
             throw;
         }
     }
+
+    public async Task<GuardianStudentRelationshipStorageContractV1> UpsertAsync(GuardianStudentRelationshipStorageContractV1 entity)
+    {
+        string sql = "if exists (select 1 from dbo." + tableName + " where StudentId = @StudentId and GuardianId = @GuardianId) " +
+                     "begin " +
+                     "    update dbo." + tableName + " " +
+                     "    set StudentId = @StudentId, GuardianId = @GuardianId, Relationship = @Relationship, " +
+                     "    IsEmergencyContact = @IsEmergencyContact, IsAuthorizedPickup = @IsAuthorizedPickup " +
+                     "    where StudentId = @StudentId and GuardianId = @GuardianId; " +
+                     "end " +
+                     "else " +
+                     "begin " +
+                     "    insert into dbo." + tableName + " (StudentId, GuardianId, Relationship, IsEmergencyContact, IsAuthorizedPickup) " +
+                     "    values (@StudentId, @GuardianId, @Relationship, @IsEmergencyContact, @IsAuthorizedPickup); " +
+                     "end;";
+
+        try
+        {
+            await _db.SaveData(sql, entity);
+            return entity;
+        }
+        catch (Exception ex)
+        {
+            _logger.CreateGuardianStudentRelationshipError(ex);
+            throw;
+        }
+    }
+
 
     public async Task UpdateAsync(GuardianStudentRelationshipStorageContractV1 entity)
     {

@@ -68,10 +68,14 @@ public class GuardianRepository : RepositoryBase, IDataRepository<GuardianStorag
     {
         entity.Id = GenerateId(entity.FirstName, entity.LastName);
 
-        string sql = "insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, CellPhoneNumber, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, ReceiveUpdates, ContractVersion) " +
-        "values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @CellPhoneNumber, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @ReceiveUpdates, @ContractVersion);";
+        string sql = "if not exists (select 1 from dbo." + tableName + " WHERE Id = @Id) " +
+            "begin" +
+            "insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, CellPhoneNumber, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, ReceiveUpdates, ContractVersion) " +
+            "values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @CellPhoneNumber, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @ReceiveUpdates, @ContractVersion) " +
+            "end;";
 
-        try{
+        try
+        {
             await _db.SaveData(sql, entity);
             return entity;
         } catch (Exception ex) {
@@ -79,6 +83,37 @@ public class GuardianRepository : RepositoryBase, IDataRepository<GuardianStorag
             throw;
         }
     }
+
+    public async Task<GuardianStorageContractV1> UpsertAsync(GuardianStorageContractV1 entity)
+    {
+        entity.Id = entity.Id is null ? GenerateId(entity.FirstName, entity.LastName) : entity.Id;
+
+        string sql = "if exists (select 1 from dbo." + tableName + " where id = @id) " +
+                     "begin " +
+                     "    update dbo." + tableName + " " +
+                     "    set Prefix = @Prefix, Firstname = @FirstName, MiddleName = @MiddleName, LastName = @LastName, Suffix = @Suffix, " +
+                     "        CellPhoneNumber = @CellPhoneNumber,EmailAddress = @EmailAddress, AddressLine1 = @AddressLine1, AddressLine2 = @AddressLine2, City = @City, " +
+                     "        State = @State, Zipcode = @ZipCode, ReceiveUpdates = @ReceiveUpdates, Contractversion = @ContractVersion " +
+                     "    where Id = @Id; " +
+                     "end " +
+                     "else " +
+                     "begin " +
+                     "    insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, CellPhoneNumber, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, ReceiveUpdates, ContractVersion) " +
+                     "    values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @CellPhoneNumber, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @ReceiveUpdates, @ContractVersion); " +
+                     "end;";
+
+        try
+        {
+            await _db.SaveData(sql, entity);
+            return entity;
+        }
+        catch (Exception ex)
+        {
+            _logger.CreateGuardianError(ex);
+            throw;
+        }
+    }
+
 
     public async Task UpdateAsync(GuardianStorageContractV1 entity)
     {

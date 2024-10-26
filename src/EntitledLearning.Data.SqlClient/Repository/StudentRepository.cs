@@ -53,15 +53,50 @@ public class StudentRepository : RepositoryBase, IDataRepository<StudentStorageC
 
     public async Task<StudentStorageContractV1> AddAsync(StudentStorageContractV1 entity)
     {
-        entity.Id = GenerateId(entity.FirstName, entity.LastName);
+        entity.Id = entity.Id is null ? GenerateId(entity.FirstName, entity.LastName) : entity.Id;
 
-        string sql = "insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, Race, DateOfBirth, HouseholdIncomeRange, ShirtSize, IsScholar, AllowPhotoRelease, ContractVersion) " +
-        "values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @Race, @DateOfBirth, @HouseholdIncomeRange, @ShirtSize, @IsScholar, @AllowPhotoRelease, @ContractVersion);";
+        string sql = "if not exists (select 1 from dbo." + tableName + " WHERE Id = @Id) " +
+            "begin" +
+            "insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, Race, DateOfBirth, HouseholdIncomeRange, ShirtSize, IsScholar, AllowPhotoRelease, ContractVersion) " +
+            "values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @Race, @DateOfBirth, @HouseholdIncomeRange, @ShirtSize, @IsScholar, @AllowPhotoRelease, @ContractVersion) " +
+            "end;";
 
         try{
             await _db.SaveData(sql, entity);
             return entity;
         } catch (Exception ex) {
+            _logger.CreateStudentError(ex);
+            throw;
+        }
+    }
+
+    public async Task<StudentStorageContractV1> UpsertAsync(StudentStorageContractV1 entity)
+    {
+        entity.Id = entity.Id is null ? GenerateId(entity.FirstName, entity.LastName) : entity.Id;
+
+        string sql = "if exists (select 1 from dbo." + tableName + " where Id = @Id) " +
+             "begin " +
+             "    update dbo." + tableName + " " +
+             "    set Prefix = @Prefix, FirstName = @FirstName, MiddleName = @MiddleName, LastName = @LastName, Suffix = @Suffix, " +
+             "        EmailAddress = @EmailAddress, AddressLine1 = @AddressLine1, AddressLine2 = @AddressLine2, City = @City, " +
+             "        State = @State, ZipCode = @ZipCode, Race = @Race, DateOfBirth = @DateOfBirth, " +
+             "        HouseholdIncomeRange = @HouseholdIncomeRange, ShirtSize = @ShirtSize, IsScholar = @IsScholar, " +
+             "        AllowPhotoRelease = @AllowPhotoRelease, ContractVersion = @ContractVersion " +
+             "    where Id = @Id; " +
+             "end " +
+             "else " +
+             "begin " +
+             "    insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, Race, DateOfBirth, HouseholdIncomeRange, ShirtSize, IsScholar, AllowPhotoRelease, ContractVersion) " +
+             "    values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @Race, @DateOfBirth, @HouseholdIncomeRange, @ShirtSize, @IsScholar, @AllowPhotoRelease, @ContractVersion); " +
+             "end;";
+
+        try
+        {
+            await _db.SaveData(sql, entity);
+            return entity;
+        }
+        catch (Exception ex)
+        {
             _logger.CreateStudentError(ex);
             throw;
         }
