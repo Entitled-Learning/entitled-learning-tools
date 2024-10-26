@@ -40,10 +40,12 @@
 
     <script src="_framework/blazor.server.js"></script>
     <script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
     <script type="module" src="js/grader.mjs"></script>
+    <script src="js/stripe.js"></script>
 
-    <script>
-        window.BlazorDownloadFile = function (options) {
+
+    <script>window.BlazorDownloadFile = function (options) {
             const { content, contentType, fileName } = options;
             const blob = b64toBlob(content, contentType);
             const url = URL.createObjectURL(blob);
@@ -74,8 +76,7 @@
 
             const blob = new Blob(byteArrays, { type: contentType });
             return blob;
-        }
-    </script>
+        }</script>
 </body>
 </html>
 

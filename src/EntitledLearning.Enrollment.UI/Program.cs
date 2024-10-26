@@ -13,6 +13,7 @@ using Serilog;
 using EntitledLearning.Data.SqlClient;
 using EntitledLearning.Data.Repository;
 using EntitledLearning.Enrollment.UI;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +52,7 @@ builder.Services.AddScoped<GuardianStudentRelationshipRepository>();
 builder.Services.AddScoped<CommunityPartnerRepository>();
 builder.Services.AddScoped<CommunityPartnerContactRepository>();
 builder.Services.AddScoped<InventoryItemRepository>();
+builder.Services.AddTransient<PaymentProcessor>();
 builder.Services.AddSingleton<ISqlDataClient, SqlDataClient>();
 builder.Services.AddRadzenComponents();
 builder.Services.AddScoped<PageNotificationService>();

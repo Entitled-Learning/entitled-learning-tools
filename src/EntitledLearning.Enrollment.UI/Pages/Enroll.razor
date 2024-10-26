@@ -8,69 +8,84 @@
 @inject GuardianRepository _guardianDB
 @inject GuardianStudentRelationshipRepository _relationshipDB
 @inject PageNotificationService PageNotificationService
-@inject AuthenticationStateProvider AuthenticationStateProvider;
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
+@inject PaymentProcessor _paymentProcessor
+@inject IJSRuntime JS
 @inject ILogger<Enroll> _logger
 
 <PageTitle>Entitled Learning Enrollment | Enroll</PageTitle>
 
 <AuthorizeView Context="authContext">
     <Authorized>
-        <section class="flex flex-col p-4 w-full">
-            <section class="header-section p-8">
-                <h1 class="account-menu-title text-3xl tracking-tighter lg:text-4xl">
-                    <strong class="">
-                        Welcome to Entiled Learning Enrollment
-                    </strong>
-                </h1>
+        @if (!_userLoaded)
+            {
+            <div class="account-menu-info">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-indigo" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+            }
+            else
+            {
+            <section class="flex flex-col p-4 w-full">
+                <section class="header-section p-8">
+                    <h1 class="account-menu-title text-3xl tracking-tighter lg:text-4xl">
+                        <strong class="">
+                            Welcome to Entiled Learning Enrollment
+                        </strong>
+                    </h1>
 
-                @* Student Section *@
-                <h1 class="text-2xl leading-loose mt-8">Student Information</h1>
-                <p class="text-sm text-gray-600 mb-4">Please provide information for the students you would like to enroll.</p>
-                <ListTable Data="@students.Select(x => x.ToDictionary())" OnItemClick="@HandleEditStudent" />
+                    @* Student Section *@
+                    <h1 class="text-2xl leading-loose mt-8">Student Information</h1>
+                    <p class="text-sm text-gray-600 mb-4">Please provide information for the students you would like to enroll.</p>
+                    <ListTable Data="@students.Select(x => x.ToDictionary())" OnItemClick="@HandleEditStudent" />
 
-                <RadzenButton class="my-4" Text="Enroll a student" Icon="add" ButtonStyle="ButtonStyle.Success" Click="ShowStudentModalForm" />
-
-
-                @* Parent/Guardian Section *@
-                <h1 class="text-2xl leading-loose">Parent/Guardian Information</h1>
-                <p class="text-sm text-gray-600 mb-4">
-                    Please provide information for at least one parent/guardian.
-                    If you are the guardian, please add your information.
-                </p>
-                <ListTable Data="@guardians.Select(x => x.ToDictionary())" OnItemClick="@HandleEditGuardian" />
-
-                <RadzenButton class="my-4" Text="Add a guardian" Icon="add" ButtonStyle="ButtonStyle.Success" Click="ShowGuardianModalForm" />
-
-
-
-                @*Dynamic modals*@
-                <Modal @ref="guardianModalRef">
-                    <!-- Dynamic content for the modal body -->
-                    <GuardianIntakeForm OnCompleteGuardianForm="@SubmitGuardianModalForm" OnCancel="@CancelGuardianModalForm" EditGuardian="@guardianToEdit" />
-                </Modal>
+                    <RadzenButton class="my-4" Text="Enroll a student" Icon="add" ButtonStyle="ButtonStyle.Success" Click="ShowStudentModalForm" />
 
 
-                <Modal @ref="studentnModalRef">
-                    <!-- Dynamic content for the modal body -->
-                    <StudentIntakeForm OnCompleteStudentFormForm="@SubmitStudentModalForm" OnCancel="@CancelStudentModalForm" EditStudent="@studentToEdit" />
-                </Modal>
+                    @* Parent/Guardian Section *@
+                    <h1 class="text-2xl leading-loose">Parent/Guardian Information</h1>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Please provide information for at least one parent/guardian.
+                        If you are the guardian, please add your information.
+                    </p>
+                    <ListTable Data="@guardians.Select(x => x.ToDictionary())" OnItemClick="@HandleEditGuardian" />
 
-                <ConfirmationModal @ref="confirmationModalRef" ConfirmationText="Enroll student?" SubmitText="Enroll" OnConfirmation="HandleConfirmation" />
+                    <RadzenButton class="my-4" Text="Add a guardian" Icon="add" ButtonStyle="ButtonStyle.Success" Click="ShowGuardianModalForm" />
 
-                @foreach (var errorMessage in submitErrorMessages)
-                {
-                    <div class="flex items-center alert alert-danger my-8 max-w-max" role="alert">
-                        <span class="oi oi-circle-x mr-4 text-red-600" aria-hidden="true"></span>
-                        @errorMessage
+
+
+                    @*Dynamic modals*@
+                    <Modal @ref="guardianModalRef">
+                        <!-- Dynamic content for the modal body -->
+                        <GuardianIntakeForm OnCompleteGuardianForm="@SubmitGuardianModalForm" OnCancel="@CancelGuardianModalForm" EditGuardian="@guardianToEdit" />
+                    </Modal>
+
+
+                    <Modal @ref="studentnModalRef">
+                        <!-- Dynamic content for the modal body -->
+                        <StudentIntakeForm OnCompleteStudentFormForm="@SubmitStudentModalForm" OnCancel="@CancelStudentModalForm" EditStudent="@studentToEdit" />
+                    </Modal>
+
+                    <ConfirmationModal @ref="confirmationModalRef" ConfirmationText="Enroll student?" SubmitText="Enroll" OnConfirmation="HandleConfirmation" />
+
+                    @foreach (var errorMessage in submitErrorMessages)
+                        {
+                        <div class="flex items-center alert alert-danger my-8 max-w-max" role="alert">
+                            <span class="oi oi-circle-x mr-4 text-red-600" aria-hidden="true"></span>
+                            @errorMessage
+                        </div>
+                        }
+
+                    <div class="mt-4">
+                        <RadzenButton type="submit" Text="Enroll" Icon="" ButtonStyle="ButtonStyle.Primary" Click="HandleValidSubmit" />
                     </div>
-                }
-
-                <div class="mt-4">
-                    <RadzenButton type="submit" Text="Enroll" Icon="" ButtonStyle="ButtonStyle.Primary" Click="HandleValidSubmit" />
-                </div>
+                </section>
             </section>
-        </section>
-    </Authorized>
+            }
+        </Authorized>
     <NotAuthorized>
         <h1 class="text-2xl leading-loose">Please Log in to access this page</h1>
     </NotAuthorized>
@@ -82,7 +97,7 @@
 
     private List<Student> students = new List<Student>();
     private List<Guardian> guardians = new List<Guardian>();
-    private DataMapper mapper = new DataMapper();
+    private DataMapper _mapper = new DataMapper();
     private Modal? studentnModalRef;
     private Modal? guardianModalRef;
     private Guardian? guardianToEdit = null;
@@ -91,10 +106,19 @@
     private int? studentToEditIndex = null;
     private ConfirmationModal? confirmationModalRef;
     private List<string> submitErrorMessages = new List<string>();
+    private bool _userLoaded = false;
 
     protected override async Task OnInitializedAsync()
     {
         base.OnInitialized();
+
+        await LoadUser();
+    }
+
+    private async Task LoadUser()
+    {
+        //TODO: remove artificial delay
+        await Task.Delay(2000);
 
         var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
 
@@ -102,20 +126,41 @@
         {
             _currentUser.SetClaims(authenticationState.User.Claims);
 
-            var defaultGuardian = new Guardian();
+            try
+            {
+                // fetch guaridan
+                var guardianContract = await _guardianDB.GetByEmailAsync(_currentUser.Email);
 
-            defaultGuardian.FirstName = _currentUser.FirstName;
-            defaultGuardian.LastName = _currentUser.LastName;
-            defaultGuardian.EmailAddress = _currentUser.Email;
+                //fetch linked students
+                if (guardianContract is not null)
+                {
+                    var defaultGuardian = _mapper.ToGuardian(guardianContract);
+                    guardians.Add(defaultGuardian);
 
-            guardians.Add(defaultGuardian);
+                    var existingStudents = (await LoadStudents(defaultGuardian.Id!)).ToList();
+                    students.AddRange(existingStudents);
+                }
+                else
+                {
+                    _logger.LogWarning("guardian not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("issue checking guardian", ex);
+            }
         }
 
-        var student = new Student();
-        student.initWithTestData();
-        students.Add(student);
+        _userLoaded = true;
+        StateHasChanged();
+    }
 
+    private async Task<IEnumerable<Student>> LoadStudents(string guardianId)
+    {
+        var studentContracts = await _relationshipDB.GetStudentsByGuardianIdAsync(guardianId);
+        var students = studentContracts.Select(s => _mapper.ToStudent(s));
 
+        return students;
     }
 
     private void ShowGuardianModalForm()
@@ -209,16 +254,16 @@
                 // Save the students
                 foreach (var student in students)
                 {
-                    var storageContract = mapper.ToStudentStorageContractV1(student);
-                    var result = await _studentDB.AddAsync(storageContract);
+                    var storageContract = _mapper.ToStudentStorageContractV1(student);
+                    var result = await _studentDB.UpsertAsync(storageContract);
                     storedStudents.Add(result);
                 }
 
                 // Save the guardians
                 foreach (var guardian in guardians)
                 {
-                    var guardianStorageContract = mapper.ToGuardianStorageContractV1(guardian);
-                    var result = await _guardianDB.AddAsync(guardianStorageContract);
+                    var guardianStorageContract = _mapper.ToGuardianStorageContractV1(guardian);
+                    var result = await _guardianDB.UpsertAsync(guardianStorageContract);
 
                     // Save the relationship between the students and guardians
                     foreach (var student in storedStudents)
@@ -229,14 +274,17 @@
                         relationship.Relationship = guardian.Relationship;
                         relationship.IsAuthorizedPickup = guardian.IsAuthorizedPickup;
                         relationship.IsEmergencyContact = guardian.IsEmergencyContact;
-                        await _relationshipDB.AddAsync(relationship);
+                        await _relationshipDB.UpsertAsync(relationship);
                     }
                 }
 
-                NavManager.NavigateTo("/");
+                await CreateCheckoutSession(students.Count());
+
+                //NavManager.NavigateTo("/");
             }
-            catch
+            catch(Exception ex)
             {
+                _logger.LogError("Error occured during HandleConfirmation", ex);
                 PageNotificationService.NotifyErrorOccured();
             }
         }
@@ -262,5 +310,11 @@
         {
             confirmationModalRef?.ShowModal();
         }
+    }
+
+    private async Task CreateCheckoutSession(int studentCount)
+    {
+        var session = await _paymentProcessor.CreateEnrollmentCheckoutSession(Navigation.BaseUri, studentCount);
+        await JS.InvokeVoidAsync("redirectToCheckout", session.Id);
     }
 }

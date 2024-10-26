@@ -2,6 +2,9 @@
 @inject StudentRepository _studentDB
 @inject GuardianRepository _guardianDB
 @inject GuardianStudentRelationshipRepository _relationshipDB
+@inject NavigationManager Navigation
+@inject PaymentProcessor _paymentProcessor
+@inject IJSRuntime JS
 @inject ILogger<UserProfile> _logger
 
 <div class="flex flex-col">
