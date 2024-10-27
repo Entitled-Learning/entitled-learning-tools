@@ -10,7 +10,7 @@
 @inject PageNotificationService PageNotificationService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager Navigation
-@inject PaymentProcessor _paymentProcessor
+@inject IPaymentProcessor _paymentProcessor
 @inject IJSRuntime JS
 @inject ILogger<Enroll> _logger
 
@@ -148,6 +148,7 @@
             catch (Exception ex)
             {
                 _logger.LogError("issue checking guardian", ex);
+                NavManager.NavigateTo("/error");
             }
         }
 

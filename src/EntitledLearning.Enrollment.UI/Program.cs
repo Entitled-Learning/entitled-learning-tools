@@ -52,7 +52,7 @@ builder.Services.AddScoped<GuardianStudentRelationshipRepository>();
 builder.Services.AddScoped<CommunityPartnerRepository>();
 builder.Services.AddScoped<CommunityPartnerContactRepository>();
 builder.Services.AddScoped<InventoryItemRepository>();
-builder.Services.AddTransient<PaymentProcessor>();
+builder.Services.AddTransient<IPaymentProcessor, PaymentProcessor>();
 builder.Services.AddSingleton<ISqlDataClient, SqlDataClient>();
 builder.Services.AddRadzenComponents();
 builder.Services.AddScoped<PageNotificationService>();
@@ -94,7 +94,8 @@ app.UseSerilogRequestLogging();
 
 app.UseMiddleware<UserToScopeFilter>();
 
-try{
+try
+{
     Log.Information("Starting Entitled Learning Tools");
     Log.Information("Environment: {environment}", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
 

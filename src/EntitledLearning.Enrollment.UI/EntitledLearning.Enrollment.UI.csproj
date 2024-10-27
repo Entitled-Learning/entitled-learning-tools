@@ -36,10 +36,12 @@
       <Folder Include="Models\" />
       <Folder Include="Repository\" />
       <Folder Include="Shared\Forms\" />
+      <Folder Include="Controllers.cs\" />
     </ItemGroup>
     <ItemGroup>
       <None Remove="Models\" />
       <None Remove="Repository\" />
       <None Remove="Shared\Forms\" />
+      <None Remove="Controllers.cs\" />
     </ItemGroup>
 </Project>
