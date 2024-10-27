@@ -1,21 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text.Json;
+using EntitledLearning.Data.Repository;
+using EntitledLearning.Data.StorageContracts;
 using EntitledLearning.Enrollment.UI.Models;
-using Microsoft.Extensions.Logging;
 using Stripe;
 using Stripe.Checkout;
-using static Microsoft.IO.RecyclableMemoryStreamManager;
 
 namespace EntitledLearning.Enrollment.UI;
 
 public class PaymentProcessor : IPaymentProcessor 
 {
-    private ILogger<PaymentProcessor> _logger;
+    private readonly EnrollmentRepository _enrollmentRepository;
+    private readonly AcademicTermRepository _academicRepository;
+    private readonly ILogger<PaymentProcessor> _logger;
 
-    public PaymentProcessor(IConfiguration configuration, ILogger<PaymentProcessor> logger)
+    public PaymentProcessor(EnrollmentRepository enrollmentRepository, AcademicTermRepository academicTermRepository, IConfiguration configuration, ILogger<PaymentProcessor> logger)
     {
         StripeConfiguration.ApiKey = configuration["StripeSecret"];
+        _enrollmentRepository = enrollmentRepository;
+        _academicRepository = academicTermRepository;
         _logger = logger;
     }
 
@@ -51,6 +53,7 @@ public class PaymentProcessor : IPaymentProcessor
 
     public async Task<Session> CreateEnrollmentCheckoutSession(string baseUri, string guardianId, IEnumerable<Student> students)
     {
+        var activeEnrollmentTerm = await GetActiveEntollmentTerm();
         var lineItems = new List<SessionLineItemOptions>();
 
         // Add each student as a line item in the Stripe session
@@ -65,6 +68,13 @@ public class PaymentProcessor : IPaymentProcessor
                     ProductData = new SessionLineItemPriceDataProductDataOptions
                     {
                         Name = $"Enrollment for {student.FirstName} {student.LastName}",
+                        Metadata = new Dictionary<string, string>
+                        {
+                            { "guardianId", guardianId},
+                            { "studentId", student.Id! },
+                            { "activeEnrollmentTermId", activeEnrollmentTerm.TermId! },
+                            { "activeEnrollmentTermName", activeEnrollmentTerm.TermName! }
+                        },
                     }
                 },
                 //Price = "price_1QEXEBQegY5BlVwwQXorV6u7",
@@ -80,7 +90,9 @@ public class PaymentProcessor : IPaymentProcessor
             Metadata = new Dictionary<string, string>
             {
                 { "guardianId", guardianId},
-                { "studentIds", string.Join(",", students.Select(s => s.Id)) } // Store student IDs as a comma-separated string
+                { "studentIds", string.Join(",", students.Select(s => s.Id)) }, // Store student IDs as a comma-separated string
+                { "activeEnrollmentTermId", activeEnrollmentTerm.TermId! },
+                { "activeEnrollmentTermName", activeEnrollmentTerm.TermName! }
             },
             SuccessUrl = $"{baseUri}payment-success",
             CancelUrl = $"{baseUri}payment-success"
@@ -89,6 +101,20 @@ public class PaymentProcessor : IPaymentProcessor
         var service = new SessionService();
         var session = await service.CreateAsync(options);
         return session;
+    }
+
+    private async Task<AcademicTermStorageContractV1> GetActiveEntollmentTerm()
+    {
+        var activeTerm = await _academicRepository.GetActiveTerm();
+
+        if(activeTerm is null)
+        {
+            throw new InvalidOperationException("No active enrollment terms found.");
+        }
+        else
+        {
+            return activeTerm;
+        }
     }
 
     public async Task<Session?> GetCheckoutSessionAsync(string sessionId)
@@ -181,12 +207,23 @@ public class PaymentProcessor : IPaymentProcessor
             if (session.Metadata.TryGetValue("studentIds", out var studentIdsConcatenated))
             {
                 var studentIds = studentIdsConcatenated.Split(',');
+                var academicTerm = session.Metadata.TryGetValue("activeEnrollmentTermId", out var academicTermId);
 
                 foreach (var studentId in studentIds)
                 {
                     try
                     {
-                        // TODO: Add enrollment record to database
+                        _logger.LogInformation(studentId);
+
+                        var enrollment = new EnrollmentStorageContractV1();
+                        enrollment.StudentId = studentId;
+                        enrollment.TermId = academicTermId;
+                        enrollment.EnrollmentDate = DateTimeOffset.UtcNow;
+                        enrollment.EnrollmentStatus = EnrollmentStatus.Active.ToString();
+                        enrollment.Notes = "";
+
+                        await _enrollmentRepository.UpsertAsync(enrollment);
+
                     }
                     catch (Exception ex)
                     {

@@ -52,6 +52,8 @@ builder.Services.AddScoped<GuardianStudentRelationshipRepository>();
 builder.Services.AddScoped<CommunityPartnerRepository>();
 builder.Services.AddScoped<CommunityPartnerContactRepository>();
 builder.Services.AddScoped<InventoryItemRepository>();
+builder.Services.AddScoped<EnrollmentRepository>();
+builder.Services.AddScoped<AcademicTermRepository>();
 builder.Services.AddTransient<IPaymentProcessor, PaymentProcessor>();
 builder.Services.AddSingleton<ISqlDataClient, SqlDataClient>();
 builder.Services.AddRadzenComponents();

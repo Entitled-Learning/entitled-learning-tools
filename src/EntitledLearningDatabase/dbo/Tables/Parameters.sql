@@ -4,7 +4,7 @@ CREATE TABLE Parameters (
     ParameterValue NVARCHAR(MAX) NULL,
     DataType NVARCHAR(50) NOT NULL CHECK (DataType IN ('INT', 'STRING', 'DATETIME', 'BOOLEAN')),
     Description NVARCHAR(255) NULL,
-    CreatedDate DATETIME2 DEFAULT GETDATE(),
-    ModifiedDate DATETIME2 DEFAULT GETDATE(),
+    [CreatedOn] DATETIME DEFAULT GETDATE(),
+	[UpdatedOn] DATETIME NULL,
     ModifiedBy NVARCHAR(100) NULL
 );
