@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text.Json;
+using EntitledLearning.Enrollment.UI.Models;
+using Microsoft.Extensions.Logging;
 using Stripe;
 using Stripe.Checkout;
 using static Microsoft.IO.RecyclableMemoryStreamManager;
@@ -45,40 +49,42 @@ public class PaymentProcessor : IPaymentProcessor
         return session;
     }
 
-    public async Task<Session> CreateEnrollmentCheckoutSession(string baseUri, int studentCount)
+    public async Task<Session> CreateEnrollmentCheckoutSession(string baseUri, string guardianId, IEnumerable<Student> students)
     {
-        var metadata = new Dictionary<string, string>
+        var lineItems = new List<SessionLineItemOptions>();
+
+        // Add each student as a line item in the Stripe session
+        foreach (var student in students)
         {
-            { "guardianId", "tets" },
-            { "guardianEmail", "tets" }
-        };
+            lineItems.Add(new SessionLineItemOptions
+            {
+                PriceData = new SessionLineItemPriceDataOptions
+                {
+                    UnitAmount = 15000, // Assuming a $150 enrollment fee per student
+                    Currency = "usd",
+                    ProductData = new SessionLineItemPriceDataProductDataOptions
+                    {
+                        Name = $"Enrollment for {student.FirstName} {student.LastName}",
+                    }
+                },
+                //Price = "price_1QEXEBQegY5BlVwwQXorV6u7",
+                Quantity = 1
+            });
+        }
 
         var options = new SessionCreateOptions
         {
             PaymentMethodTypes = new List<string> { "card" },
-            LineItems = new List<SessionLineItemOptions>
-            {
-                new SessionLineItemOptions
-                {
-                    PriceData = new SessionLineItemPriceDataOptions
-                    {
-                        UnitAmount = 15000,
-                        Currency = "usd",
-                        ProductData = new SessionLineItemPriceDataProductDataOptions
-                        {
-                            Name = "Entitled Learning Student Enrollment",
-                            Metadata = metadata
-                        }
-                    },
-                    Quantity = studentCount
-                }
-            },
+            LineItems = lineItems,
             Mode = "payment",
+            Metadata = new Dictionary<string, string>
+            {
+                { "guardianId", guardianId},
+                { "studentIds", string.Join(",", students.Select(s => s.Id)) } // Store student IDs as a comma-separated string
+            },
             SuccessUrl = $"{baseUri}payment-success",
             CancelUrl = $"{baseUri}payment-success"
         };
-
-        _logger.LogInformation("made it here");
 
         var service = new SessionService();
         var session = await service.CreateAsync(options);
@@ -114,7 +120,7 @@ public class PaymentProcessor : IPaymentProcessor
         }
     }
 
-    public void ProcessPaymentWebhook(string json)
+    public async Task ProcessPaymentWebhook(string json)
     {
         try
         {
@@ -127,7 +133,7 @@ public class PaymentProcessor : IPaymentProcessor
             {
                 var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
                 // Then define and call a method to handle the successful payment intent.
-                // handlePaymentIntentSucceeded(paymentIntent);
+                HandlePaymentIntentSucceeded(paymentIntent);
             }
             else if (stripeEvent.Type == EventTypes.PaymentMethodAttached)
             {
@@ -135,7 +141,20 @@ public class PaymentProcessor : IPaymentProcessor
                 // Then define and call a method to handle the successful attachment of a PaymentMethod.
                 // handlePaymentMethodAttached(paymentMethod);
             }
-            // ... handle other event types
+            else if (stripeEvent.Type == EventTypes.CheckoutSessionCompleted)
+            {
+                var session = stripeEvent.Data.Object as Session;
+
+                if(session is null)
+                {
+                    _logger.LogInformation("Session is null some how");
+                }
+                else
+                {
+                    await HandleCheckoutSessionCompleted(session);
+                }
+            }
+
             else
             {
                 // Unexpected event type
@@ -153,6 +172,45 @@ public class PaymentProcessor : IPaymentProcessor
             _logger.LogError($"Webhook processing failed: {ex.Message}");
             throw;
         }
+    }
+
+    private async Task HandleCheckoutSessionCompleted(Session session)
+    {
+        try
+        {
+            if (session.Metadata.TryGetValue("studentIds", out var studentIdsConcatenated))
+            {
+                var studentIds = studentIdsConcatenated.Split(',');
+
+                foreach (var studentId in studentIds)
+                {
+                    try
+                    {
+                        // TODO: Add enrollment record to database
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error processing student ID {studentId}: {ex.Message}");
+                    }
+                }
+            }
+            else
+            {
+                _logger.LogWarning("Metadata does not contain 'studentIds'");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"An error occurred while handling the checkout session: {ex.Message}");
+        }
+
+        await Task.CompletedTask;
+    }
+
+
+    private void HandlePaymentIntentSucceeded(PaymentIntent? paymentIntent)
+    {
+        
     }
 }
 

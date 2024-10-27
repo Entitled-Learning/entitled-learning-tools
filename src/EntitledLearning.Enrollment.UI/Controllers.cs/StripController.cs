@@ -29,7 +29,7 @@ public class StripeController : ControllerBase
             return Ok();
         }
 
-        _paymentProcessor.ProcessPaymentWebhook(json);
+        await _paymentProcessor.ProcessPaymentWebhook(json);
 
         return Ok();
     }

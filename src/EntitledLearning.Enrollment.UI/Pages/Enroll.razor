@@ -97,6 +97,7 @@
 
     private List<Student> students = new List<Student>();
     private List<Guardian> guardians = new List<Guardian>();
+    private Guardian _defaultGuardian = new Guardian();
     private DataMapper _mapper = new DataMapper();
     private Modal? studentnModalRef;
     private Modal? guardianModalRef;
@@ -134,10 +135,10 @@
                 //fetch linked students
                 if (guardianContract is not null)
                 {
-                    var defaultGuardian = _mapper.ToGuardian(guardianContract);
-                    guardians.Add(defaultGuardian);
+                    _defaultGuardian = _mapper.ToGuardian(guardianContract);
+                    guardians.Add(_defaultGuardian);
 
-                    var existingStudents = (await LoadStudents(defaultGuardian.Id!)).ToList();
+                    var existingStudents = (await LoadStudents(_defaultGuardian.Id!)).ToList();
                     students.AddRange(existingStudents);
                 }
                 else
@@ -279,7 +280,8 @@
                     }
                 }
 
-                await CreateCheckoutSession(students.Count());
+
+                await CreateCheckoutSession(_defaultGuardian.Id!, students);
 
                 //NavManager.NavigateTo("/");
             }
@@ -313,9 +315,9 @@
         }
     }
 
-    private async Task CreateCheckoutSession(int studentCount)
+    private async Task CreateCheckoutSession(string guardianId, IEnumerable<Student> students)
     {
-        var session = await _paymentProcessor.CreateEnrollmentCheckoutSession(Navigation.BaseUri, studentCount);
+        var session = await _paymentProcessor.CreateEnrollmentCheckoutSession(Navigation.BaseUri, guardianId, students);
         await JS.InvokeVoidAsync("redirectToCheckout", session.Id);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using EntitledLearning.Enrollment.UI.Models;
 using Stripe;
 using Stripe.Checkout;
 
@@ -8,10 +9,10 @@ public interface IPaymentProcessor
 {
     public Task<Session> CreateCheckoutSession(string baseUri);
 
-    public Task<Session> CreateEnrollmentCheckoutSession(string baseUri, int studentCount);
+    public Task<Session> CreateEnrollmentCheckoutSession(string baseUri, string guardianId, IEnumerable<Student> students);
 
     public Task<Session?> GetCheckoutSessionAsync(string sessionId);
 
-    public void ProcessPaymentWebhook(string json);
+    public Task ProcessPaymentWebhook(string json);
 }
 
