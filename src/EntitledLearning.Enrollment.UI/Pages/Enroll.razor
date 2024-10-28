@@ -5,6 +5,7 @@
 @inherits BasePage
 @inject NavigationManager NavManager
 @inject StudentRepository _studentDB
+@inject EnrollmentRepository _enrollmentDB
 @inject GuardianRepository _guardianDB
 @inject GuardianStudentRelationshipRepository _relationshipDB
 @inject PageNotificationService PageNotificationService
@@ -19,16 +20,16 @@
 <AuthorizeView Context="authContext">
     <Authorized>
         @if (!_userLoaded)
-            {
+        {
             <div class="account-menu-info">
                 <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-indigo" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
             </div>
-            }
-            else
-            {
+        }
+        else
+        {
             <section class="flex flex-col p-4 w-full">
                 <section class="header-section p-8">
                     <h1 class="account-menu-title text-3xl tracking-tighter lg:text-4xl">
@@ -37,12 +38,19 @@
                         </strong>
                     </h1>
 
+                    @if (_students.Any() && _students.Where(s => s.IsEnrolled == false).Any())
+                    {
+                        <RadzenAlert AlertStyle="AlertStyle.Warning" Variant="Variant.Flat" Shade="Shade.Lighter">
+                            Note: Our system has detected that you have students that were priviously registered, but not enrolled in the current term.
+                        </RadzenAlert>
+                    }
+
                     @* Student Section *@
                     <h1 class="text-2xl leading-loose mt-8">Student Information</h1>
                     <p class="text-sm text-gray-600 mb-4">Please provide information for the students you would like to enroll.</p>
-                    <ListTable Data="@students.Select(x => x.ToDictionary())" OnItemClick="@HandleEditStudent" />
+                    <ListTable Data="@_students.Select(x => x.ToDictionary())" OnItemClick="@HandleEditStudent" />
 
-                    <RadzenButton class="my-4" Text="Enroll a student" Icon="add" ButtonStyle="ButtonStyle.Success" Click="ShowStudentModalForm" />
+                    <RadzenButton class="my-4" Text="Enroll another student" Icon="add" ButtonStyle="ButtonStyle.Success" Click="ShowStudentModalForm" />
 
 
                     @* Parent/Guardian Section *@
@@ -51,7 +59,7 @@
                         Please provide information for at least one parent/guardian.
                         If you are the guardian, please add your information.
                     </p>
-                    <ListTable Data="@guardians.Select(x => x.ToDictionary())" OnItemClick="@HandleEditGuardian" />
+                    <ListTable Data="@_guardians.Select(x => x.ToDictionary())" OnItemClick="@HandleEditGuardian" />
 
                     <RadzenButton class="my-4" Text="Add a guardian" Icon="add" ButtonStyle="ButtonStyle.Success" Click="ShowGuardianModalForm" />
 
@@ -72,20 +80,20 @@
                     <ConfirmationModal @ref="confirmationModalRef" ConfirmationText="Enroll student?" SubmitText="Enroll" OnConfirmation="HandleConfirmation" />
 
                     @foreach (var errorMessage in submitErrorMessages)
-                        {
+                    {
                         <div class="flex items-center alert alert-danger my-8 max-w-max" role="alert">
                             <span class="oi oi-circle-x mr-4 text-red-600" aria-hidden="true"></span>
                             @errorMessage
                         </div>
-                        }
+                    }
 
                     <div class="mt-4">
-                        <RadzenButton type="submit" Text="Enroll" Icon="" ButtonStyle="ButtonStyle.Primary" Click="HandleValidSubmit" />
+                        <RadzenButton type="submit" Disabled="_students.All(s => s.IsEnrolled == true)" Text="Enroll" Icon="" ButtonStyle="ButtonStyle.Primary" Click="HandleValidSubmit" />
                     </div>
                 </section>
             </section>
-            }
-        </Authorized>
+        }
+    </Authorized>
     <NotAuthorized>
         <h1 class="text-2xl leading-loose">Please Log in to access this page</h1>
     </NotAuthorized>
@@ -95,8 +103,8 @@
 @code {
     private EntitledLearningUser _currentUser = new EntitledLearningUser();
 
-    private List<Student> students = new List<Student>();
-    private List<Guardian> guardians = new List<Guardian>();
+    private List<Student> _students = new List<Student>();
+    private List<Guardian> _guardians = new List<Guardian>();
     private Guardian _defaultGuardian = new Guardian();
     private DataMapper _mapper = new DataMapper();
     private Modal? studentnModalRef;
@@ -136,10 +144,10 @@
                 if (guardianContract is not null)
                 {
                     _defaultGuardian = _mapper.ToGuardian(guardianContract);
-                    guardians.Add(_defaultGuardian);
+                    _guardians.Add(_defaultGuardian);
 
                     var existingStudents = (await LoadStudents(_defaultGuardian.Id!)).ToList();
-                    students.AddRange(existingStudents);
+                    _students.AddRange(existingStudents);
                 }
                 else
                 {
@@ -160,7 +168,19 @@
     private async Task<IEnumerable<Student>> LoadStudents(string guardianId)
     {
         var studentContracts = await _relationshipDB.GetStudentsByGuardianIdAsync(guardianId);
-        var students = studentContracts.Select(s => _mapper.ToStudent(s));
+
+        var students = await Task.WhenAll(studentContracts.Select(async s =>
+        {
+            var student = _mapper.ToStudent(s);
+
+            var studentEnrollment = await _enrollmentDB.GetActiveEnrollmentByStudentIdAsync(student.Id!);
+
+            student.IsEnrolled = studentEnrollment is not null;
+
+            _logger.LogInformation(student.IsEnrolled.ToString());
+
+            return student;
+        }));
 
         return students;
     }
@@ -181,11 +201,11 @@
         // Update the parent component's model with the edited data
         if (guardianToEditIndex is null)
         {
-            guardians.Add(editedModel);
+            _guardians.Add(editedModel);
         }
         else
         {
-            guardians[(int)guardianToEditIndex] = editedModel;
+            _guardians[(int)guardianToEditIndex] = editedModel;
         }
 
         guardianToEdit = null;
@@ -200,11 +220,11 @@
         // Update the parent component's model with the edited data
         if (studentToEditIndex is null)
         {
-            students.Add(editedModel);
+            _students.Add(editedModel);
         }
         else
         {
-            students[(int)studentToEditIndex] = editedModel;
+            _students[(int)studentToEditIndex] = editedModel;
         }
 
         studentToEdit = null;
@@ -229,14 +249,14 @@
 
     private void HandleEditGuardian(int guardianIndex)
     {
-        guardianToEdit = guardians[guardianIndex];
+        guardianToEdit = _guardians[guardianIndex];
         guardianToEditIndex = guardianIndex;
         guardianModalRef?.ShowModal();
     }
 
     private void HandleEditStudent(int studentIndex)
     {
-        studentToEdit = students[studentIndex];
+        studentToEdit = _students[studentIndex];
         studentToEditIndex = studentIndex;
         studentnModalRef?.ShowModal();
     }
@@ -254,7 +274,7 @@
                 var storedGuardians = new List<GuardianStorageContractV1>();
 
                 // Save the students
-                foreach (var student in students)
+                foreach (var student in _students)
                 {
                     var storageContract = _mapper.ToStudentStorageContractV1(student);
                     var result = await _studentDB.UpsertAsync(storageContract);
@@ -262,7 +282,7 @@
                 }
 
                 // Save the guardians
-                foreach (var guardian in guardians)
+                foreach (var guardian in _guardians)
                 {
                     var guardianStorageContract = _mapper.ToGuardianStorageContractV1(guardian);
                     var result = await _guardianDB.UpsertAsync(guardianStorageContract);
@@ -281,11 +301,11 @@
                 }
 
 
-                await CreateCheckoutSession(_defaultGuardian.Id!, students);
+                await CreateCheckoutSession(_defaultGuardian.Id!, _students);
 
                 //NavManager.NavigateTo("/");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError("Error occured during HandleConfirmation", ex);
                 PageNotificationService.NotifyErrorOccured();
@@ -297,13 +317,13 @@
     {
         var valid = true;
 
-        if (students.Count == 0)
+        if (_students.Count == 0)
         {
             submitErrorMessages.Add("Please provide information for at least one student.");
             valid = false;
         }
 
-        if (guardians.Count == 0)
+        if (_guardians.Count == 0)
         {
             submitErrorMessages.Add("Please provide information for at least one parent/guardian.");
             valid = false;

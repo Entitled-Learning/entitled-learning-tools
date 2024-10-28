@@ -26,7 +26,7 @@
                 </div>
             </div>
 
-            @if (_students is null || !_students.Any())
+            @if (_students is null || !_students.Where(s => s.IsEnrolled == true).Any())
             {
                 <h1 class="account-menu-title text-2xl tracking-tighter lg:text-3xl">
                     <strong class="accent">
@@ -63,27 +63,13 @@
         </h1>
         <div class="account-menu-row">
             <div>
-                Edit Guardian Profile
-            </div>
-            <span class="oi oi-chevron-right" title="chevron-right" aria-hidden="true"></span>
-        </div>
-    </div>
-
-    <div class="account-menu-group">
-        <h1 class="account-menu-title text-3xl tracking-tighter lg:text-4xl">
-            <strong class="">
-                Enrollment
-            </strong>
-        </h1>
-        <div class="account-menu-row">
-            <div>
-                Manage Enrollment
+                Update Guardian Profile
             </div>
             <span class="oi oi-chevron-right" title="chevron-right" aria-hidden="true"></span>
         </div>
         <div class="account-menu-row">
             <div>
-                Cancel Enrollment
+                Update Student Information
             </div>
             <span class="oi oi-chevron-right" title="chevron-right" aria-hidden="true"></span>
         </div>
@@ -140,8 +126,6 @@
                 {
                     _guardian = _mapper.ToGuardian(guardianContract);
                     _students = (await LoadStudents(_guardian.Id!)).ToList();
-
-                    // fetch registerd students
                 }
                 else
                 {
