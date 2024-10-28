@@ -25,13 +25,13 @@ jobs:
         run: dotnet build src/EntitledLearning.Enrollment.UI/EntitledLearning.Enrollment.UI.csproj --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish src/EntitledLearning.Enrollment.UI/EntitledLearning.Enrollment.UI.csproj -c Release -o ${{env.DOTNET_ROOT}}/entitled-leearning-enrollment
+        run: dotnet publish src/EntitledLearning.Enrollment.UI/EntitledLearning.Enrollment.UI.csproj -c Release -o ${{env.DOTNET_ROOT}}/entitled-learning-enrollment
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/entitled-leearning-enrollment
+          path: ${{env.DOTNET_ROOT}}/entitled-learning-enrollment
 
   deploy:
     runs-on: ubuntu-latest
