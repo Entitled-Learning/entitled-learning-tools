@@ -7,9 +7,9 @@ namespace EntitledLearning.Enrollment.UI;
 
 public interface IPaymentProcessor
 {
-    public Task<Session> CreateCheckoutSession(string baseUri);
+    public Task<Session?> CreateCheckoutSession(string baseUri);
 
-    public Task<Session> CreateEnrollmentCheckoutSession(string baseUri, string guardianId, IEnumerable<Student> students);
+    public Task<Session?> CreateEnrollmentCheckoutSession(string baseUri, string guardianId, IEnumerable<Student> students);
 
     public Task<Session?> GetCheckoutSessionAsync(string sessionId);
 

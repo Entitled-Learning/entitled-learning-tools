@@ -338,6 +338,14 @@
     private async Task CreateCheckoutSession(string guardianId, IEnumerable<Student> students)
     {
         var session = await _paymentProcessor.CreateEnrollmentCheckoutSession(Navigation.BaseUri, guardianId, students);
-        await JS.InvokeVoidAsync("redirectToCheckout", session.Id);
+
+        if(session is not null)
+        {
+            await JS.InvokeVoidAsync("redirectToCheckout", session.Id);
+        }
+        else
+        {
+            _logger.LogWarning("Could not redirect to checkout. Session is null");
+        }
     }
 }

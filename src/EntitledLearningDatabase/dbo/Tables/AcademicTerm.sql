@@ -7,3 +7,7 @@ CREATE TABLE AcademicTerms (
 	[CreatedOn] DATETIME DEFAULT GETDATE(),
 	[UpdatedOn] DATETIME NULL
 );
+GO
+
+insert into AcademicTerms (TermName, StartDate, EndDate, IsActive) values ('Summer 2025', '2025-01-01 00:00:00.000', '2025-12-01 00:00:00.000', 1)
+GO

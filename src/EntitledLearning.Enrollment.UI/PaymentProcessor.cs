@@ -1,9 +1,11 @@
 ﻿using System;
+using CommunityToolkit.Diagnostics;
 using EntitledLearning.Data.Repository;
 using EntitledLearning.Data.StorageContracts;
 using EntitledLearning.Enrollment.UI.Models;
 using Stripe;
 using Stripe.Checkout;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace EntitledLearning.Enrollment.UI;
 
@@ -15,92 +17,113 @@ public class PaymentProcessor : IPaymentProcessor
 
     public PaymentProcessor(EnrollmentRepository enrollmentRepository, AcademicTermRepository academicTermRepository, IConfiguration configuration, ILogger<PaymentProcessor> logger)
     {
+        Guard.IsNotNull(configuration["StripeSecret"]);
+
         StripeConfiguration.ApiKey = configuration["StripeSecret"];
         _enrollmentRepository = enrollmentRepository;
         _academicRepository = academicTermRepository;
         _logger = logger;
     }
 
-    public async Task<Session> CreateCheckoutSession(string baseUri)
+    public async Task<Session?> CreateCheckoutSession(string baseUri)
     {
-        var options = new SessionCreateOptions
-        {
-            PaymentMethodTypes = new List<string> { "card" },
-            LineItems = new List<SessionLineItemOptions>
+        try { 
+            var options = new SessionCreateOptions
             {
-                new SessionLineItemOptions
+                PaymentMethodTypes = new List<string> { "card" },
+                LineItems = new List<SessionLineItemOptions>
+                {
+                    new SessionLineItemOptions
+                    {
+                        PriceData = new SessionLineItemPriceDataOptions
+                        {
+                            UnitAmount = 2000,
+                            Currency = "usd",
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = "Entitled Learning Student Enrollment"
+                            }
+                        },
+                        Quantity = 1
+                    }
+                },
+                Mode = "payment",
+                SuccessUrl = $"{baseUri}success",
+                CancelUrl = $"{baseUri}cancel"
+            };
+            var service = new SessionService();
+            var session = await service.CreateAsync(options);
+
+            return session;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occured diring CreateEnrollmentCheckoutSession");
+
+            return null;
+        }
+    }
+
+    public async Task<Session?> CreateEnrollmentCheckoutSession(string baseUri, string guardianId, IEnumerable<Student> students)
+    {
+        try
+        {
+            var activeEnrollmentTerm = await GetActiveEntollmentTerm();
+            var lineItems = new List<SessionLineItemOptions>();
+
+            // Add each student as a line item in the Stripe session
+            foreach (var student in students)
+            {
+                lineItems.Add(new SessionLineItemOptions
                 {
                     PriceData = new SessionLineItemPriceDataOptions
                     {
-                        UnitAmount = 2000,
+                        UnitAmount = 15000, // Assuming a $150 enrollment fee per student
                         Currency = "usd",
                         ProductData = new SessionLineItemPriceDataProductDataOptions
                         {
-                            Name = "Entitled Learning Student Enrollment"
+                            Name = $"Enrollment for {student.FirstName} {student.LastName}",
+                            Metadata = new Dictionary<string, string>
+                            {
+                                { "guardianId", guardianId},
+                                { "studentId", student.Id! },
+                                { "activeEnrollmentTermId", activeEnrollmentTerm.TermId! },
+                                { "activeEnrollmentTermName", activeEnrollmentTerm.TermName! }
+                            },
                         }
                     },
+                    //Price = "price_1QEXEBQegY5BlVwwQXorV6u7",
                     Quantity = 1
-                }
-            },
-            Mode = "payment",
-            SuccessUrl = $"{baseUri}success",
-            CancelUrl = $"{baseUri}cancel"
-        };
-        var service = new SessionService();
-        var session = await service.CreateAsync(options);
-        return session;
-    }
+                });
+            }
 
-    public async Task<Session> CreateEnrollmentCheckoutSession(string baseUri, string guardianId, IEnumerable<Student> students)
-    {
-        var activeEnrollmentTerm = await GetActiveEntollmentTerm();
-        var lineItems = new List<SessionLineItemOptions>();
-
-        // Add each student as a line item in the Stripe session
-        foreach (var student in students)
-        {
-            lineItems.Add(new SessionLineItemOptions
+            var options = new SessionCreateOptions
             {
-                PriceData = new SessionLineItemPriceDataOptions
+                PaymentMethodTypes = new List<string> { "card" },
+                LineItems = lineItems,
+                Mode = "payment",
+                Metadata = new Dictionary<string, string>
                 {
-                    UnitAmount = 15000, // Assuming a $150 enrollment fee per student
-                    Currency = "usd",
-                    ProductData = new SessionLineItemPriceDataProductDataOptions
-                    {
-                        Name = $"Enrollment for {student.FirstName} {student.LastName}",
-                        Metadata = new Dictionary<string, string>
-                        {
-                            { "guardianId", guardianId},
-                            { "studentId", student.Id! },
-                            { "activeEnrollmentTermId", activeEnrollmentTerm.TermId! },
-                            { "activeEnrollmentTermName", activeEnrollmentTerm.TermName! }
-                        },
-                    }
+                    { "guardianId", guardianId},
+                    { "studentIds", string.Join(",", students.Select(s => s.Id)) }, // Store student IDs as a comma-separated string
+                    { "activeEnrollmentTermId", activeEnrollmentTerm.TermId! },
+                    { "activeEnrollmentTermName", activeEnrollmentTerm.TermName! }
                 },
-                //Price = "price_1QEXEBQegY5BlVwwQXorV6u7",
-                Quantity = 1
-            });
+                SuccessUrl = $"{baseUri}payment-success",
+                CancelUrl = $"{baseUri}payment-success"
+            };
+
+            var service = new SessionService();
+            var session = await service.CreateAsync(options);
+
+            return session;
         }
-
-        var options = new SessionCreateOptions
+        catch (Exception ex)
         {
-            PaymentMethodTypes = new List<string> { "card" },
-            LineItems = lineItems,
-            Mode = "payment",
-            Metadata = new Dictionary<string, string>
-            {
-                { "guardianId", guardianId},
-                { "studentIds", string.Join(",", students.Select(s => s.Id)) }, // Store student IDs as a comma-separated string
-                { "activeEnrollmentTermId", activeEnrollmentTerm.TermId! },
-                { "activeEnrollmentTermName", activeEnrollmentTerm.TermName! }
-            },
-            SuccessUrl = $"{baseUri}payment-success",
-            CancelUrl = $"{baseUri}payment-success"
-        };
+            _logger.LogError(ex, "Error occured diring CreateEnrollmentCheckoutSession");
 
-        var service = new SessionService();
-        var session = await service.CreateAsync(options);
-        return session;
+            return null;
+        }
     }
 
     private async Task<AcademicTermStorageContractV1> GetActiveEntollmentTerm()
