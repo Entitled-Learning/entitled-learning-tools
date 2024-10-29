@@ -28,16 +28,6 @@
 @code {
     private EntitledLearningUser _currentUser = new EntitledLearningUser();
 
-    [Parameter]
-    [SupplyParameterFromQuery(Name = "option")]
-    public string _selectedOption { get; set; } = DataTypes.Profile.ToString();
-
-    private int _selectedIndex = 0;
-
-    private List<string> _tabs = new List<string>() {
-            DataTypes.Profile.ToString()
-        };
-
     protected override async Task OnInitializedAsync()
     {
         base.OnInitialized();
@@ -48,26 +38,5 @@
         {
             _currentUser.SetClaims(authenticationState.User.Claims);
         }
-
-        if (_selectedOption == null)
-        {
-            NavManager.NavigateTo("/?option=Profile");
-        }
     }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        await base.OnParametersSetAsync();
-
-        if (_selectedOption is not null)
-        {
-            _selectedIndex = _tabs.IndexOf(_selectedOption) == -1 ? 0 : _tabs.IndexOf(_selectedOption);
-        }
-    }
-
-    private void Navigate(object e)
-    {
-        NavManager.NavigateTo($"/?option={e}");
-    }
-
 }
