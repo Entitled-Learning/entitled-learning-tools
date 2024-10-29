@@ -48,8 +48,8 @@ public class PaymentProcessor : IPaymentProcessor
                     }
                 },
                 Mode = "payment",
-                SuccessUrl = $"{baseUri}success",
-                CancelUrl = $"{baseUri}cancel"
+                SuccessUrl = $"{baseUri}payment-success",
+                CancelUrl = $"{baseUri}"
             };
             var service = new SessionService();
             var session = await service.CreateAsync(options);
@@ -110,7 +110,7 @@ public class PaymentProcessor : IPaymentProcessor
                     { "activeEnrollmentTermName", activeEnrollmentTerm.TermName! }
                 },
                 SuccessUrl = $"{baseUri}payment-success",
-                CancelUrl = $"{baseUri}payment-success"
+                CancelUrl = $"{baseUri}"
             };
 
             var service = new SessionService();
