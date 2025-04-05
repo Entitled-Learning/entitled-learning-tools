@@ -52,5 +52,6 @@ public partial class DataMapper
     public partial GuardianStorageContractV1 ToGuardianStorageContractV1(Guardian guardian);
     public partial CommunityPartnerStorageContractV1 ToCommunityPartnerStorageContractV1(CommunityPartner communityPartner);
     public partial CommunityPartnerContactStorageContractV1 ToCommunityPartnerContactStorageContractV1(CommunityPartnerContact communityPartnerContact);
+    public partial CommunityPartnerStorageContractV1 ToCommunityPartnerStorageContractV1(CsvCommunityPartnerRecord communityPartner);
     public partial InventoryItemStorageContractV1 ToInventoryItemStorageContractV1(InventoryItem item);
 }

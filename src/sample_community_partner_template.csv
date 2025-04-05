@@ -1,0 +1,4 @@
+Name,PhoneNumber,EmailAddress,AddressLine1,AddressLine2,City,State,ZipCode
+Community Partner 1,123-456-7890,partner1@example.com,123 Main St,,Springfield,IL,62701
+Community Partner 2,987-654-3210,partner2@example.com,456 Elm St,Apt 2B,Chicago,IL,60614
+Community Partner 3,555-555-5555,partner3@example.com,789 Oak St,,Peoria,IL,61602
