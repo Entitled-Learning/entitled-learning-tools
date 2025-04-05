@@ -14,6 +14,9 @@ using EntitledLearning.Data.SqlClient;
 using EntitledLearning.Data.Repository;
 using EntitledLearning.Tools.UI;
 
+// Set the EPPlus LicenseContext globally
+OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Build the configuration
