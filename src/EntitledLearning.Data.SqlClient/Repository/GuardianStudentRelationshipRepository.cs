@@ -107,10 +107,10 @@ public class GuardianStudentRelationshipRepository : IDataRepository<GuardianStu
 
     public async Task<GuardianStudentRelationshipStorageContractV1> AddAsync(GuardianStudentRelationshipStorageContractV1 entity)
     {
-        string sql = "if not exists (select 1 from dbo." + tableName + " WHERE Id = @Id) " +
-                     "begin" +
-                     "insert into dbo." + tableName + " (StudentId, GuardianId, Relationship, IsEmergencyContact, IsAuthorizedPickup) " +
-                     "values (@StudentId, @GuardianId, @Relationship, @IsEmergencyContact, @IsAuthorizedPickup) " +
+        string sql = "if not exists (select 1 from dbo." + tableName + " WHERE GuardianId = @GuardianId AND StudentId = @StudentId) " +
+                     "begin " +
+                     "    insert into dbo." + tableName + " (GuardianId, StudentId, Relationship, IsAuthorizedPickup, IsEmergencyContact) " +
+                     "    values (@GuardianId, @StudentId, @Relationship, @IsAuthorizedPickup, @IsEmergencyContact); " +
                      "end;";
 
         try

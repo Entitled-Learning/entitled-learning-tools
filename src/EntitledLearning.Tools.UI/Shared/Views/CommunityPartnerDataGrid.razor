@@ -7,7 +7,12 @@
     <a href="/add-data?option=CommunityPartners" class="mr-2">
         <RadzenButton Text="Add New" Icon="add" ButtonStyle="ButtonStyle.Primary" />
     </a>
-    <RadzenButton Text="Download as Excel" Icon="file_download" ButtonStyle="ButtonStyle.Success" Click="DownloadAsExcel" />
+    <div class="mr-2">
+        <RadzenButton Text="Download as Excel" Icon="file_download" ButtonStyle="ButtonStyle.Success" Click="DownloadAsExcel" />
+    </div>
+    <div>
+        <RadzenButton Text="Upload CSV" Icon="file_upload" ButtonStyle="ButtonStyle.Info" Click="OpenCsvUploadDialog" />
+    </div>
 </div>
 
 <div class="flex my-4">
@@ -34,8 +39,11 @@
     private IList<CommunityPartnerStorageContractV1>? _selectedPartners;
     private IList<CommunityPartnerStorageContractV1>? _filteredData;
     private string _searchTerm = string.Empty;
-
+    private DataMapper mapper = new DataMapper();
     private int _pageSize = 20;
+    private const int maxAllowedFileSize = 5 * 1024 * 1024; // 5MB
+    private bool isUploading = false;
+    private string uploadMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -64,7 +72,122 @@
         </RadzenStack>);
     }
 
-     private void UpdateFilteredData(ChangeEventArgs e)
+    private async Task OpenCsvUploadDialog()
+    {
+        var result = await DialogService.OpenAsync("Upload Community Partner CSV", ds =>
+            @<RadzenStack Gap="1.5rem" Class="p-4">
+                <p>Select a CSV file containing community partner data.</p>
+                <p>CSV should have columns for partner data (Name, PhoneNumber, EmailAddress, etc.).</p>
+                <RadzenButton Text="Download Sample CSV" Icon="file_download" ButtonStyle="ButtonStyle.Success" Click="DownloadSampleCsv" />
+                <InputFile OnChange="OnInputFileChangeAsync" class="" id="fileInput" />
+            </RadzenStack>
+        );
+    }
+
+    private async Task DownloadSampleCsv()
+    {
+        var sampleCsvContent = "Name,PhoneNumber,EmailAddress,AddressLine1,AddressLine2,City,State,ZipCode\n" +
+                               "Community Partner 1,123-456-7890,partner1@example.com,123 Main St,,Springfield,IL,62701\n" +
+                               "Community Partner 2,987-654-3210,partner2@example.com,456 Elm St,Apt 2B,Chicago,IL,60614\n" +
+                               "Community Partner 3,555-555-5555,partner3@example.com,789 Oak St,,Peoria,IL,61602";
+
+        var base64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(sampleCsvContent));
+        await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", new
+        {
+            content = base64,
+            contentType = "text/csv",
+            fileName = "SampleCommunityPartnerUpload.csv"
+        });
+    }
+
+    private async Task OnInputFileChangeAsync(InputFileChangeEventArgs e)
+    {
+        foreach (var file in e.GetMultipleFiles(1))
+        {
+            if (!ValidateCsvFile(file))
+            {
+                return;
+            }
+
+            try
+            {
+                isUploading = true;
+                uploadMessage = $"Uploading {file.Name}...";
+
+                using var stream = file.OpenReadStream(maxAllowedFileSize);
+                using var memoryStream = new MemoryStream();
+                await stream.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
+
+                using var reader = new StreamReader(memoryStream);
+                using var csv = new CsvHelper.CsvReader(reader, System.Globalization.CultureInfo.InvariantCulture);
+                
+                csv.Context.RegisterClassMap<CsvCommunityPartnerRecordMap>();
+                var csvRecords = csv.GetRecords<CsvCommunityPartnerRecord>().ToList();
+
+                await ProcessCsvRecordsAsync(csvRecords);
+
+                DialogService.Close();
+                DialogService.Open("Success", ds => @<p>CSV file uploaded successfully.</p>);
+            }
+            catch (Exception ex)
+            {
+                DialogService.Close();
+                DialogService.Open("Error", ds => @<p>Error processing file: @ex.Message</p>);
+            }
+            finally
+            {
+                isUploading = false;
+            }
+        }
+    }
+
+    private async Task ProcessCsvRecordsAsync(List<CsvCommunityPartnerRecord> records)
+    {
+        foreach (var record in records)
+        {
+            try
+            {
+                var partnerContract = mapper.ToCommunityPartnerStorageContractV1(record);
+                await _db.AddAsync(partnerContract);
+            }
+            catch (Exception ex)
+            {
+                DialogService.Open("Error", ds => @<p>Error processing CSV records: @ex.Message</p>);
+            }
+        }
+
+        _partners = await _db.GetAllAsync();
+        ResetFilterdData();
+    }
+
+    private bool ValidateCsvFile(IBrowserFile file)
+    {
+        if (file.Size > maxAllowedFileSize)
+        {
+            DialogService.Close();
+            DialogService.Open("Error", ds => @<p>File size exceeds the maximum limit of 5MB.</p>);
+            return false;
+        }
+
+        if (!file.Name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+        {
+            DialogService.Close();
+            DialogService.Open("Error", ds => @<p>Invalid file type. Please upload a CSV file.</p>);
+            return false;
+        }
+
+        if (file.Size == 0)
+        {
+            DialogService.Close();
+            DialogService.Open("Error", ds => @<p>File is empty. Please upload a valid CSV file.</p>);
+            return false;
+        }
+
+        return true;
+    }
+
+    private void UpdateFilteredData(ChangeEventArgs e)
     {
         _searchTerm = e.Value?.ToString() ?? string.Empty;
         FilterData();

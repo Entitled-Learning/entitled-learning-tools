@@ -69,9 +69,9 @@ public class GuardianRepository : RepositoryBase, IDataRepository<GuardianStorag
         entity.Id = GenerateId(entity.FirstName, entity.LastName);
 
         string sql = "if not exists (select 1 from dbo." + tableName + " WHERE Id = @Id) " +
-            "begin" +
-            "insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, CellPhoneNumber, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, ReceiveUpdates, ContractVersion) " +
-            "values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @CellPhoneNumber, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @ReceiveUpdates, @ContractVersion) " +
+            "begin " +
+            "    insert into dbo." + tableName + " (Id, FirstName, LastName, EmailAddress, CellPhoneNumber) " +
+            "    values (@Id, @FirstName, @LastName, @EmailAddress, @CellPhoneNumber); " +
             "end;";
 
         try

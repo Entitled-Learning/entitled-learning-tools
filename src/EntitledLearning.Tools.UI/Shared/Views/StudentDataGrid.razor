@@ -1,4 +1,6 @@
 @inject StudentRepository _db
+@inject GuardianRepository _guardianDb
+@inject GuardianStudentRelationshipRepository _relationshipDb
 @inject IJSRuntime JSRuntime
 @inject DialogService DialogService
 @inject NavigationManager NavManager
@@ -8,7 +10,12 @@
         <a href="/add-data?option=Students" class="mr-2">
             <RadzenButton Text="Add New" Icon="add" ButtonStyle="ButtonStyle.Primary" />
         </a>
+        <div class="mr-2">
         <RadzenButton Text="Download as Excel" Icon="file_download" ButtonStyle="ButtonStyle.Success" Click="DownloadAsExcel" />
+        </div>
+        <div>
+        <RadzenButton Text="Upload CSV" Icon="file_upload" ButtonStyle="ButtonStyle.Info" Click="OpenCsvUploadDialog" />
+        </div>
     </div>
 }
 
@@ -51,13 +58,16 @@ Data="@_filteredData"TItem="StudentStorageContractV1" ColumnWidth="300px" Logica
 @code {
 
     [Parameter] public bool ShowButtons { get; set; } = true;
-
+    private DataMapper mapper = new DataMapper();
     private IEnumerable<StudentStorageContractV1>? _students;
     private IList<StudentStorageContractV1>? _selectedStudents;
     private IList<StudentStorageContractV1>? _filteredData;
     private string _searchTerm = string.Empty;
-
+    private const int maxAllowedFileSize = 5 * 1024 * 1024; // 5MB
     private int _pageSize = 20;
+    private const int maxAllowedFiles = 1;
+    private bool isUploading = false;
+    private string uploadMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -90,10 +100,135 @@ Data="@_filteredData"TItem="StudentStorageContractV1" ColumnWidth="300px" Logica
         </RadzenStack>);
     }
 
+    private async Task OpenCsvUploadDialog()
+    {
+        var result = await DialogService.OpenAsync("Upload Student and Guardian CSV", ds =>
+            @<RadzenStack Gap="1.5rem" Class="p-4">
+                <p>Select a CSV file containing student and guardian data.</p>
+                <p>CSV should have columns for student data (FirstName, LastName, Email, etc.) and guardian data (GuardianFirstName, GuardianLastName, GuardianEmail, etc.).</p>
+                <RadzenButton Text="Download Sample CSV" Icon="file_download" ButtonStyle="ButtonStyle.Success" Click="DownloadSampleCsv" />
+                <InputFile OnChange="OnInputFileChangeAsync" class="" id="fileInput" />
+            </RadzenStack>
+        );
+    }
+
+    private async Task DownloadSampleCsv()
+    {
+        var sampleCsvContent = "FirstName,LastName,Email,AddressLine1,AddressLine2,City,State,ZipCode,GuardianFirstName,GuardianLastName,GuardianEmail\n" +
+                               "John,Doe,john.doe@example.com,123 Main St,,Springfield,IL,62701,Jane,Doe,jane.doe@example.com\n" +
+                               "Alice,Smith,alice.smith@example.com,456 Elm St,Apt 2B,Chicago,IL,60614,Bob,Smith,bob.smith@example.com\n" +
+                               "Charlie,Brown,charlie.brown@example.com,789 Oak St,,Peoria,IL,61602,Susan,Brown,susan.brown@example.com";
+
+        var base64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(sampleCsvContent));
+        await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", new
+        {
+            content = base64,
+            contentType = "text/csv",
+            fileName = "SampleStudentGuardianUpload.csv"
+        });
+    }
+
     private void UpdateFilteredData(ChangeEventArgs e)
     {
         _searchTerm = e.Value?.ToString() ?? string.Empty;
         FilterData();
+    }
+
+    private async Task OnInputFileChangeAsync(InputFileChangeEventArgs e)
+    {
+        foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
+        {
+            if (!ValidateCsvFile(file))
+            {
+                return;
+            }
+
+            try
+            {
+                isUploading = true;
+                uploadMessage = $"Uploading {file.Name}...";
+
+                using var stream = file.OpenReadStream(maxAllowedFileSize);
+                using var memoryStream = new MemoryStream();
+                await stream.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
+
+                using var reader = new StreamReader(memoryStream);
+                using var csv = new CsvHelper.CsvReader(reader, System.Globalization.CultureInfo.InvariantCulture);
+                
+                // Register the mapping explicitly
+                csv.Context.RegisterClassMap<CsvStudentGuardianRecordMap>();
+                var csvRecords = csv.GetRecords<CsvStudentGuardianRecord>().ToList();
+
+                await ProcessCsvRecordsAsync(csvRecords);
+
+                DialogService.Close();
+                DialogService.Open("Success", ds => @<p>CSV file uploaded successfully.</p>);
+            }
+            catch (Exception ex)
+            {
+                DialogService.Close();
+                DialogService.Open("Error", ds => @<p>Error processing file: @ex.Message</p>);
+            }
+            finally
+            {
+                isUploading = false;
+            }
+        }
+    }
+
+    private async Task ProcessCsvRecordsAsync(List<CsvStudentGuardianRecord> records)
+    {
+        foreach (var record in records)
+        {
+            try
+            {
+                // Use DataMapper to map CSV record to StudentStorageContractV1
+                var studentContract = mapper.ToStudentStorageContractV1(record);
+                var storedStudent = await _db.AddAsync(studentContract);
+
+                var guardianStorageContract = mapper.ToGuardianStorageContractV1(record);
+                var storedGuardian = await _guardianDb.AddAsync(guardianStorageContract);
+
+                var relationship = new GuardianStudentRelationshipStorageContractV1
+                {
+                    StudentId = storedStudent.Id,
+                    GuardianId = storedGuardian.Id
+                };
+
+                await _relationshipDb.AddAsync(relationship);
+            }
+            catch (Exception ex)
+            {
+                DialogService.Open("Error", ds => @<p>Error processing CSV records: @ex.Message</p>);
+            }
+        }
+    }
+     
+    private bool ValidateCsvFile(IBrowserFile file)
+    {
+        if (file.Size > maxAllowedFileSize)
+        {
+            DialogService.Close();
+            DialogService.Open("Error", ds => @<p>File size exceeds the maximum limit of 5MB.</p>);
+            return false;
+        }
+
+        if (!file.Name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+        {
+            DialogService.Close();
+            DialogService.Open("Error", ds => @<p>Invalid file type. Please upload a CSV file.</p>);
+            return false;
+        }
+
+        if (file.Size == 0)
+        {
+            DialogService.Close();
+            DialogService.Open("Error", ds => @<p>File is empty. Please upload a valid CSV file.</p>);
+            return false;
+        }
+
+        return true;
     }
 
     private void ResetFilterdData()
@@ -136,17 +271,28 @@ Data="@_filteredData"TItem="StudentStorageContractV1" ColumnWidth="300px" Logica
 
     private async Task DownloadAsExcel()
     {
-        var filteredData = _students?.Select(x => x.ToDictionary());
+        var studentData = _students?.Select(x => x.ToDictionary()).ToList();
 
-        if (filteredData is not null && filteredData.Any())
+        if (studentData is not null && studentData.Any())
         {
+            // Fetch Guardian data for each student using the relationship database
+            foreach (var student in studentData)
+            {
+                var studentId = student["Id"]?.ToString();
+                if (!string.IsNullOrEmpty(studentId))
+                {
+                    var guardians = await _relationshipDb.GetByStudentIdAsync(studentId);
+                    student["Guardians"] = string.Join(", ", guardians.Select(g => g.FirstName + " " + g.LastName));
+                }
+            }
+
             var package = new OfficeOpenXml.ExcelPackage();
             var worksheet = package.Workbook.Worksheets.Add("Sheet1");
 
             // Header
             var headerRow = 1;
             var columnIndex = 1;
-            foreach (var header in filteredData.First().Keys)
+            foreach (var header in studentData.First().Keys)
             {
                 worksheet.Cells[headerRow, columnIndex].Value = header;
                 columnIndex++;
@@ -154,7 +300,7 @@ Data="@_filteredData"TItem="StudentStorageContractV1" ColumnWidth="300px" Logica
 
             // Data
             var dataRow = 2;
-            foreach (var row in filteredData)
+            foreach (var row in studentData)
             {
                 columnIndex = 1;
                 foreach (var value in row.Values)
@@ -172,14 +318,14 @@ Data="@_filteredData"TItem="StudentStorageContractV1" ColumnWidth="300px" Logica
 
                 // Convert the byte array to base64
                 var base64 = Convert.ToBase64String(stream.ToArray());
-                
+
                 // Invoke JavaScript to trigger the download
                 await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", 
                     new
                     {
                         content = base64,
                         contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        fileName = "StudentData.xlsx"
+                        fileName = "StudentDataWithGuardians.xlsx"
                     });
             }
         }

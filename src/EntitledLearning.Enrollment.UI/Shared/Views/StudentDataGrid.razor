@@ -1,4 +1,6 @@
 @inject StudentRepository _db
+@inject GuardianRepository _guardianDb
+@inject GuardianStudentRelationshipRepository _relationshipDB
 @inject IJSRuntime JSRuntime
 @inject DialogService DialogService
 @inject NavigationManager NavManager
@@ -136,17 +138,28 @@ Data="@_filteredData"TItem="StudentStorageContractV1" ColumnWidth="300px" Logica
 
     private async Task DownloadAsExcel()
     {
-        var filteredData = _students?.Select(x => x.ToDictionary());
+        var studentData = _students?.Select(x => x.ToDictionary()).ToList();
 
-        if (filteredData is not null && filteredData.Any())
+        if (studentData is not null && studentData.Any())
         {
+            // Fetch Guardian data for each student
+            foreach (var student in studentData)
+            {
+                var studentId = student["Id"]?.ToString();
+                if (!string.IsNullOrEmpty(studentId))
+                {
+                    var guardians = await _relationshipDB.GetByStudentIdAsync(studentId);
+                    student["Guardians"] = string.Join(", ", guardians.Select(g => g.FirstName + " " + g.LastName));
+                }
+            }
+
             var package = new OfficeOpenXml.ExcelPackage();
             var worksheet = package.Workbook.Worksheets.Add("Sheet1");
 
             // Header
             var headerRow = 1;
             var columnIndex = 1;
-            foreach (var header in filteredData.First().Keys)
+            foreach (var header in studentData.First().Keys)
             {
                 worksheet.Cells[headerRow, columnIndex].Value = header;
                 columnIndex++;
@@ -154,7 +167,7 @@ Data="@_filteredData"TItem="StudentStorageContractV1" ColumnWidth="300px" Logica
 
             // Data
             var dataRow = 2;
-            foreach (var row in filteredData)
+            foreach (var row in studentData)
             {
                 columnIndex = 1;
                 foreach (var value in row.Values)
@@ -172,14 +185,14 @@ Data="@_filteredData"TItem="StudentStorageContractV1" ColumnWidth="300px" Logica
 
                 // Convert the byte array to base64
                 var base64 = Convert.ToBase64String(stream.ToArray());
-                
+
                 // Invoke JavaScript to trigger the download
                 await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", 
                     new
                     {
                         content = base64,
                         contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        fileName = "StudentData.xlsx"
+                        fileName = "StudentDataWithGuardians.xlsx"
                     });
             }
         }

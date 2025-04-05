@@ -94,9 +94,9 @@ public class AcademicTermRepository : RepositoryBase, IDataRepository<AcademicTe
     public async Task<AcademicTermStorageContractV1> AddAsync(AcademicTermStorageContractV1 entity)
     {
         string sql = "if not exists (select 1 from dbo." + tableName + " WHERE TermName = @TermName) " +
-            "begin" +
-            "insert into dbo." + tableName + " (TermName, StartDate, EndDate, IsActive) " +
-            "values (@TermName, @StartDate, @EndDate, @IsActive) " +
+            "begin " +
+            "    insert into dbo." + tableName + " (TermName, StartDate, EndDate, IsActive) " +
+            "    values (@TermName, @StartDate, @EndDate, @IsActive); " +
             "end;";
 
         try{
