@@ -106,10 +106,26 @@ Data="@_filteredData"TItem="StudentStorageContractV1" ColumnWidth="300px" Logica
             @<RadzenStack Gap="1.5rem" Class="p-4">
                 <p>Select a CSV file containing student and guardian data.</p>
                 <p>CSV should have columns for student data (FirstName, LastName, Email, etc.) and guardian data (GuardianFirstName, GuardianLastName, GuardianEmail, etc.).</p>
-                
+                <RadzenButton Text="Download Sample CSV" Icon="file_download" ButtonStyle="ButtonStyle.Success" Click="DownloadSampleCsv" />
                 <InputFile OnChange="OnInputFileChangeAsync" class="" id="fileInput" />
             </RadzenStack>
         );
+    }
+
+    private async Task DownloadSampleCsv()
+    {
+        var sampleCsvContent = "FirstName,LastName,Email,AddressLine1,AddressLine2,City,State,ZipCode,GuardianFirstName,GuardianLastName,GuardianEmail\n" +
+                               "John,Doe,john.doe@example.com,123 Main St,,Springfield,IL,62701,Jane,Doe,jane.doe@example.com\n" +
+                               "Alice,Smith,alice.smith@example.com,456 Elm St,Apt 2B,Chicago,IL,60614,Bob,Smith,bob.smith@example.com\n" +
+                               "Charlie,Brown,charlie.brown@example.com,789 Oak St,,Peoria,IL,61602,Susan,Brown,susan.brown@example.com";
+
+        var base64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(sampleCsvContent));
+        await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", new
+        {
+            content = base64,
+            contentType = "text/csv",
+            fileName = "SampleStudentGuardianUpload.csv"
+        });
     }
 
     private void UpdateFilteredData(ChangeEventArgs e)

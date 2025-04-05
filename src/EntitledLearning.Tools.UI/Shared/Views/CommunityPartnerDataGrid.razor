@@ -78,10 +78,26 @@
             @<RadzenStack Gap="1.5rem" Class="p-4">
                 <p>Select a CSV file containing community partner data.</p>
                 <p>CSV should have columns for partner data (Name, PhoneNumber, EmailAddress, etc.).</p>
-                
+                <RadzenButton Text="Download Sample CSV" Icon="file_download" ButtonStyle="ButtonStyle.Success" Click="DownloadSampleCsv" />
                 <InputFile OnChange="OnInputFileChangeAsync" class="" id="fileInput" />
             </RadzenStack>
         );
+    }
+
+    private async Task DownloadSampleCsv()
+    {
+        var sampleCsvContent = "Name,PhoneNumber,EmailAddress,AddressLine1,AddressLine2,City,State,ZipCode\n" +
+                               "Community Partner 1,123-456-7890,partner1@example.com,123 Main St,,Springfield,IL,62701\n" +
+                               "Community Partner 2,987-654-3210,partner2@example.com,456 Elm St,Apt 2B,Chicago,IL,60614\n" +
+                               "Community Partner 3,555-555-5555,partner3@example.com,789 Oak St,,Peoria,IL,61602";
+
+        var base64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(sampleCsvContent));
+        await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", new
+        {
+            content = base64,
+            contentType = "text/csv",
+            fileName = "SampleCommunityPartnerUpload.csv"
+        });
     }
 
     private async Task OnInputFileChangeAsync(InputFileChangeEventArgs e)
