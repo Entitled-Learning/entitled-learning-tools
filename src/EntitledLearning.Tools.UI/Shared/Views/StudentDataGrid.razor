@@ -1,4 +1,6 @@
 @inject StudentRepository _db
+@inject GuardianRepository _guardianDb
+@inject GuardianStudentRelationshipRepository _relationshipDb
 @inject IJSRuntime JSRuntime
 @inject DialogService DialogService
 @inject NavigationManager NavManager
@@ -56,13 +58,16 @@ Data="@_filteredData"TItem="StudentStorageContractV1" ColumnWidth="300px" Logica
 @code {
 
     [Parameter] public bool ShowButtons { get; set; } = true;
-
+    private DataMapper mapper = new DataMapper();
     private IEnumerable<StudentStorageContractV1>? _students;
     private IList<StudentStorageContractV1>? _selectedStudents;
     private IList<StudentStorageContractV1>? _filteredData;
     private string _searchTerm = string.Empty;
     private const int maxAllowedFileSize = 5 * 1024 * 1024; // 5MB
     private int _pageSize = 20;
+    private const int maxAllowedFiles = 1;
+    private bool isUploading = false;
+    private string uploadMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -115,44 +120,75 @@ Data="@_filteredData"TItem="StudentStorageContractV1" ColumnWidth="300px" Logica
 
     private async Task OnInputFileChangeAsync(InputFileChangeEventArgs e)
     {
-        var file = e.File;
-        if (file != null)
+        foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
         {
-            // Validate the file
             if (!ValidateCsvFile(file))
             {
                 return;
             }
 
             try
-                {                    
-                    // Read the file asynchronously
-                    using var stream = file.OpenReadStream(maxAllowedFileSize);
-                    using var memoryStream = new MemoryStream();
-                    await stream.CopyToAsync(memoryStream);
-                    memoryStream.Position = 0;
-                    
-                    using var reader = new StreamReader(memoryStream);
-                    string fileContent = await reader.ReadToEndAsync();
-                    
-                    using (var stringReader = new StringReader(fileContent))
-                    using (var csv = new CsvHelper.CsvReader(stringReader, System.Globalization.CultureInfo.InvariantCulture))
-                    {
-                        var csvData = csv.GetRecords<dynamic>().ToList();
-                        // Process csvData as needed
-                    }
+            {
+                isUploading = true;
+                uploadMessage = $"Uploading {file.Name}...";
 
-                    DialogService.Close();
-                    DialogService.Open("Success", ds => @<p>CSV file uploaded successfully.</p>);
-                }
-                catch (Exception ex)
-                {
-                    DialogService.Close();
-                    DialogService.Open("Error", ds => @<p>Error processing file: @ex.Message</p>);
-                }
+                using var stream = file.OpenReadStream(maxAllowedFileSize);
+                using var memoryStream = new MemoryStream();
+                await stream.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
+
+                using var reader = new StreamReader(memoryStream);
+                using var csv = new CsvHelper.CsvReader(reader, System.Globalization.CultureInfo.InvariantCulture);
+                
+                // Register the mapping explicitly
+                csv.Context.RegisterClassMap<CsvStudentGuardianRecordMap>();
+                var csvRecords = csv.GetRecords<CsvStudentGuardianRecord>().ToList();
+
+                await ProcessCsvRecordsAsync(csvRecords);
+
+                DialogService.Close();
+                DialogService.Open("Success", ds => @<p>CSV file uploaded successfully.</p>);
+            }
+            catch (Exception ex)
+            {
+                DialogService.Close();
+                DialogService.Open("Error", ds => @<p>Error processing file: @ex.Message</p>);
+            }
+            finally
+            {
+                isUploading = false;
+            }
         }
     }
 
+    private async Task ProcessCsvRecordsAsync(List<CsvStudentGuardianRecord> records)
+    {
+        foreach (var record in records)
+        {
+            try
+            {
+                // Use DataMapper to map CSV record to StudentStorageContractV1
+                var studentContract = mapper.ToStudentStorageContractV1(record);
+                var storedStudent = await _db.AddAsync(studentContract);
+
+                var guardianStorageContract = mapper.ToGuardianStorageContractV1(record);
+                var storedGuardian = await _guardianDb.AddAsync(guardianStorageContract);
+
+                var relationship = new GuardianStudentRelationshipStorageContractV1
+                {
+                    StudentId = storedStudent.Id,
+                    GuardianId = storedGuardian.Id
+                };
+
+                await _relationshipDb.AddAsync(relationship);
+            }
+            catch (Exception ex)
+            {
+                DialogService.Open("Error", ds => @<p>Error processing CSV records: @ex.Message</p>);
+            }
+        }
+    }
+     
     private bool ValidateCsvFile(IBrowserFile file)
     {
         if (file.Size > maxAllowedFileSize)
