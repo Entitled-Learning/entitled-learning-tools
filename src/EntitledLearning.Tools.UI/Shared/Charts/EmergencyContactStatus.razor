@@ -1,0 +1,63 @@
+@* @using System.Globalization
+@inject StudentRepository _studentDB
+@inject GuardianStudentRelationshipRepository _relationshipDB
+
+<RadzenCard>
+    <RadzenChart>
+        <RadzenPieSeries Data="@emergencyContactData" CategoryProperty="Status" ValueProperty="Count">
+            <RadzenSeriesDataLabels Visible="true" />
+        </RadzenPieSeries>
+    </RadzenChart>
+</RadzenCard>
+
+@code {
+    private List<EmergencyContactData> emergencyContactData = new List<EmergencyContactData>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+    
+    private async Task LoadData()
+    {
+        var students = await _studentDB.GetAllAsync();
+        var allRelationships = await _relationshipDB.GetAllAsync();
+        
+        int studentsWithEmergencyContact = 0;
+        int studentsWithoutEmergencyContact = 0;
+        
+        foreach (var student in students)
+        {
+            if (student.Id == null) continue;
+            
+            var studentRelationships = allRelationships
+                .Where(r => r.StudentId == student.Id)
+                .ToList();
+                
+            if (studentRelationships.Any(r => r.IsEmergencyContact))
+            {
+                studentsWithEmergencyContact++;
+            }
+            else
+            {
+                studentsWithoutEmergencyContact++;
+            }
+        }
+        
+        emergencyContactData.Add(new EmergencyContactData { 
+            Status = "With Emergency Contact", 
+            Count = studentsWithEmergencyContact 
+        });
+        
+        emergencyContactData.Add(new EmergencyContactData { 
+            Status = "Without Emergency Contact", 
+            Count = studentsWithoutEmergencyContact 
+        });
+    }
+    
+    public class EmergencyContactData
+    {
+        public string Status { get; set; } = "";
+        public int Count { get; set; }
+    }
+} *@

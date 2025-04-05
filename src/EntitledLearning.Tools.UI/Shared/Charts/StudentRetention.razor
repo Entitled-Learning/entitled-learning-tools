@@ -1,0 +1,64 @@
+@* @using System.Globalization
+@inject EnrollmentRepository _enrollmentDB
+
+<RadzenCard>
+    <RadzenChart>
+        <RadzenPieSeries Data="@retentionData" CategoryProperty="Category" ValueProperty="Count">
+            <RadzenSeriesDataLabels Visible="true" />
+        </RadzenPieSeries>
+    </RadzenChart>
+</RadzenCard>
+
+@code {
+    private List<RetentionData> retentionData = new List<RetentionData>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+    
+    private async Task LoadData()
+    {
+        var enrollments = await _enrollmentDB.GetAllAsync();
+        var currentTerm = enrollments
+            .Where(e => e.IsActive)
+            .Select(e => e.EnrollmentTermId)
+            .FirstOrDefault();
+            
+        if (string.IsNullOrEmpty(currentTerm)) return;
+        
+        // Get all students in current term
+        var currentTermStudentIds = enrollments
+            .Where(e => e.EnrollmentTermId == currentTerm)
+            .Select(e => e.StudentId)
+            .Distinct()
+            .ToList();
+            
+        // Get all previous terms
+        var previousTerms = enrollments
+            .Where(e => e.EnrollmentTermId != currentTerm)
+            .Select(e => e.EnrollmentTermId)
+            .Distinct()
+            .ToList();
+            
+        // Get students who were in previous terms
+        var previousTermStudentIds = enrollments
+            .Where(e => previousTerms.Contains(e.EnrollmentTermId))
+            .Select(e => e.StudentId)
+            .Distinct()
+            .ToList();
+            
+        // Calculate returning and new students
+        int returningStudents = currentTermStudentIds.Count(id => previousTermStudentIds.Contains(id));
+        int newStudents = currentTermStudentIds.Count - returningStudents;
+        
+        retentionData.Add(new RetentionData { Category = "Returning Students", Count = returningStudents });
+        retentionData.Add(new RetentionData { Category = "New Students", Count = newStudents });
+    }
+    
+    public class RetentionData
+    {
+        public string Category { get; set; } = "";
+        public int Count { get; set; }
+    }
+} *@

@@ -1,92 +1,108 @@
-@page "/enrollment-dashboard"
-@using System.Globalization
-@using EntitledLearning.Tools.UI.Shared.Charts
-
+@page "/dashboard"
 @inherits BasePage
-@inject ILogger<Dashboard> _logger
 
-<PageTitle>Entitled Tooling | Enrollment Dashboard</PageTitle>
+<PageTitle>Entitled Tooling | Dashboard</PageTitle>
 
 <AuthorizeView>
     <Authorized>
         <section class="flex flex-col p-4 w-full">
             <RadzenBreadCrumb class="mb-8">
                 <RadzenBreadCrumbItem Path="/" Text="Home" />
-                <RadzenBreadCrumbItem Icon="" Text="Enrollment Dashboard" />
+                <RadzenBreadCrumbItem Icon="" Text="Dashboard" />
             </RadzenBreadCrumb>
 
-            <section class="header-section p-8">
-              <RadzenAlert AlertStyle="AlertStyle.Warning" Variant="Variant.Flat" Shade="Shade.Lighter">
-                  Note: The data shown here is for demonstration purposes only and does not represent actual data.
-              </RadzenAlert>
-                <div class="container-fluid">
-                    <div class="flex flex-wrap -mx-4 mb-4">
-                        <div class="flex flex-col w-full xl:mb-0 xl:w-2/3 pr-4">
-                            <h3 class="flex flex-col items-center text-2xl font-bold my-3">Student Enrollment Details</h3>
-                            <EnrollmentDetails/>
-                        </div>
-                        <div class="flex flex-col w-full xl:mb-0 xl:w-1/3 pr-4">
-                            <h3 class="flex flex-col items-center text-2xl font-bold my-3">Scholars vs Non-Scholars</h3>
-                            <ScholarVsOther/>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap -mx-4 mb-4">
-                        <div class="flex flex-col w-full xl:mb-0 xl:w-2/3 pr-4">
-                            <h3 class="flex flex-col items-center text-2xl font-bold my-3">Student Details</h3>
-                            <StudentDataGrid ShowButtons="false"/>
-                        </div>
-                        <div class="flex flex-col w-full xl:mb-0 xl:w-1/3 pr-4">
-                          <RadzenCard Variant="Variant.Flat">
-                              <div class="flex flex-col w-full items-center">
-                                <h3 class="text-2xl font-bold mb-3">Faculty to Student Ratio</h3>
-                                <h3 class="text-2xl font-normal mb-3">1:4</h3>
-                              </div>
-                          </RadzenCard>
-                          @* cards *@
-                          <div class="flex">
-                            <div class="flex flex-col w-full xl:mb-0 xl:w-1/2 my-4 pr-4">
-                              <RadzenCard Variant="Variant.Flat">
-                                <div class="mx-5">
-                                    <h4 class="text-2xl font-semibold text-gray-700">44</h4>
-                                    <div class="text-gray-500">Total Students</div>
-                                </div>
-                              </RadzenCard>
+            <RadzenAlert AlertStyle="AlertStyle.Warning" Variant="Variant.Flat" Shade="Shade.Lighter" class="mb-4">
+                Note: Some charts may display sample data until connected to live data sources.
+            </RadzenAlert>
+            
+            <!-- Student Demographics -->
+            <DashboardLayout SectionTitle="Student Demographics" Columns="3">
+                <DashboardItem Title="Age Distribution">
+                    <StudentAgeDistribution />
+                </DashboardItem>
+                <DashboardItem Title="Racial Composition">
+                    <StudentRacialComposition />
+                </DashboardItem>
+                <DashboardItem Title="Household Income Distribution" TagText="Beta">
+                    <HouseholdIncomeDistribution />
+                </DashboardItem>
+                <DashboardItem Title="Scholar Distribution" TagText="Beta">
+                    <ScholarDistribution />
+                </DashboardItem>
+                <DashboardItem Title="Geographic Distribution (by Zipcode)">
+                    <StudentGeographicDistribution />
+                </DashboardItem>
+                <DashboardItem Title="Key Metrics" TagText="Beta" ColSpan="1">
+                    <div class="flex flex-col gap-4">
+                        <RadzenCard Variant="Variant.Flat">
+                            <div class="flex flex-col w-full items-center">
+                                <h3 class="text-lg font-bold mb-2">Faculty to Student Ratio</h3>
+                                <p class="text-2xl font-normal">1:4</p>
                             </div>
-                            <div class="flex flex-col w-full xl:mb-0 xl:w-1/2 my-4">
-                              <RadzenCard Variant="Variant.Flat">
-                                <div class="mx-5">
-                                    <h4 class="text-2xl font-semibold text-gray-700">11</h4>
-                                    <div class="text-gray-500">Total Faculty</div>
+                        </RadzenCard>
+                        <div class="grid grid-cols-2 gap-2">
+                            <RadzenCard Variant="Variant.Flat">
+                                <div class="text-center">
+                                    <h4 class="text-xl font-semibold text-gray-700">44</h4>
+                                    <div class="text-gray-500 text-sm">Total Students</div>
                                 </div>
-                              </RadzenCard>
-                            </div>
-                          </div>
-                          <div class="flex">
-                            <div class="flex flex-col w-full xl:mb-0 xl:w-1/2 my-2 pr-4">
-                              <RadzenCard Variant="Variant.Flat">
-                                <div class="mx-5">
-                                    <h4 class="text-2xl font-semibold text-gray-700">90.63%</h4>
-                                    <div class="text-gray-500">Student Attendance</div>
+                            </RadzenCard>
+                            <RadzenCard Variant="Variant.Flat">
+                                <div class="text-center">
+                                    <h4 class="text-xl font-semibold text-gray-700">11</h4>
+                                    <div class="text-gray-500 text-sm">Total Faculty</div>
                                 </div>
-                              </RadzenCard>
-                            </div>
-                            <div class="flex flex-col w-full xl:mb-0 xl:w-1/2 my-2">
-                              <RadzenCard Variant="Variant.Flat">
-                                <div class="mx-5">
-                                    <h4 class="text-2xl font-semibold text-gray-700">98.41%</h4>
-                                    <div class="text-gray-500">Faculty Attendance</div>
-                                </div>
-                              </RadzenCard>
-                            </div>
-                          </div>
-                          <div class="flex flex-col w-full xl:mb-0">
-                            <h3 class="flex flex-col items-center text-2xl font-bold my-3">Average Test Scores per Subject</h3>
-                            <ScorePerSubject/>
-                          </div>
+                            </RadzenCard>
                         </div>
                     </div>
-                </div>
-            </section>           
+                </DashboardItem>
+            </DashboardLayout>
+            
+            <!-- Guardian & Family -->
+            <DashboardLayout SectionTitle="Guardian & Family" Columns="3">
+                <DashboardItem Title="Relationship Types">
+                    <GuardianRelationshipTypes />
+                </DashboardItem>
+                <DashboardItem Title="Students per Guardian">
+                    <StudentsPerGuardian />
+                </DashboardItem>
+                <DashboardItem Title="Contact Status" TagText="Comming Soon" TagType="TagType.ComingSoon">
+                    
+                </DashboardItem>
+            </DashboardLayout>
+            
+            <!-- Enrollment Analytics -->
+            <DashboardLayout SectionTitle="Enrollment & Retention" Columns="3">
+                <DashboardItem Title="Enrollment Trends" TagText="Comming Soon" ColSpan="2">
+                    <EnrollmentTrends />
+                </DashboardItem>
+                <DashboardItem Title="Shirt Size Distribution">
+                    <ShirtSizeDistribution />
+                </DashboardItem>
+            </DashboardLayout>
+            
+            <!-- Community Partners -->
+            <DashboardLayout SectionTitle="Community Partners" Columns="2">
+                <DashboardItem Title="Geographic Distribution">
+                    <PartnerDistributionByArea />
+                </DashboardItem>
+                <DashboardItem Title="Partner Contact Types">
+                    <PartnerContactTypes />
+                </DashboardItem>
+            </DashboardLayout>
+            
+            <!-- Program Effectiveness -->
+            <DashboardLayout SectionTitle="Program Effectiveness" Columns="3">
+                <DashboardItem Title="Test Scores by Subject" TagText="Comming Soon" ColSpan="2">
+
+                </DashboardItem>
+                <DashboardItem Title="Attendance Trends" TagText="Comming Soon">
+
+                </DashboardItem>
+                <DashboardItem Title="Student Details" ColSpan="3">
+                    <StudentDataGrid ShowButtons="false"/>
+                </DashboardItem>
+            </DashboardLayout>
         </section>
     </Authorized>
     <NotAuthorized>

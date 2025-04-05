@@ -1,0 +1,56 @@
+.dashboard-section {
+    margin-bottom: 2rem;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    width: 100%;
+}
+
+/* Default gap if no spacing parameter provided */
+.gap-1 {
+    gap: 1rem;
+}
+
+/* Support for decimal spacing values */
+.gap-0_5 {
+    gap: 0.5rem;
+}
+
+.gap-1_5 {
+    gap: 1.5rem;
+}
+
+.gap-2 {
+    gap: 2rem;
+}
+
+/* Small screens (mobile) - single column */
+@media (max-width: 639px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Medium screens (tablets) - two columns */
+@media (min-width: 640px) and (max-width: 1023px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Large screens (desktops) - specified number of columns */
+@media (min-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* To support 2-column layouts at desktop size */
+@media (min-width: 1024px) {
+    .dashboard-grid.two-columns {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
