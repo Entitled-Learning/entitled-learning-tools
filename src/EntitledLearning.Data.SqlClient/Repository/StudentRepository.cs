@@ -56,9 +56,9 @@ public class StudentRepository : RepositoryBase, IDataRepository<StudentStorageC
         entity.Id = entity.Id is null ? GenerateId(entity.FirstName, entity.LastName) : entity.Id;
 
         string sql = "if not exists (select 1 from dbo." + tableName + " WHERE Id = @Id) " +
-            "begin" +
-            "insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, Race, DateOfBirth, HouseholdIncomeRange, ShirtSize, IsScholar, AllowPhotoRelease, ContractVersion) " +
-            "values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @Race, @DateOfBirth, @HouseholdIncomeRange, @ShirtSize, @IsScholar, @AllowPhotoRelease, @ContractVersion) " +
+            "begin " +
+            "    insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, Race, DateOfBirth, HouseholdIncomeRange, ShirtSize, IsScholar, AllowPhotoRelease, ContractVersion) " +
+            "    values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @Race, @DateOfBirth, @HouseholdIncomeRange, @ShirtSize, @IsScholar, @AllowPhotoRelease, @ContractVersion); " +
             "end;";
 
         try{

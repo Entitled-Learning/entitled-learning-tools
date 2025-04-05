@@ -42,6 +42,7 @@ public partial class DataMapper
     [MapProperty(nameof(CsvStudentGuardianRecord.GuardianMiddleName), nameof(GuardianStorageContractV1.MiddleName))]
     [MapProperty(nameof(CsvStudentGuardianRecord.GuardianLastName), nameof(GuardianStorageContractV1.LastName))]
     [MapProperty(nameof(CsvStudentGuardianRecord.GuardianEmailAddress), nameof(GuardianStorageContractV1.EmailAddress))]
+    [MapProperty(nameof(CsvStudentGuardianRecord.GuardianPhoneNumber), nameof(GuardianStorageContractV1.CellPhoneNumber))]
     [MapProperty(nameof(CsvStudentGuardianRecord.GuardianPrefix), nameof(GuardianStorageContractV1.Prefix))]
     public partial GuardianStorageContractV1 ToGuardianStorageContractV1(CsvStudentGuardianRecord guardian);
 

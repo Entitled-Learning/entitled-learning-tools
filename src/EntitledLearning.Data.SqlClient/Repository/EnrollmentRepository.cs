@@ -74,9 +74,9 @@ public class EnrollmentRepository : RepositoryBase, IDataRepository<EnrollmentSt
     public async Task<EnrollmentStorageContractV1> AddAsync(EnrollmentStorageContractV1 entity)
     {
         string sql = "if not exists (select 1 from dbo." + tableName + " WHERE StudentId = @StudentId and TermId = @TermId) " +
-            "begin" +
-            "insert into dbo." + tableName + " (StudentId, TermId, EnrollmentDate, EnrollmentStatus, Notes) " +
-            "values (@StudentId, @TermId, @EnrollmentDate, @EnrollmentStatus, @Notes) " +
+            "begin " +
+            "    insert into dbo." + tableName + " (StudentId, TermId, EnrollmentDate, EnrollmentStatus, Notes) " +
+            "    values (@StudentId, @TermId, @EnrollmentDate, @EnrollmentStatus, @Notes); " +
             "end;";
 
         try{
