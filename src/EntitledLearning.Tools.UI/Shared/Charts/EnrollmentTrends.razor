@@ -1,0 +1,50 @@
+@* @using System.Globalization
+@inject EnrollmentRepository _enrollmentDB
+
+<RadzenCard>
+    <RadzenChart>
+        <RadzenLineSeries Data="@enrollmentTrendsData" CategoryProperty="Term" ValueProperty="Count" Smooth="false">
+            <RadzenMarkers MarkerType="MarkerType.Circle" />
+            <RadzenSeriesDataLabels Visible="true" />
+        </RadzenLineSeries>
+        <RadzenCategoryAxis>
+            <RadzenGridLines Visible="true" />
+        </RadzenCategoryAxis>
+        <RadzenValueAxis>
+            <RadzenGridLines Visible="true" />
+            <RadzenAxisTitle Text="Number of Students" />
+        </RadzenValueAxis>
+    </RadzenChart>
+</RadzenCard>
+
+@code {
+    private List<EnrollmentTrendsData> enrollmentTrendsData = new List<EnrollmentTrendsData>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+    
+    private async Task LoadData()
+    {
+        var enrollments = await _enrollmentDB.GetAllAsync();
+        
+        // Group by term and count students
+        var enrollmentsByTerm = enrollments
+            .GroupBy(e => e.EnrollmentTermName)
+            .Select(g => new EnrollmentTrendsData { 
+                Term = g.Key ?? "Unknown", 
+                Count = g.Select(e => e.StudentId).Distinct().Count()
+            })
+            .OrderBy(d => d.Term)
+            .ToList();
+            
+        enrollmentTrendsData = enrollmentsByTerm;
+    }
+    
+    public class EnrollmentTrendsData
+    {
+        public string Term { get; set; } = "";
+        public int Count { get; set; }
+    }
+} *@

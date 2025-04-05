@@ -1,0 +1,66 @@
+@using System.Globalization
+@using System.Linq
+@inject GuardianStudentRelationshipRepository _relationshipDB
+
+<RadzenCard>
+    <RadzenChart>
+        <RadzenBarSeries Data="@studentsPerGuardianData" CategoryProperty="StudentCount" ValueProperty="GuardianCount">
+            <RadzenSeriesDataLabels Visible="true" />
+        </RadzenBarSeries>
+        <RadzenCategoryAxis>
+            <RadzenGridLines Visible="true" />
+            <RadzenAxisTitle Text="Number of Students per Guardian" />
+        </RadzenCategoryAxis>
+        <RadzenValueAxis>
+            <RadzenGridLines Visible="true" />
+            <RadzenAxisTitle Text="Number of Guardians" />
+        </RadzenValueAxis>
+    </RadzenChart>
+</RadzenCard>
+
+@code {
+    private List<StudentsPerGuardianData> studentsPerGuardianData = new List<StudentsPerGuardianData>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+    
+    private async Task LoadData()
+    {
+        var relationships = await _relationshipDB.GetAllAsync();
+        
+        // Group by guardian ID and count students
+        var guardiansWithStudentCounts = relationships
+            .GroupBy(r => r.GuardianId)
+            .Select(g => new { GuardianId = g.Key, StudentCount = g.Count() })
+            .ToList();
+        
+        // Group by student count to get the distribution
+        var distributionData = guardiansWithStudentCounts
+            .GroupBy(g => g.StudentCount)
+            .Select(g => new StudentsPerGuardianData {
+                StudentCount = g.Key.ToString(),
+                GuardianCount = g.Count()
+            })
+            .OrderBy(d => int.Parse(d.StudentCount))
+            .ToList();
+        
+        // Add guardians with 4+ students as a single category if present
+        var fourPlusGuardians = distributionData.Where(d => int.Parse(d.StudentCount) >= 4).ToList();
+        if (fourPlusGuardians.Any())
+        {
+            var total4Plus = fourPlusGuardians.Sum(d => d.GuardianCount);
+            distributionData.RemoveAll(d => int.Parse(d.StudentCount) >= 4);
+            distributionData.Add(new StudentsPerGuardianData { StudentCount = "4+", GuardianCount = total4Plus });
+        }
+        
+        studentsPerGuardianData = distributionData;
+    }
+    
+    public class StudentsPerGuardianData
+    {
+        public string StudentCount { get; set; } = "";
+        public int GuardianCount { get; set; }
+    }
+}

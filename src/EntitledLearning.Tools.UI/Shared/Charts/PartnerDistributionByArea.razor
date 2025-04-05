@@ -1,0 +1,57 @@
+@using System.Globalization
+@inject CommunityPartnerRepository _partnerDB
+
+<RadzenCard>
+    <RadzenChart>
+        <RadzenPieSeries Data="@partnerAreaData" CategoryProperty="Area" ValueProperty="Count">
+            <RadzenSeriesDataLabels Visible="true" />
+        </RadzenPieSeries>
+    </RadzenChart>
+</RadzenCard>
+
+@code {
+    private List<PartnerAreaData> partnerAreaData = new List<PartnerAreaData>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+    
+    private async Task LoadData()
+    {
+        var partners = await _partnerDB.GetAllAsync();
+        
+        var areaGroups = partners
+            .GroupBy(p => GetAreaGroup(p.ZipCode, p.City, p.State))
+            .Select(g => new PartnerAreaData { 
+                Area = g.Key, 
+                Count = g.Count() 
+            })
+            .OrderByDescending(d => d.Count)
+            .ToList();
+            
+        partnerAreaData = areaGroups;
+    }
+    
+    private string GetAreaGroup(string zipCode, string city, string state)
+    {
+        // Use city+state if available, otherwise zip code
+        if (!string.IsNullOrEmpty(city) && !string.IsNullOrEmpty(state))
+        {
+            return $"{city}, {state}";
+        }
+        
+        if (!string.IsNullOrEmpty(zipCode))
+        {
+            return $"ZIP: {zipCode}";
+        }
+        
+        return "Unknown";
+    }
+    
+    public class PartnerAreaData
+    {
+        public string Area { get; set; } = "";
+        public int Count { get; set; }
+    }
+}

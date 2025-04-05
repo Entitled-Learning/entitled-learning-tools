@@ -1,0 +1,38 @@
+@using System.Globalization
+
+<RadzenCard>
+    <RadzenChart>
+        <RadzenColumnSeries Data="@subjectScoresData" CategoryProperty="Subject" ValueProperty="Score">
+            <RadzenSeriesDataLabels Visible="true" />
+        </RadzenColumnSeries>
+        <RadzenColumnOptions Radius="5" />
+        <RadzenCategoryAxis>
+            <RadzenGridLines Visible="true" />
+        </RadzenCategoryAxis>
+        <RadzenValueAxis Min="0" Max="100" Step="10">
+            <RadzenGridLines Visible="true" />
+            <RadzenAxisTitle Text="Average Score (%)" />
+        </RadzenValueAxis>
+    </RadzenChart>
+</RadzenCard>
+
+@code {
+    private List<SubjectScoreData> subjectScoresData = new List<SubjectScoreData>
+    {
+        new SubjectScoreData { Subject = "Math", Score = 78 },
+        new SubjectScoreData { Subject = "Reading", Score = 82 },
+        new SubjectScoreData { Subject = "Science", Score = 75 },
+        new SubjectScoreData { Subject = "History", Score = 81 },
+        new SubjectScoreData { Subject = "Art", Score = 90 }
+    };
+    
+    // Note: This uses mock data since the actual JotForm grading data
+    // would need to be aggregated differently. Once you have real score data,
+    // you can update this component to load from your database.
+    
+    public class SubjectScoreData
+    {
+        public string Subject { get; set; } = "";
+        public double Score { get; set; }
+    }
+}

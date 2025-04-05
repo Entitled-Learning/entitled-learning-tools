@@ -1,0 +1,50 @@
+@using System.Globalization
+@inject StudentRepository _studentDB
+
+<RadzenCard>
+    <RadzenChart>
+        <RadzenBarSeries Data="@zipCodeData" CategoryProperty="ZipCode" ValueProperty="Count">
+            <RadzenSeriesDataLabels Visible="true" />
+        </RadzenBarSeries>
+        <RadzenCategoryAxis>
+            <RadzenGridLines Visible="true" />
+        </RadzenCategoryAxis>
+        <RadzenValueAxis>
+            <RadzenGridLines Visible="true" />
+            <RadzenAxisTitle Text="Number of Students" />
+        </RadzenValueAxis>
+    </RadzenChart>
+</RadzenCard>
+
+@code {
+    private List<ZipCodeData> zipCodeData = new List<ZipCodeData>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+    
+    private async Task LoadData()
+    {
+        var students = await _studentDB.GetAllAsync();
+        
+        var zipGroups = students
+            .Where(s => !string.IsNullOrEmpty(s.ZipCode))
+            .GroupBy(s => s.ZipCode)
+            .Select(g => new ZipCodeData { 
+                ZipCode = g.Key ?? "Unknown", 
+                Count = g.Count() 
+            })
+            .OrderByDescending(x => x.Count)
+            .Take(10)  // Take top 10 zip codes
+            .ToList();
+            
+        zipCodeData = zipGroups;
+    }
+    
+    public class ZipCodeData
+    {
+        public string ZipCode { get; set; } = "";
+        public int Count { get; set; }
+    }
+}

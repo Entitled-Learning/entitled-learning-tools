@@ -1,0 +1,79 @@
+@using System.Globalization
+@inject StudentRepository _studentDB
+
+<RadzenCard>
+    <RadzenChart>
+        <RadzenBarSeries Data="@shirtSizeData" CategoryProperty="Size" ValueProperty="Count">
+            <RadzenSeriesDataLabels Visible="true" />
+        </RadzenBarSeries>
+        <RadzenCategoryAxis>
+            <RadzenGridLines Visible="true" />
+        </RadzenCategoryAxis>
+        <RadzenValueAxis>
+            <RadzenGridLines Visible="true" />
+            <RadzenAxisTitle Text="Number of Students" />
+        </RadzenValueAxis>
+    </RadzenChart>
+</RadzenCard>
+
+@code {
+    private List<ShirtSizeData> shirtSizeData = new List<ShirtSizeData>();
+    private string[] sizeOrder = new[] { "XS", "S", "M", "L", "XL", "XXL", "XXXL" };
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+    
+    private async Task LoadData()
+    {
+        var students = await _studentDB.GetAllAsync();
+        
+        var sizeGroups = students
+            .Where(s => !string.IsNullOrEmpty(s.ShirtSize))
+            .GroupBy(s => NormalizeShirtSize(s.ShirtSize))
+            .Select(g => new ShirtSizeData { 
+                Size = g.Key, 
+                Count = g.Count() 
+            })
+            .ToList();
+            
+        // Sort by standard size order
+        shirtSizeData = sizeGroups
+            .OrderBy(s => Array.IndexOf(sizeOrder, s.Size))
+            .Where(s => Array.IndexOf(sizeOrder, s.Size) >= 0)
+            .ToList();
+            
+        // Add any non-standard sizes at the end
+        var otherSizes = sizeGroups
+            .Where(s => Array.IndexOf(sizeOrder, s.Size) < 0)
+            .ToList();
+            
+        shirtSizeData.AddRange(otherSizes);
+    }
+    
+    private string NormalizeShirtSize(string size)
+    {
+        // Normalize to standard format (XS, S, M, L, XL, XXL, etc.)
+        if (string.IsNullOrEmpty(size)) return "Unknown";
+        
+        size = size.Trim().ToUpper();
+        
+        // Handle common variations
+        if (size == "EXTRA SMALL") return "XS";
+        if (size == "SMALL") return "S";
+        if (size == "MEDIUM") return "M";
+        if (size == "LARGE") return "L";
+        if (size == "EXTRA LARGE") return "XL";
+        if (size == "2XL") return "XXL";
+        if (size == "3XL") return "XXXL";
+        
+        return size;
+    }
+    
+    public class ShirtSizeData
+    {
+        public string Size { get; set; } = "";
+        public int Count { get; set; }
+    }
+}

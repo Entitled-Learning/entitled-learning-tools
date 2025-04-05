@@ -1,0 +1,38 @@
+@* @using System.Globalization
+
+<RadzenCard>
+    <RadzenChart>
+        <RadzenLineSeries Data="@attendanceData" CategoryProperty="Month" ValueProperty="Rate" Smooth="false">
+            <RadzenMarkers MarkerType="MarkerType.Circle" />
+            <RadzenSeriesDataLabels Visible="true" Format="{0}%" />
+        </RadzenLineSeries>
+        <RadzenCategoryAxis>
+            <RadzenGridLines Visible="true" />
+        </RadzenCategoryAxis>
+        <RadzenValueAxis Min="50" Max="100" Step="10">
+            <RadzenGridLines Visible="true" />
+            <RadzenAxisTitle Text="Attendance Rate (%)" />
+        </RadzenValueAxis>
+    </RadzenChart>
+</RadzenCard>
+
+@code {
+    private List<AttendanceData> attendanceData = new List<AttendanceData>
+    {
+        new AttendanceData { Month = "Jan", Rate = 92.3 },
+        new AttendanceData { Month = "Feb", Rate = 90.5 },
+        new AttendanceData { Month = "Mar", Rate = 88.1 },
+        new AttendanceData { Month = "Apr", Rate = 91.2 },
+        new AttendanceData { Month = "May", Rate = 93.8 }
+    };
+    
+    // Note: This uses mock data since the actual attendance data
+    // isn't available in the current database. When you have real data,
+    // this component can be updated to pull from your database.
+    
+    public class AttendanceData
+    {
+        public string Month { get; set; } = "";
+        public double Rate { get; set; }
+    }
+} *@
