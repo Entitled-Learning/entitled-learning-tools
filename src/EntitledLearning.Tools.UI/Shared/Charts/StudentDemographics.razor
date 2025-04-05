@@ -1,0 +1,41 @@
+@using System.Globalization
+@inject StudentRepository _studentDB
+
+<RadzenCard>
+    <RadzenChart>
+        <RadzenPieSeries Data="@studentRaceData" CategoryProperty="Category" ValueProperty="Count">
+            <RadzenSeriesDataLabels Visible="true" />
+        </RadzenPieSeries>
+    </RadzenChart>
+</RadzenCard>
+
+@code {
+    private List<ChartData> studentRaceData = new List<ChartData>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+    
+    private async Task LoadData()
+    {
+        var students = await _studentDB.GetAllAsync();
+        
+        var raceGroups = students
+            .Where(s => !string.IsNullOrEmpty(s.Race))
+            .GroupBy(s => s.Race)
+            .Select(g => new ChartData { 
+                Category = g.Key ?? "Unspecified", 
+                Count = g.Count() 
+            })
+            .ToList();
+            
+        studentRaceData = raceGroups;
+    }
+    
+    public class ChartData
+    {
+        public string Category { get; set; } = "";
+        public int Count { get; set; }
+    }
+}

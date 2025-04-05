@@ -1,0 +1,67 @@
+@* @using System.Globalization
+@inject CommunityPartnerRepository _partnerDB
+
+<RadzenCard>
+    <RadzenChart>
+        <RadzenLineSeries Data="@engagementData" CategoryProperty="Period" ValueProperty="Count" Smooth="false">
+            <RadzenMarkers MarkerType="MarkerType.Square" />
+            <RadzenSeriesDataLabels Visible="true" />
+        </RadzenLineSeries>
+        <RadzenCategoryAxis>
+            <RadzenGridLines Visible="true" />
+        </RadzenCategoryAxis>
+        <RadzenValueAxis>
+            <RadzenGridLines Visible="true" />
+            <RadzenAxisTitle Text="Number of Partners" />
+        </RadzenValueAxis>
+    </RadzenChart>
+</RadzenCard>
+
+@code {
+    private List<EngagementData> engagementData = new List<EngagementData>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+    
+    private async Task LoadData()
+    {
+        var partners = await _partnerDB.GetAllAsync();
+        
+        // Group by creation date (by quarter)
+        var createdByQuarter = partners
+            .Where(p => p.CreatedOn.HasValue)
+            .GroupBy(p => GetQuarter(p.CreatedOn.Value))
+            .Select(g => new { Quarter = g.Key, Count = g.Count() })
+            .OrderBy(g => g.Quarter)
+            .ToList();
+            
+        // Create cumulative data
+        int cumulativeCount = 0;
+        var timelineData = new List<EngagementData>();
+        
+        foreach (var quarter in createdByQuarter)
+        {
+            cumulativeCount += quarter.Count;
+            timelineData.Add(new EngagementData { 
+                Period = quarter.Quarter, 
+                Count = cumulativeCount 
+            });
+        }
+        
+        engagementData = timelineData;
+    }
+    
+    private string GetQuarter(DateTime date)
+    {
+        int quarter = (date.Month - 1) / 3 + 1;
+        return $"Q{quarter} {date.Year}";
+    }
+    
+    public class EngagementData
+    {
+        public string Period { get; set; } = "";
+        public int Count { get; set; }
+    }
+} *@

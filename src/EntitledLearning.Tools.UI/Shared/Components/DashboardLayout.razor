@@ -1,0 +1,74 @@
+@inherits ComponentBase
+
+<div class="dashboard-section">
+    @if (!string.IsNullOrEmpty(SectionTitle))
+    {
+        <h2 class="text-2xl font-bold mt-6 mb-4">@SectionTitle</h2>
+    }
+    
+    <div class="dashboard-grid @GridClass">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    /// <summary>
+    /// The content to be rendered inside the grid
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// Optional section title that appears above the grid
+    /// </summary>
+    [Parameter]
+    public string SectionTitle { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Number of columns for desktop layout (2 or 3)
+    /// </summary>
+    [Parameter]
+    public int Columns { get; set; } = 3;
+
+    /// <summary>
+    /// Space between grid items (in rem units)
+    /// </summary>
+    [Parameter]
+    public double Spacing { get; set; } = 1.0;
+
+    /// <summary>
+    /// Optional CSS class to add to the grid
+    /// </summary>
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+
+    /// <summary>
+    /// If true, will stretch all charts to full width on smaller screens
+    /// </summary>
+    [Parameter]
+    public bool FullWidthOnMobile { get; set; } = true;
+
+    private string GridClass => GetGridClass();
+
+    private string GetGridClass()
+    {
+        // Validate and limit columns to 2 or 3
+        int columns = Columns;
+        if (columns < 2) columns = 2;
+        if (columns > 3) columns = 3;
+
+        // Build custom classes
+        var classList = new List<string>();
+
+        // Add base spacing class
+        classList.Add($"gap-{Spacing.ToString().Replace(".", "_")}");
+
+        // Add custom class if provided
+        if (!string.IsNullOrEmpty(Class))
+        {
+            classList.Add(Class);
+        }
+
+        return string.Join(" ", classList);
+    }
+}

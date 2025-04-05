@@ -1,0 +1,41 @@
+@using System.Globalization
+@inject GuardianStudentRelationshipRepository _relationshipDB
+
+<RadzenCard>
+    <RadzenChart>
+        <RadzenPieSeries Data="@relationshipData" CategoryProperty="RelationType" ValueProperty="Count">
+            <RadzenSeriesDataLabels Visible="true" />
+        </RadzenPieSeries>
+    </RadzenChart>
+</RadzenCard>
+
+@code {
+    private List<RelationshipData> relationshipData = new List<RelationshipData>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+    
+    private async Task LoadData()
+    {
+        var relationships = await _relationshipDB.GetAllAsync();
+        
+        var relationGroups = relationships
+            .Where(r => !string.IsNullOrEmpty(r.Relationship))
+            .GroupBy(r => r.Relationship)
+            .Select(g => new RelationshipData { 
+                RelationType = g.Key ?? "Other", 
+                Count = g.Count() 
+            })
+            .ToList();
+            
+        relationshipData = relationGroups;
+    }
+    
+    public class RelationshipData
+    {
+        public string RelationType { get; set; } = "";
+        public int Count { get; set; }
+    }
+}

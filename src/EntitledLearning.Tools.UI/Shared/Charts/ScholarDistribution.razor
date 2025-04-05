@@ -1,0 +1,36 @@
+@using System.Globalization
+@inject StudentRepository _studentDB
+
+<RadzenCard>
+    <RadzenChart>
+        <RadzenPieSeries Data="@scholarData" CategoryProperty="Category" ValueProperty="Count">
+            <RadzenSeriesDataLabels Visible="true" />
+        </RadzenPieSeries>
+    </RadzenChart>
+</RadzenCard>
+
+@code {
+    private List<ScholarData> scholarData = new List<ScholarData>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+    
+    private async Task LoadData()
+    {
+        var students = await _studentDB.GetAllAsync();
+        
+        int scholarCount = students.Count(s => s.IsScholar);
+        int nonScholarCount = students.Count(s => !s.IsScholar);
+        
+        scholarData.Add(new ScholarData { Category = "Scholars", Count = scholarCount });
+        scholarData.Add(new ScholarData { Category = "Non-Scholars", Count = nonScholarCount });
+    }
+    
+    public class ScholarData
+    {
+        public string Category { get; set; } = "";
+        public int Count { get; set; }
+    }
+}

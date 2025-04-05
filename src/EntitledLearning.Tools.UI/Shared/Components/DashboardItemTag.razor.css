@@ -1,0 +1,43 @@
+.dashboard-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+}
+
+.tag-beta {
+    background-color: #8b5cf6;
+    color: white;
+}
+
+.tag-new {
+    background-color: #10b981;
+    color: white;
+}
+
+.tag-updated {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.tag-info {
+    background-color: #6b7280;
+    color: white;
+}
+
+.tag-warning {
+    background-color: #f59e0b;
+    color: white;
+}
+
+.tag-comingsoon {
+    background-color: #6366f1;
+    color: white;
+}

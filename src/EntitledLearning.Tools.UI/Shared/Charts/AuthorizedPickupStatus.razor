@@ -1,0 +1,63 @@
+@using System.Globalization
+@inject StudentRepository _studentDB
+@inject GuardianStudentRelationshipRepository _relationshipDB
+
+<RadzenCard>
+    <RadzenChart>
+        <RadzenPieSeries Data="@authorizedPickupData" CategoryProperty="Status" ValueProperty="Count">
+            <RadzenSeriesDataLabels Visible="true" />
+        </RadzenPieSeries>
+    </RadzenChart>
+</RadzenCard>
+
+@code {
+    private List<AuthorizedPickupData> authorizedPickupData = new List<AuthorizedPickupData>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+    
+    private async Task LoadData()
+    {
+        var students = await _studentDB.GetAllAsync();
+        var allRelationships = await _relationshipDB.GetAllAsync();
+        
+        int studentsWithAuthorizedPickup = 0;
+        int studentsWithoutAuthorizedPickup = 0;
+        
+        foreach (var student in students)
+        {
+            if (student.Id == null) continue;
+            
+            var studentRelationships = allRelationships
+                .Where(r => r.StudentId == student.Id)
+                .ToList();
+                
+            if (studentRelationships.Any(r => r.IsAuthorizedPickup))
+            {
+                studentsWithAuthorizedPickup++;
+            }
+            else
+            {
+                studentsWithoutAuthorizedPickup++;
+            }
+        }
+        
+        authorizedPickupData.Add(new AuthorizedPickupData { 
+            Status = "With Authorized Pickup", 
+            Count = studentsWithAuthorizedPickup 
+        });
+        
+        authorizedPickupData.Add(new AuthorizedPickupData { 
+            Status = "Without Authorized Pickup", 
+            Count = studentsWithoutAuthorizedPickup 
+        });
+    }
+    
+    public class AuthorizedPickupData
+    {
+        public string Status { get; set; } = "";
+        public int Count { get; set; }
+    }
+}

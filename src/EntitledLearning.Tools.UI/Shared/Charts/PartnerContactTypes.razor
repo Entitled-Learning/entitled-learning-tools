@@ -1,0 +1,44 @@
+@using System.Globalization
+@inject CommunityPartnerContactRepository _partnerContactDB
+
+<RadzenCard>
+    <RadzenChart>
+        <RadzenPieSeries Data="@contactTypeData" CategoryProperty="ContactType" ValueProperty="Count">
+            <RadzenSeriesDataLabels Visible="true" />
+        </RadzenPieSeries>
+    </RadzenChart>
+</RadzenCard>
+
+@code {
+    private List<ContactTypeData> contactTypeData = new List<ContactTypeData>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+    
+    private async Task LoadData()
+    {
+        var contacts = await _partnerContactDB.GetAllAsync();
+        
+        // Count contact types based on available information
+        int withEmail = contacts.Count(c => !string.IsNullOrEmpty(c.EmailAddress));
+        int withCell = contacts.Count(c => !string.IsNullOrEmpty(c.CellPhoneNumber));
+        int withOffice = contacts.Count(c => !string.IsNullOrEmpty(c.OfficePhoneNumber));
+        int withBoth = contacts.Count(c => 
+            !string.IsNullOrEmpty(c.EmailAddress) && 
+            (!string.IsNullOrEmpty(c.CellPhoneNumber) || !string.IsNullOrEmpty(c.OfficePhoneNumber))
+        );
+        
+        // Create data model
+        contactTypeData.Add(new ContactTypeData { ContactType = "Email Only", Count = withEmail - withBoth });
+        contactTypeData.Add(new ContactTypeData { ContactType = "Phone Only", Count = (withCell + withOffice) - withBoth });
+        contactTypeData.Add(new ContactTypeData { ContactType = "Email & Phone", Count = withBoth });
+    }
+    
+    public class ContactTypeData
+    {
+        public string ContactType { get; set; } = "";
+        public int Count { get; set; }
+    }
+}
