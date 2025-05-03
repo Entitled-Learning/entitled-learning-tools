@@ -13,4 +13,5 @@ public interface IStudentDataService
     Task<bool> ProcessCsvFileAsync(IBrowserFile file);
     bool ValidateCsvFile(IBrowserFile file);
     Task<string> GetSampleCsvContentAsync();
+    Task<string> GetEnrollmentReportSampleAsync();
 }

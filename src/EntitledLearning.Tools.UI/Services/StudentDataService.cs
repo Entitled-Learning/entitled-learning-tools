@@ -129,10 +129,34 @@ public class StudentDataService : IStudentDataService
             await stream.CopyToAsync(memoryStream);
             memoryStream.Position = 0;
 
+            // Detect the CSV format
+            var format = await DetectCsvFormatAsync(memoryStream);
+            memoryStream.Position = 0;
+
+            if (format == CsvFormat.EnrollmentReport)
+            {
+                return await ProcessEnrollmentReportCsvAsync(memoryStream);
+            }
+            else
+            {
+                return await ProcessStandardCsvAsync(memoryStream);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing CSV file");
+            return false;
+        }
+    }
+
+    private async Task<bool> ProcessStandardCsvAsync(MemoryStream memoryStream)
+    {
+        try
+        {
             using var reader = new StreamReader(memoryStream);
             using var csv = new CsvHelper.CsvReader(reader, CultureInfo.InvariantCulture);
                 
-            // Register the mapping explicitly
+            // Register the mapping for standard format
             csv.Context.RegisterClassMap<CsvStudentGuardianRecordMap>();
             var csvRecords = csv.GetRecords<CsvStudentGuardianRecord>().ToList();
 
@@ -159,7 +183,7 @@ public class StudentDataService : IStudentDataService
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error processing CSV record");
+                    _logger.LogError(ex, "Error processing standard CSV record");
                     throw;
                 }
             }
@@ -168,8 +192,101 @@ public class StudentDataService : IStudentDataService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error processing CSV file");
-            return false;
+            _logger.LogError(ex, "Error processing standard CSV format");
+            throw;
+        }
+    }
+
+    private async Task<bool> ProcessEnrollmentReportCsvAsync(MemoryStream memoryStream)
+    {
+        try
+        {
+            using var reader = new StreamReader(memoryStream);
+            using var csv = new CsvHelper.CsvReader(reader, CultureInfo.InvariantCulture);
+                
+            // Register the mapping for enrollment report format
+            csv.Context.RegisterClassMap<EnrollmentReportRecordMap>();
+            
+            // Skip header rows in enrollment report (since it has multiple header rows)
+            csv.Read();
+            csv.Read();
+            csv.Read();
+            csv.Read();
+            
+            var csvRecords = csv.GetRecords<EnrollmentReportRecord>().ToList();
+
+            foreach (var record in csvRecords)
+            {
+                try
+                {
+                    // Skip empty rows
+                    if (string.IsNullOrWhiteSpace(record.ScholarName) || 
+                        string.IsNullOrWhiteSpace(record.ParentName))
+                    {
+                        continue;
+                    }
+                    
+                    // Process student
+                    var studentContract = _mapper.ToStudentStorageContractV1(record);
+                    var storedStudent = await _studentRepository.AddAsync(studentContract);
+
+                    // Process guardian
+                    var guardianStorageContract = _mapper.ToGuardianStorageContractV1(record);
+                    var storedGuardian = await _guardianRepository.AddAsync(guardianStorageContract);
+
+                    // Create relationship
+                    var relationship = new GuardianStudentRelationshipStorageContractV1
+                    {
+                        StudentId = storedStudent.Id,
+                        GuardianId = storedGuardian.Id
+                    };
+
+                    await _relationshipRepository.AddAsync(relationship);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error processing enrollment report record");
+                    throw;
+                }
+            }
+            
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing enrollment report CSV format");
+            throw;
+        }
+    }
+
+    private async Task<CsvFormat> DetectCsvFormatAsync(MemoryStream memoryStream)
+    {
+        try
+        {
+            using var reader = new StreamReader(memoryStream, leaveOpen: true);
+            
+            // Read the first line to get header
+            string? headerLine = await reader.ReadLineAsync();
+            
+            if (string.IsNullOrEmpty(headerLine))
+                return CsvFormat.Standard;
+
+            // Check if it looks like the enrollment report format
+            if (headerLine.Contains("Scholar ID") || 
+                headerLine.Contains("Scholar Name") || 
+                headerLine.Contains("Parent Name") ||
+                headerLine.StartsWith(",Activity,Day,") ||  // First line of enrollment report
+                headerLine.Contains("Parent Address"))
+            {
+                return CsvFormat.EnrollmentReport;
+            }
+
+            return CsvFormat.Standard;
+        }
+        catch
+        {
+            // Default to standard format if detection fails
+            return CsvFormat.Standard;
         }
     }
 
@@ -189,11 +306,29 @@ public class StudentDataService : IStudentDataService
 
     public Task<string> GetSampleCsvContentAsync()
     {
-        var sampleCsvContent = "FirstName,LastName,Email,AddressLine1,AddressLine2,City,State,ZipCode,GuardianFirstName,GuardianLastName,GuardianEmail\n" +
+        // Standard format sample
+        var standardFormatSample = "FirstName,LastName,Email,AddressLine1,AddressLine2,City,State,ZipCode,GuardianFirstName,GuardianLastName,GuardianEmail\n" +
                               "John,Doe,john.doe@example.com,123 Main St,,Springfield,IL,62701,Jane,Doe,jane.doe@example.com\n" +
                               "Alice,Smith,alice.smith@example.com,456 Elm St,Apt 2B,Chicago,IL,60614,Bob,Smith,bob.smith@example.com\n" +
                               "Charlie,Brown,charlie.brown@example.com,789 Oak St,,Peoria,IL,61602,Susan,Brown,susan.brown@example.com";
 
-        return Task.FromResult(sampleCsvContent);
+        return Task.FromResult(standardFormatSample);
     }
+    
+    public Task<string> GetEnrollmentReportSampleAsync()
+    {
+        // Enrollment report format sample (simplified)
+        var enrollmentSample = "Scholar ID,Scholar Name,Age,Birthday,Allergies,School,Medication Instructions,Gender,Race,Grade Level Completed,Learning Accommodations,Parent Name,Parent Email,Parent Phone,Parent Address Street 1,Parent Address Street 2,Parent City,Parent State,Parent Zipcode\n" +
+                        "1001,John Doe,10 yrs,5/15/14,None,Lincoln Elementary,None,Male,Black or African American,4th,None,Jane Doe,jane.doe@example.com,555-123-4567,123 Main St,,Springfield,IL,62701\n" +
+                        "1002,Alice Smith,8 yrs,9/22/16,Peanuts,Washington Elementary,Epipen as needed,Female,Black or African American,2nd,None,Bob Smith,bob.smith@example.com,555-987-6543,456 Elm St,Apt 2B,Chicago,IL,60614\n" +
+                        "1003,Charlie Brown Jr.,12 yrs,3/30/12,None,Jefferson Middle School,Inhaler twice daily,Male,Black or African American,6th,Extra time for tests,Susan Brown,susan.brown@example.com,555-456-7890,789 Oak St,,Peoria,IL,61602";
+
+        return Task.FromResult(enrollmentSample);
+    }
+}
+
+public enum CsvFormat
+{
+    Standard,
+    EnrollmentReport
 }
