@@ -13,28 +13,37 @@ public sealed class CsvStudentGuardianRecordMap : ClassMap<CsvStudentGuardianRec
 {
     public CsvStudentGuardianRecordMap()
     {
+        // Student fields
         Map(m => m.StudentFirstName).Name("FirstName");
         Map(m => m.StudentLastName).Name("LastName");
         Map(m => m.StudentMiddleName).Name("MiddleName").Optional();
         Map(m => m.StudentPrefix).Name("Prefix").Optional();
         Map(m => m.StudentSuffix).Name("Suffix").Optional();
-        Map(m => m.StudentRace).Name("Race");
-        Map(m => m.StudentDateOfBirth).Name("DateOfBirth");
-        Map(m => m.StudentHouseholdIncomeRange).Name("HouseholdIncomeRange");
-        Map(m => m.StudentShirtSize).Name("ShirtSize");
-        Map(m => m.StudentEmailAddress).Name("EmailAddress");
-        Map(m => m.StudentAddressLine1).Name("AddressLine1");
-        Map(m => m.StudentAddressLine2).Name("AddressLine2");
-        Map(m => m.StudentCity).Name("City");
-        Map(m => m.StudentState).Name("State");
-        Map(m => m.StudentZipCode).Name("ZipCode");
+        
+        // Make previously required fields optional
+        Map(m => m.StudentRace).Name("Race").Optional();
+        Map(m => m.StudentDateOfBirth).Name("DateOfBirth").Optional();
+        Map(m => m.StudentHouseholdIncomeRange).Name("HouseholdIncomeRange").Optional();
+        Map(m => m.StudentShirtSize).Name("ShirtSize").Optional();
+        
+        // Map Email to EmailAddress since the CSV uses Email
+        Map(m => m.StudentEmailAddress).Name("Email").Optional();
+        
+        Map(m => m.StudentAddressLine1).Name("AddressLine1").Optional();
+        Map(m => m.StudentAddressLine2).Name("AddressLine2").Optional();
+        Map(m => m.StudentCity).Name("City").Optional();
+        Map(m => m.StudentState).Name("State").Optional();
+        Map(m => m.StudentZipCode).Name("ZipCode").Optional();
 
-        Map(m => m.GuardianFirstName).Name("GuardianFirstName");
-        Map(m => m.GuardianLastName).Name("GuardianLastName");
-        Map(m => m.GuardianEmailAddress).Name("GuardianEmail");
-        Map(m => m.GuardianPhoneNumber).Name("GuardianPhoneNumber");
-        Map(m => m.GuardianRelationship).Name("GuardianRelationship");
-        Map(m => m.GuardianIsAuthorizedPickup).Name("GuardianIsAuthorizedPickup");
-        Map(m => m.GuardianIsEmergencyContact).Name("GuardianIsEmergencyContact");
+        // Guardian fields
+        Map(m => m.GuardianFirstName).Name("GuardianFirstName").Optional();
+        Map(m => m.GuardianLastName).Name("GuardianLastName").Optional();
+        Map(m => m.GuardianEmailAddress).Name("GuardianEmail").Optional();
+        
+        // Make previously required fields optional
+        Map(m => m.GuardianPhoneNumber).Name("GuardianPhoneNumber").Optional();
+        Map(m => m.GuardianRelationship).Name("GuardianRelationship").Optional();
+        Map(m => m.GuardianIsAuthorizedPickup).Name("GuardianIsAuthorizedPickup").Optional();
+        Map(m => m.GuardianIsEmergencyContact).Name("GuardianIsEmergencyContact").Optional();
     }
 }

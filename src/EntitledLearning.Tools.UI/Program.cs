@@ -13,6 +13,7 @@ using Serilog;
 using EntitledLearning.Data.SqlClient;
 using EntitledLearning.Data.Repository;
 using EntitledLearning.Tools.UI;
+using EntitledLearning.Tools.UI.Services;
 
 // Set the EPPlus LicenseContext globally
 OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
@@ -47,6 +48,8 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor().AddMicrosoftIdentityConsentHandler();
+
+// Register data repositories
 builder.Services.AddSingleton<BlobStoreAdapter>();
 builder.Services.AddScoped<StudentRepository>();
 builder.Services.AddScoped<GuardianRepository>();
@@ -55,6 +58,13 @@ builder.Services.AddScoped<CommunityPartnerRepository>();
 builder.Services.AddScoped<CommunityPartnerContactRepository>();
 builder.Services.AddScoped<InventoryItemRepository>();
 builder.Services.AddSingleton<ISqlDataClient, SqlDataClient>();
+
+// Register application services
+builder.Services.AddScoped<DataMapper>();
+builder.Services.AddScoped<IStudentDataService, StudentDataService>();
+builder.Services.AddScoped<IInventoryDataService, InventoryDataService>();
+builder.Services.AddScoped<ICommunityPartnerDataService, CommunityPartnerDataService>();
+
 builder.Services.AddRadzenComponents();
 builder.Services.AddScoped<PageNotificationService>();
 builder.Services.AddSerilog();
