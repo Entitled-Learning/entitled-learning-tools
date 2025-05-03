@@ -3,8 +3,8 @@
 
 <PageTitle>Entitled Tooling | Home</PageTitle>
 
-<div class="container mx-auto mt-10 sm:mt-0 flex flex-col justify-center items-center">
-    <h1 class="text-4xl tracking-tighter mb-3 text-center lg:text-7xl">
+<div class="container mx-auto mt-10 sm:mt-0 flex flex-col justify-center items-start">
+    <h1 class="text-4xl tracking-tighter mb-3 text-left lg:text-7xl">
         Welcome to
         <strong class="bg-clip-text text-transparent bg-gradient-to-r from-yellow-500 to-red-500">
             EntitledTooling
@@ -16,14 +16,25 @@
         helps ease the management of data for the organization.
     </p>
 
-    <div class="w-full max-w-2xl grid grid-cols-1 lg:grid-cols-2 gap-4 my-8 px-4 lg:mx-0">
+    <div class="w-full bg-white grid grid-cols-1 gap-4 my-8 lg:mx-0">
+       <a href="/dashboard" class="p-5 border text-slate-600 rounded border-gray-200 hover:border-purple-400">
+            <h3 class="text-2xl font-bold mb-3">Dashboard →</h3>
+            <p>View comprehensive metrics and visualizations</p>
+        </a>
+    </div>
+
+    <h1 class="text-2xl tracking-tighter mb-3 text-left lg:text-3xl style="font-weight: 900;">
+        More management tools
+    </h1>
+
+    <div class="w-full grid grid-cols-1 lg:grid-cols-4 gap-4 my-8 lg:mx-0">
 
         @if(_links.Count > 0){
 
             @foreach(var link in _links){
-                <a href="@link.Value" class="p-5 border text-slate-600 rounded border-gray-200 hover:border-purple-400">
-                    <h3 class="text-2xl font-bold mb-3">@link.Key →</h3>
-                    <p>@_descriptions[link.Key]</p>
+                <a href="@link.Value.Url" class="p-5 bg-white border text-slate-600 rounded border-gray-200 hover:border-purple-400">
+                    <h3 class="text-xl font-bold mb-3">@link.Key →</h3>
+                    <p>@link.Value.Description</p>
                 </a>
             }
         }
@@ -35,17 +46,17 @@
 </div>
 
 @code {
-    private Dictionary<string, string> _links = new Dictionary<string, string>() {
-        { "Dashboard", "/dashboard" },
-        { "Explore Data", "/explore-data" },
-        { "Quiz Grader", "/grading-tool" },
-        { "Main Site", "https://www.entitledlearning.com/" },
-    };
+    private class LinkInfo
+    {
+        public string Url { get; set; }
+        public string Description { get; set; }
+    }
 
-    private Dictionary<string, string> _descriptions = new Dictionary<string, string>() {
-        { "Dashboard", "View comprehensive metrics and visualizations" },
-        { "Explore Data", "View and export program data" },
-        { "Quiz Grader", "Auto-grade your Jotform quizzes" },
-        { "Main Site", "Navigate to the Entitled Learing website" },
-    };
+    private Dictionary<string, LinkInfo> _links = new Dictionary<string, LinkInfo>()
+    {
+        { "Program Data", new LinkInfo { Url = "/explore-data", Description = "View, manage, and export program data" } },
+        { "Academic Terms", new LinkInfo { Url = "/term-management", Description = "Manage academic terms" } },
+        { "Quiz Grader", new LinkInfo { Url = "/grading-tool", Description = "Auto-grade your Jotform quizzes" } },
+        { "Main Site", new LinkInfo { Url = "https://www.entitledlearning.com/", Description = "Navigate to the Entitled Learing website" } },
+ };
 }
