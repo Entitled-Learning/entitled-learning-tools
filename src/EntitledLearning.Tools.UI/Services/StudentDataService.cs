@@ -154,7 +154,15 @@ public class StudentDataService : IStudentDataService
         try
         {
             using var reader = new StreamReader(memoryStream);
-            using var csv = new CsvHelper.CsvReader(reader, CultureInfo.InvariantCulture);
+            
+            // Create a configuration that trims headers
+            var csvConfig = new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture) 
+            {
+                PrepareHeaderForMatch = args => args.Header.Trim(),
+                TrimOptions = CsvHelper.Configuration.TrimOptions.Trim
+            };
+            
+            using var csv = new CsvHelper.CsvReader(reader, csvConfig);
                 
             // Register the mapping for standard format
             csv.Context.RegisterClassMap<CsvStudentGuardianRecordMap>();
@@ -202,8 +210,16 @@ public class StudentDataService : IStudentDataService
         try
         {
             using var reader = new StreamReader(memoryStream);
-            using var csv = new CsvHelper.CsvReader(reader, CultureInfo.InvariantCulture);
-                
+            
+            // Create a configuration that trims headers
+            var csvConfig = new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture) 
+            {
+                PrepareHeaderForMatch = args => args.Header.Trim(),
+                TrimOptions = CsvHelper.Configuration.TrimOptions.Trim
+            };
+            
+            using var csv = new CsvHelper.CsvReader(reader, csvConfig);
+
             // Register the mapping for enrollment report format
             csv.Context.RegisterClassMap<EnrollmentReportRecordMap>();
             
@@ -230,18 +246,62 @@ public class StudentDataService : IStudentDataService
                     var studentContract = _mapper.ToStudentStorageContractV1(record);
                     var storedStudent = await _studentRepository.AddAsync(studentContract);
 
-                    // Process guardian
-                    var guardianStorageContract = _mapper.ToGuardianStorageContractV1(record);
-                    var storedGuardian = await _guardianRepository.AddAsync(guardianStorageContract);
+                    // Process primary guardian
+                    var primaryGuardianContract = _mapper.ToPrimaryGuardianStorageContractV1(record);
+                    var storedPrimaryGuardian = await _guardianRepository.AddAsync(primaryGuardianContract);
 
-                    // Create relationship
-                    var relationship = new GuardianStudentRelationshipStorageContractV1
+                    // Create relationship between student and primary guardian
+                    var primaryRelationship = new GuardianStudentRelationshipStorageContractV1
                     {
                         StudentId = storedStudent.Id,
-                        GuardianId = storedGuardian.Id
+                        GuardianId = storedPrimaryGuardian.Id,
+                        Relationship = "Primary Guardian",
+                        IsAuthorizedPickup = true, // Assuming primary guardian is always authorized pickup
+                        IsEmergencyContact = true // Assuming primary guardian is always emergency contact
                     };
-
-                    await _relationshipRepository.AddAsync(relationship);
+                    await _relationshipRepository.AddAsync(primaryRelationship);
+                    
+                    // Process caregiver if exists
+                    var caregiverGuardianContract = _mapper.ToCaregiverGuardianStorageContractV1(record);
+                    if (caregiverGuardianContract != null)
+                    {
+                        var storedCaregiverGuardian = await _guardianRepository.AddAsync(caregiverGuardianContract);
+                        var caregiverRelationship = new GuardianStudentRelationshipStorageContractV1
+                        {
+                            StudentId = storedStudent.Id,
+                            GuardianId = storedCaregiverGuardian.Id,
+                            Relationship = "Caregiver"
+                        };
+                        await _relationshipRepository.AddAsync(caregiverRelationship);
+                    }
+                    
+                    // Process secondary contact if exists
+                    var secondaryContactGuardianContract = _mapper.ToSecondaryContactGuardianStorageContractV1(record);
+                    if (secondaryContactGuardianContract != null)
+                    {
+                        var storedSecondaryContactGuardian = await _guardianRepository.AddAsync(secondaryContactGuardianContract);
+                        var secondaryContactRelationship = new GuardianStudentRelationshipStorageContractV1
+                        {
+                            StudentId = storedStudent.Id,
+                            GuardianId = storedSecondaryContactGuardian.Id,
+                            Relationship = "Secondary Contact",
+                            IsEmergencyContact = true // Assuming secondary contact is always emergency contact
+                        };
+                        await _relationshipRepository.AddAsync(secondaryContactRelationship);
+                    }
+                    
+                    // Process authorized pickup if exists
+                    // var authorizedPickupGuardianContract = _mapper.ToAuthorizedPickupGuardianStorageContractV1(record);
+                    // if (authorizedPickupGuardianContract != null)
+                    // {
+                    //     var storedAuthorizedPickupGuardian = await _guardianRepository.AddAsync(authorizedPickupGuardianContract);
+                    //     var authorizedPickupRelationship = new GuardianStudentRelationshipStorageContractV1
+                    //     {
+                    //         StudentId = storedStudent.Id,
+                    //         GuardianId = storedAuthorizedPickupGuardian.Id
+                    //     };
+                    //     await _relationshipRepository.AddAsync(authorizedPickupRelationship);
+                    // }
                 }
                 catch (Exception ex)
                 {
@@ -258,7 +318,6 @@ public class StudentDataService : IStudentDataService
             throw;
         }
     }
-
     private async Task<CsvFormat> DetectCsvFormatAsync(MemoryStream memoryStream)
     {
         try

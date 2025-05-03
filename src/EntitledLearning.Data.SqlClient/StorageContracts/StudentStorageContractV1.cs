@@ -26,6 +26,18 @@ public record StudentStorageContractV1 : StorageContractBase
     public string? ShirtSize { get; set; }
     public bool IsScholar { get; set; }
     public bool AllowPhotoRelease { get; set; }
+    
+    // New fields from enrollment report
+    public string? School { get; set; }
+    public string? Gender { get; set; }
+    public string? GradeLevel { get; set; }
+    public string? Allergies { get; set; }
+    public string? MedicationInstructions { get; set; }
+    public string? LearningAccommodations { get; set; }
+    public string? SummerElective { get; set; }
+    public string? CareerInterests { get; set; }
+    public string? Notes { get; set; } // General notes field for additional information
+    
     public string? ContractVersion { get; } = nameof(StudentStorageContractV1);
     public int Age => CalculateAge();
 

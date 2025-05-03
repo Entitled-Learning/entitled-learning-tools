@@ -82,6 +82,16 @@ public partial class DataMapper
         // Demographics
         studentContract.Race = record.Race;
         studentContract.ShirtSize = record.ShirtSize;
+        studentContract.Gender = record.Gender;
+        
+        // School information
+        studentContract.School = record.School;
+        studentContract.GradeLevel = record.GradeLevel;
+        
+        // Medical and accommodations
+        studentContract.Allergies = record.Allergies;
+        studentContract.MedicationInstructions = record.MedicationInstructions;
+        studentContract.LearningAccommodations = record.LearningAccommodations;
         
         // Contact info - use parent address for student
         studentContract.AddressLine1 = record.ParentAddressStreet1;
@@ -90,25 +100,15 @@ public partial class DataMapper
         studentContract.State = record.ParentState;
         studentContract.ZipCode = record.ParentZipcode;
         
-        // Convert Yes/No to boolean
-        if (!string.IsNullOrEmpty(record.AllowPhotoRelease))
-        {
-            studentContract.AllowPhotoRelease = record.AllowPhotoRelease.Trim().Equals("Yes", StringComparison.OrdinalIgnoreCase);
-        }
-        
-        // Since there's no Notes property, we'll store some details in existing fields
-        // or ignore some information that doesn't fit the current data model
-        
-        // Store school info in email field if email is not available
-        if (string.IsNullOrEmpty(studentContract.EmailAddress) && !string.IsNullOrEmpty(record.School))
-        {
-            studentContract.EmailAddress = $"School: {record.School}";
-        }
+        // Program information
+        studentContract.SummerElective = record.SummerElective;
+        studentContract.CareerInterests = record.CareerInterests;
+        studentContract.AllowPhotoRelease = record.AllowPhotoRelease != null && record.AllowPhotoRelease.ToLowerInvariant() == "yes";
         
         return studentContract;
     }
     
-    public GuardianStorageContractV1 ToGuardianStorageContractV1(EnrollmentReportRecord record)
+    public GuardianStorageContractV1 ToPrimaryGuardianStorageContractV1(EnrollmentReportRecord record)
     {
         var guardianContract = new GuardianStorageContractV1();
         
@@ -133,26 +133,132 @@ public partial class DataMapper
         guardianContract.State = record.ParentState;
         guardianContract.ZipCode = record.ParentZipcode;
         
-        // No Notes property available, so we can't add additional notes
+        // Additional guardian properties
+        if (!string.IsNullOrEmpty(record.WishToReceiveEmails))
+        {
+            guardianContract.ReceiveUpdates = record.WishToReceiveEmails.Trim().Equals("Yes", StringComparison.OrdinalIgnoreCase);
+        }
+        
+        // Set relationship
+        guardianContract.Relationship = "Parent/Guardian";
+        guardianContract.IsAuthorizedPickup = true;
+        guardianContract.IsEmergencyContact = true;
         
         return guardianContract;
+    }
+    
+    // Create a guardian record for the caregiver
+    public GuardianStorageContractV1? ToCaregiverGuardianStorageContractV1(EnrollmentReportRecord record)
+    {
+        if (string.IsNullOrWhiteSpace(record.CaregiverName))
+            return null;
+            
+        var guardianContract = new GuardianStorageContractV1();
+        
+        // Parse caregiver name into components
+        var (prefix, firstName, middleName, lastName, suffix) = NameParser.ParseFullName(record.CaregiverName);
+        
+        // Basic guardian information
+        guardianContract.Prefix = prefix;
+        guardianContract.FirstName = firstName;
+        guardianContract.MiddleName = middleName;
+        guardianContract.LastName = lastName;
+        guardianContract.Suffix = suffix;
+        
+        // Contact information
+        guardianContract.CellPhoneNumber = record.CaregiverPhone;
+        
+        // Address - use same address as primary guardian if available
+        guardianContract.AddressLine1 = record.ParentAddressStreet1;
+        guardianContract.AddressLine2 = record.ParentAddressStreet2;
+        guardianContract.City = record.ParentCity;
+        guardianContract.State = record.ParentState;
+        guardianContract.ZipCode = record.ParentZipcode;
+        
+        // Set relationship
+        guardianContract.Relationship = "Caregiver";
+        guardianContract.IsAuthorizedPickup = true;
+        guardianContract.IsEmergencyContact = true;
+        
+        return guardianContract;
+    }
+    
+    // Create a guardian record for the secondary contact
+    public GuardianStorageContractV1? ToSecondaryContactGuardianStorageContractV1(EnrollmentReportRecord record)
+    {
+        if (string.IsNullOrWhiteSpace(record.SecondaryContactName))
+            return null;
+            
+        var guardianContract = new GuardianStorageContractV1();
+        
+        // Parse secondary contact name into components
+        var (prefix, firstName, middleName, lastName, suffix) = NameParser.ParseFullName(record.SecondaryContactName);
+        
+        // Basic guardian information
+        guardianContract.Prefix = prefix;
+        guardianContract.FirstName = firstName;
+        guardianContract.MiddleName = middleName;
+        guardianContract.LastName = lastName;
+        guardianContract.Suffix = suffix;
+        
+        // Contact information
+        guardianContract.EmailAddress = record.SecondaryContactEmail;
+        guardianContract.CellPhoneNumber = record.SecondaryContactPhone;
+        
+        // Set relationship
+        guardianContract.Relationship = "Secondary Contact";
+        guardianContract.IsAuthorizedPickup = true;
+        guardianContract.IsEmergencyContact = true;
+        
+        return guardianContract;
+    }
+    
+    // Create a guardian record for the authorized pickup
+    public GuardianStorageContractV1? ToAuthorizedPickupGuardianStorageContractV1(EnrollmentReportRecord record)
+    {
+        if (string.IsNullOrWhiteSpace(record.AuthorizedPickupName))
+            return null;
+            
+        var guardianContract = new GuardianStorageContractV1();
+        
+        // Parse authorized pickup name into components
+        var (prefix, firstName, middleName, lastName, suffix) = NameParser.ParseFullName(record.AuthorizedPickupName);
+        
+        // Basic guardian information
+        guardianContract.Prefix = prefix;
+        guardianContract.FirstName = firstName;
+        guardianContract.MiddleName = middleName;
+        guardianContract.LastName = lastName;
+        guardianContract.Suffix = suffix;
+        
+        // Contact information
+        guardianContract.CellPhoneNumber = record.ContactNumber;
+        
+        // Set relationship
+        guardianContract.Relationship = "Authorized for Pickup";
+        guardianContract.IsAuthorizedPickup = true;
+        guardianContract.IsEmergencyContact = false;
+        
+        return guardianContract;
+    }
+    
+    // For backward compatibility
+    public GuardianStorageContractV1 ToGuardianStorageContractV1(EnrollmentReportRecord record)
+    {
+        return ToPrimaryGuardianStorageContractV1(record);
     }
     
     public StudentStorageContractV1 ProcessEnrollmentRecord(EnrollmentReportRecord record)
     {
         // Convert the record to a student storage contract
         var studentContract = ToStudentStorageContractV1(record);
-        
-        // Add any additional processing if needed
         return studentContract;
     }
     
     public GuardianStorageContractV1 ProcessGuardianFromEnrollmentRecord(EnrollmentReportRecord record)
     {
         // Convert the record to a guardian storage contract
-        var guardianContract = ToGuardianStorageContractV1(record);
-        
-        // Add any additional processing if needed
+        var guardianContract = ToPrimaryGuardianStorageContractV1(record);
         return guardianContract;
     }
 }
