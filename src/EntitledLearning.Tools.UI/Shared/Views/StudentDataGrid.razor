@@ -101,12 +101,27 @@
 
     private async Task OpenCsvUploadDialog()
     {
-        var result = await DialogService.OpenAsync("Upload Student and Guardian CSV", ds =>
+        var result = DialogService.OpenAsync("Upload Student and Guardian CSV", ds =>
             @<RadzenStack Gap="1.5rem" Class="p-4">
                 <p>Select a CSV file containing student and guardian data.</p>
                 <p>CSV should have columns for student data (FirstName, LastName, Email, etc.) and guardian data (GuardianFirstName, GuardianLastName, GuardianEmail, etc.).</p>
                 <RadzenButton Text="Download Sample CSV" Icon="file_download" ButtonStyle="ButtonStyle.Success" Click="DownloadSampleCsv" />
-                <InputFile OnChange="OnInputFileChangeAsync" class="" id="fileInput" />
+                <InputFile OnChange="OnInputFileChangeAsync" class="mt-2" id="fileInput" />
+            </RadzenStack>
+        );
+    }
+
+    private void UploadingProgressDialog()
+    {
+        DialogService.Open("Uploading...", ds =>
+            @<RadzenStack Gap="1.5rem" Class="p-4">
+                @if (isUploading)
+                {
+                    <RadzenStack Class="mt-4">
+                        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="width: 100%;" />
+                        <RadzenText TextStyle="TextStyle.Subtitle2" Class="rz-mt-2 text-center">@uploadMessage</RadzenText>
+                    </RadzenStack>
+                }
             </RadzenStack>
         );
     }
@@ -136,12 +151,20 @@
             try
             {
                 isUploading = true;
-                uploadMessage = $"Uploading {file.Name}...";
+                uploadMessage = $"Uploading {file.Name}... Processing data, please wait.";
+                
 
+                Console.WriteLine($"opening progress dialog");
+                UploadingProgressDialog();
+                
                 bool success = await _studentDataService.ProcessCsvFileAsync(file);
+                DialogService.Close();
+
 
                 if (success)
                 {
+                    isUploading = false;
+                    StateHasChanged();
                     DialogService.Close();
                     DialogService.Open("Success", ds => @<p>CSV file uploaded successfully.</p>);
                     
@@ -150,18 +173,23 @@
                 }
                 else 
                 {
+                    isUploading = false;
+                    StateHasChanged();
                     DialogService.Close();
                     DialogService.Open("Error", ds => @<p>Error processing CSV file.</p>);
                 }
             }
             catch (Exception ex)
             {
+                isUploading = false;
+                StateHasChanged();
                 DialogService.Close();
                 DialogService.Open("Error", ds => @<p>Error processing file: @ex.Message</p>);
             }
             finally
             {
                 isUploading = false;
+                StateHasChanged();
             }
         }
     }
