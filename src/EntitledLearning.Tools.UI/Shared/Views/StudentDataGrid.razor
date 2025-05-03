@@ -43,11 +43,11 @@
         <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="GradeLevel" Title="Grade Level" Width="120px" />
         <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="School" Title="School" Width="200px" />
         <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="HouseholdIncomeRange" Title="Household Income Range" Width="180px" />
-        <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="IsScholar" Title="Scholar" Width="100px">
+        @* <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="IsScholar" Title="Scholar" Width="100px">
             <Template>
                 @(context.IsScholar ? "✅" : "❌")
             </Template>
-        </RadzenDataGridColumn>
+        </RadzenDataGridColumn> *@
         <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="ShirtSize" Title="Shirt Size" Width="120px" />
         <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="SummerElective" Title="Summer Elective" Width="150px" />
         <RadzenDataGridColumn TItem="StudentStorageContractV1" Property="CareerInterests" Title="Career Interests" Width="150px" />

@@ -1,0 +1,118 @@
+@using System.Globalization
+@inject StudentRepository _studentDB
+
+<RadzenCard>
+    <RadzenChart>
+        <RadzenBarSeries Data="@gradeLevelData" CategoryProperty="GradeLevel" ValueProperty="Count">
+            <RadzenSeriesDataLabels Visible="true" />
+        </RadzenBarSeries>
+        <RadzenCategoryAxis>
+            <RadzenGridLines Visible="true" />
+        </RadzenCategoryAxis>
+        <RadzenValueAxis>
+            <RadzenGridLines Visible="true" />
+            <RadzenAxisTitle Text="Number of Students" />
+        </RadzenValueAxis>
+        <RadzenLegend Visible="false" />
+    </RadzenChart>
+</RadzenCard>
+
+@code {
+    private List<GradeLevelData> gradeLevelData = new List<GradeLevelData>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+    
+    private async Task LoadData()
+    {
+        var students = await _studentDB.GetAllAsync();
+        
+        // Define grade level order for consistent sorting
+        var gradeLevelOrder = new Dictionary<string, int>
+        {
+            { "Pre-K", 0 }, { "Kindergarten", 1 },
+            { "1st", 2 }, { "2nd", 3 }, { "3rd", 4 },
+            { "4th", 5 }, { "5th", 6 }, { "6th", 7 },
+            { "7th", 8 }, { "8th", 9 }, { "9th", 10 },
+            { "10th", 11 }, { "11th", 12 }, { "12th", 13 },
+            { "College", 14 }, { "Other", 15 }
+        };
+        
+        // Group students by grade level
+        var gradeLevels = students
+            .Where(s => !string.IsNullOrEmpty(s.GradeLevel))
+            .GroupBy(s => NormalizeGradeLevel(s.GradeLevel))
+            .Select(g => new GradeLevelData { 
+                GradeLevel = g.Key, 
+                Count = g.Count(),
+                SortOrder = gradeLevelOrder.ContainsKey(g.Key) ? gradeLevelOrder[g.Key] : 100 // Default high value for unknown grades
+            })
+            .OrderBy(g => g.SortOrder)
+            .ToList();
+            
+        gradeLevelData = gradeLevels;
+    }
+    
+    // Normalize different grade level formats 
+    // (e.g., "1", "1st Grade", "Grade 1" all become "1st")
+    private string NormalizeGradeLevel(string? gradeLevel)
+    {
+        if (string.IsNullOrEmpty(gradeLevel))
+            return "Unspecified";
+            
+        gradeLevel = gradeLevel.Trim().ToLowerInvariant();
+        
+        if (gradeLevel.Contains("pre-k") || gradeLevel.Contains("prek") || gradeLevel.Contains("pre k"))
+            return "Pre-K";
+            
+        if (gradeLevel.Contains("kinder") || gradeLevel == "k")
+            return "Kindergarten";
+            
+        if (gradeLevel.Contains("college") || gradeLevel.Contains("university"))
+            return "College";
+            
+        // Try to extract numeric grade levels
+        var gradeNumber = ExtractGradeNumber(gradeLevel);
+        if (gradeNumber.HasValue)
+        {
+            switch (gradeNumber)
+            {
+                case 1: return "1st";
+                case 2: return "2nd";
+                case 3: return "3rd";
+                case 4: return "4th";
+                case 5: return "5th";
+                case 6: return "6th";
+                case 7: return "7th";
+                case 8: return "8th";
+                case 9: return "9th";
+                case 10: return "10th";
+                case 11: return "11th";
+                case 12: return "12th";
+                default: return "Other";
+            }
+        }
+        
+        return "Other";
+    }
+    
+    private int? ExtractGradeNumber(string gradeLevel)
+    {
+        // Extract number from grade level string
+        var numberMatch = System.Text.RegularExpressions.Regex.Match(gradeLevel, @"\d+");
+        if (numberMatch.Success && int.TryParse(numberMatch.Value, out int number))
+        {
+            return number;
+        }
+        return null;
+    }
+    
+    public class GradeLevelData
+    {
+        public string GradeLevel { get; set; } = "";
+        public int Count { get; set; }
+        public int SortOrder { get; set; }
+    }
+}

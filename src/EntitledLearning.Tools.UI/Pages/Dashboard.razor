@@ -15,6 +15,19 @@
                 Note: Some charts may display sample data until connected to live data sources.
             </RadzenAlert>
             
+            <!-- Academic Profile -->
+            <DashboardLayout SectionTitle="Academic Profile" Columns="3">
+                <DashboardItem Title="Academic Summary" ColSpan="3">
+                    <AcademicProfileSummary />
+                </DashboardItem>
+                <DashboardItem Title="Learning Accommodations">
+                    <LearningAccommodationsBreakdown />
+                </DashboardItem>
+                <DashboardItem Title="Career Interests" ColSpan="2">
+                    <CareerInterestsVisualizer />
+                </DashboardItem>
+            </DashboardLayout>
+
             <!-- Student Demographics -->
             <DashboardLayout SectionTitle="Student Demographics" Columns="3">
                 <DashboardItem Title="Age Distribution">
@@ -23,38 +36,14 @@
                 <DashboardItem Title="Racial Composition">
                     <StudentRacialComposition />
                 </DashboardItem>
-                <DashboardItem Title="Household Income Distribution" TagText="Beta">
+                <DashboardItem Title="Household Income Distribution">
                     <HouseholdIncomeDistribution />
-                </DashboardItem>
-                <DashboardItem Title="Scholar Distribution" TagText="Beta">
-                    <ScholarDistribution />
                 </DashboardItem>
                 <DashboardItem Title="Geographic Distribution (by Zipcode)">
                     <StudentGeographicDistribution />
                 </DashboardItem>
-                <DashboardItem Title="Key Metrics" TagText="Beta" ColSpan="1">
-                    <div class="flex flex-col gap-4">
-                        <RadzenCard Variant="Variant.Flat">
-                            <div class="flex flex-col w-full items-center">
-                                <h3 class="text-lg font-bold mb-2">Faculty to Student Ratio</h3>
-                                <p class="text-2xl font-normal">1:4</p>
-                            </div>
-                        </RadzenCard>
-                        <div class="grid grid-cols-2 gap-2">
-                            <RadzenCard Variant="Variant.Flat">
-                                <div class="text-center">
-                                    <h4 class="text-xl font-semibold text-gray-700">44</h4>
-                                    <div class="text-gray-500 text-sm">Total Students</div>
-                                </div>
-                            </RadzenCard>
-                            <RadzenCard Variant="Variant.Flat">
-                                <div class="text-center">
-                                    <h4 class="text-xl font-semibold text-gray-700">11</h4>
-                                    <div class="text-gray-500 text-sm">Total Faculty</div>
-                                </div>
-                            </RadzenCard>
-                        </div>
-                    </div>
+                <DashboardItem Title="Grade Level Distribution" ColSpan="1">
+                    <GradeLevelDistribution />
                 </DashboardItem>
             </DashboardLayout>
             
@@ -63,17 +52,11 @@
                 <DashboardItem Title="Relationship Types">
                     <GuardianRelationshipTypes />
                 </DashboardItem>
-                <DashboardItem Title="Students per Guardian">
-                    <StudentsPerGuardian />
-                </DashboardItem>
-                <DashboardItem Title="Contact Status" TagText="Comming Soon" TagType="TagType.ComingSoon">
-                    
-                </DashboardItem>
             </DashboardLayout>
             
             <!-- Enrollment Analytics -->
             <DashboardLayout SectionTitle="Enrollment & Retention" Columns="3">
-                <DashboardItem Title="Enrollment Trends" TagText="Comming Soon" ColSpan="2">
+                <DashboardItem Title="Enrollment Trends" ColSpan="2">
                     <EnrollmentTrends />
                 </DashboardItem>
                 <DashboardItem Title="Shirt Size Distribution">
@@ -93,11 +76,11 @@
             
             <!-- Program Effectiveness -->
             <DashboardLayout SectionTitle="Program Effectiveness" Columns="3">
-                <DashboardItem Title="Test Scores by Subject" TagText="Comming Soon" ColSpan="2">
-
+                <DashboardItem Title="Test Scores by Subject" ColSpan="2">
+                    <TestScoresBySubject />
                 </DashboardItem>
-                <DashboardItem Title="Attendance Trends" TagText="Comming Soon">
-
+                <DashboardItem Title="Attendance Trends">
+                    <AttendanceRates />
                 </DashboardItem>
                 <DashboardItem Title="Student Details" ColSpan="3">
                     <StudentDataGrid ShowButtons="false"/>

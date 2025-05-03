@@ -1,0 +1,121 @@
+@using System.Globalization
+@inject StudentRepository _studentDB
+
+<RadzenCard>
+    <RadzenChart>
+        <RadzenColumnSeries Data="@accommodationsData" CategoryProperty="Type" ValueProperty="Count">
+            <RadzenSeriesDataLabels Visible="true" />
+        </RadzenColumnSeries>
+        <RadzenCategoryAxis>
+            <RadzenGridLines Visible="true" />
+        </RadzenCategoryAxis>
+        <RadzenValueAxis>
+            <RadzenGridLines Visible="true" />
+            <RadzenAxisTitle Text="Number of Students" />
+        </RadzenValueAxis>
+    </RadzenChart>
+</RadzenCard>
+
+@code {
+    private List<AccommodationData> accommodationsData = new List<AccommodationData>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+    
+    private async Task LoadData()
+    {
+        var students = await _studentDB.GetAllAsync();
+        
+        // Define common accommodation types to categorize student needs
+        var accommodationTypes = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "Extended Time", new List<string> { "extra time", "extended time", "additional time", "more time" } },
+            { "Reading Support", new List<string> { "reading", "read aloud", "text-to-speech" } },
+            { "Writing Support", new List<string> { "writing", "scribe", "typing", "speech-to-text" } },
+            { "Math Support", new List<string> { "math", "calculator", "computation" } },
+            { "Sensory", new List<string> { "sensory", "noise", "headphones", "lighting", "quiet", "seating" } },
+            { "Executive Function", new List<string> { "executive", "organization", "planning", "focus", "attention", "adhd", "breaks" } },
+            { "Behavioral", new List<string> { "behavior", "emotional", "support" } },
+            { "Physical", new List<string> { "mobility", "physical", "motor" } }
+        };
+        
+        // Track students with no accommodations
+        int noAccommodationsCount = students.Count(s => string.IsNullOrEmpty(s.LearningAccommodations) || 
+                                                      s.LearningAccommodations.Equals("none", StringComparison.OrdinalIgnoreCase) || 
+                                                      s.LearningAccommodations.Equals("n/a", StringComparison.OrdinalIgnoreCase));
+        
+        // Process accommodations
+        var accommodationCounts = new Dictionary<string, int>();
+        foreach (var student in students.Where(s => !string.IsNullOrEmpty(s.LearningAccommodations) && 
+                                                 !s.LearningAccommodations.Equals("none", StringComparison.OrdinalIgnoreCase) &&
+                                                 !s.LearningAccommodations.Equals("n/a", StringComparison.OrdinalIgnoreCase)))
+        {
+            var accommodations = student.LearningAccommodations!.Split(new[] { ',', ';', '/', '&' }, StringSplitOptions.RemoveEmptyEntries);
+            
+            foreach (var accommodation in accommodations)
+            {
+                var trimmedAccommodation = accommodation.Trim();
+                if (string.IsNullOrEmpty(trimmedAccommodation))
+                    continue;
+                    
+                // Try to categorize the accommodation
+                bool categorized = false;
+                foreach (var category in accommodationTypes)
+                {
+                    if (category.Value.Any(keyword => trimmedAccommodation.Contains(keyword, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        if (!accommodationCounts.ContainsKey(category.Key))
+                            accommodationCounts[category.Key] = 0;
+                            
+                        accommodationCounts[category.Key]++;
+                        categorized = true;
+                        break;
+                    }
+                }
+                
+                // If we couldn't categorize it, count it as "Other Accommodations"
+                if (!categorized)
+                {
+                    if (!accommodationCounts.ContainsKey("Other Accommodations"))
+                        accommodationCounts["Other Accommodations"] = 0;
+                        
+                    accommodationCounts["Other Accommodations"]++;
+                }
+            }
+        }
+        
+        // Add No Accommodations entry
+        accommodationCounts["No Accommodations"] = noAccommodationsCount;
+        
+        // Convert to chart data format
+        accommodationsData = accommodationCounts
+            .Select(kvp => new AccommodationData { 
+                Type = kvp.Key, 
+                Count = kvp.Value 
+            })
+            .OrderByDescending(d => d.Count)
+            .ToList();
+            
+        // If no data, provide sample data
+        if (!accommodationsData.Any() || accommodationsData.Count == 1 && accommodationsData[0].Type == "No Accommodations")
+        {
+            accommodationsData = new List<AccommodationData>
+            {
+                new AccommodationData { Type = "Extended Time", Count = 8 },
+                new AccommodationData { Type = "Reading Support", Count = 6 },
+                new AccommodationData { Type = "Executive Function", Count = 5 },
+                new AccommodationData { Type = "Sensory", Count = 4 },
+                new AccommodationData { Type = "Other Accommodations", Count = 3 },
+                new AccommodationData { Type = "No Accommodations", Count = 18 }
+            };
+        }
+    }
+    
+    public class AccommodationData
+    {
+        public string Type { get; set; } = "";
+        public int Count { get; set; }
+    }
+}

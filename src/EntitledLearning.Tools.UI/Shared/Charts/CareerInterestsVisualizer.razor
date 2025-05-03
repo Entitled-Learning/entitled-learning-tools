@@ -1,0 +1,106 @@
+@using System.Globalization
+@inject StudentRepository _studentDB
+
+<RadzenCard>
+    <RadzenChart>
+        <RadzenDonutSeries Data="@careerInterestsData" CategoryProperty="Interest" ValueProperty="Count">
+            <RadzenSeriesDataLabels Visible="true" />
+        </RadzenDonutSeries>
+        <RadzenLegend Position="LegendPosition.Bottom" />
+    </RadzenChart>
+</RadzenCard>
+
+@code {
+    private List<CareerInterestData> careerInterestsData = new List<CareerInterestData>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+    
+    private async Task LoadData()
+    {
+        var students = await _studentDB.GetAllAsync();
+        
+        // Define common career interest categories to group similar interests
+        var interestCategories = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "STEM", new List<string> { "science", "technology", "engineering", "math", "computer", "programming", "coding", "software", "robotics" } },
+            { "Healthcare", new List<string> { "medicine", "doctor", "nurse", "healthcare", "medical", "physician", "dentist", "pharmacy" } },
+            { "Arts", new List<string> { "art", "music", "dance", "theater", "design", "creative", "acting", "drama", "painting", "drawing" } },
+            { "Business", new List<string> { "business", "entrepreneur", "marketing", "finance", "accounting", "management", "economics" } },
+            { "Education", new List<string> { "teaching", "teacher", "education", "professor", "instructor" } },
+            { "Trades", new List<string> { "construction", "electrician", "plumbing", "carpentry", "mechanic", "welding" } },
+            { "Public Service", new List<string> { "police", "firefighter", "military", "law enforcement", "government", "politics" } },
+            { "Legal", new List<string> { "law", "lawyer", "attorney", "legal", "judge" } }
+        };
+
+        // Process all career interests
+        var interestCounts = new Dictionary<string, int>();
+        foreach (var student in students.Where(s => !string.IsNullOrEmpty(s.CareerInterests)))
+        {
+            var interests = student.CareerInterests!.Split(new[] { ',', ';', '/', '&' }, StringSplitOptions.RemoveEmptyEntries);
+            
+            foreach (var interest in interests)
+            {
+                var trimmedInterest = interest.Trim();
+                if (string.IsNullOrEmpty(trimmedInterest))
+                    continue;
+                    
+                // Try to categorize the interest
+                bool categorized = false;
+                foreach (var category in interestCategories)
+                {
+                    if (category.Value.Any(keyword => trimmedInterest.Contains(keyword, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        if (!interestCounts.ContainsKey(category.Key))
+                            interestCounts[category.Key] = 0;
+                            
+                        interestCounts[category.Key]++;
+                        categorized = true;
+                        break;
+                    }
+                }
+                
+                // If we couldn't categorize it, count it as "Other"
+                if (!categorized)
+                {
+                    if (!interestCounts.ContainsKey("Other"))
+                        interestCounts["Other"] = 0;
+                        
+                    interestCounts["Other"]++;
+                }
+            }
+        }
+        
+        // Convert to chart data format sorted by count
+        careerInterestsData = interestCounts
+            .Select(kvp => new CareerInterestData { 
+                Interest = kvp.Key, 
+                Count = kvp.Value 
+            })
+            .OrderByDescending(d => d.Count)
+            .ToList();
+            
+        // If no data, provide sample data
+        if (!careerInterestsData.Any())
+        {
+            careerInterestsData = new List<CareerInterestData>
+            {
+                new CareerInterestData { Interest = "STEM", Count = 15 },
+                new CareerInterestData { Interest = "Healthcare", Count = 12 },
+                new CareerInterestData { Interest = "Arts", Count = 10 },
+                new CareerInterestData { Interest = "Business", Count = 8 },
+                new CareerInterestData { Interest = "Education", Count = 6 },
+                new CareerInterestData { Interest = "Trades", Count = 5 },
+                new CareerInterestData { Interest = "Other", Count = 4 }
+            };
+        }
+    }
+    
+    public class CareerInterestData
+    {
+        public string Interest { get; set; } = "";
+        public int Count { get; set; }
+    }
+}
