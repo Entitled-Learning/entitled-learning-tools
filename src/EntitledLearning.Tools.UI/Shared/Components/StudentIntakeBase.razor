@@ -9,24 +9,24 @@
 @* Parent/Guardian Section *@
 <h1 class="text-2xl leading-loose">Parent/Guardian Information</h1>
 <p class="text-sm text-gray-600 mb-4">Please provide information for at least one parent/guardian.</p>   
-<ListTable Data="@guardians.Select(x => x.ToDictionary())" OnItemClick="@HandleEditGuardian" />
+<ListTable Data="@guardians.Select(x => x.ToDictionary())" OnItemClick="@((index) => HandleEdit(index, guardians, ref guardianToEdit, ref guardianToEditIndex, guardianModalRef))" />
 
-<RadzenButton class="my-4" Text="Add a guardian" Icon="add" ButtonStyle="ButtonStyle.Success" Click="ShowGuardianModalForm" />
+<RadzenButton class="my-4" Text="Add a guardian" Icon="add" ButtonStyle="ButtonStyle.Success" Click="@(() => ShowModal(guardianModalRef))" />
 
 <Modal @ref="guardianModalRef">
     <!-- Dynamic content for the modal body -->
-    <GuardianIntakeForm OnCompleteGuardianForm="@SubmitGuardianModalForm" OnCancel="@CancelGuardianModalForm" EditGuardian="@guardianToEdit" />
+    <GuardianIntakeForm OnCompleteGuardianForm="@((editedModel) => SubmitModalForm(editedModel, guardians, ref guardianToEdit, ref guardianToEditIndex, guardianModalRef))" OnCancel="@(() => CloseModal(guardianModalRef))" EditGuardian="@guardianToEdit" />
 </Modal>
 
 @* Student Section *@
 <h1 class="text-2xl leading-loose mt-8">Student Information</h1>
-<ListTable Data="@students.Select(x => x.ToDictionary())" OnItemClick="@HandleEditStudent" />
+<ListTable Data="@students.Select(x => x.ToDictionary())" OnItemClick="@((index) => HandleEdit(index, students, ref studentToEdit, ref studentToEditIndex, studentnModalRef))" />
 
-<RadzenButton class="my-4" Text="Add a student" Icon="add" ButtonStyle="ButtonStyle.Success" Click="ShowStudentModalForm" />
+<RadzenButton class="my-4" Text="Add a student" Icon="add" ButtonStyle="ButtonStyle.Success" Click="@(() => ShowModal(studentnModalRef))" />
 
 <Modal @ref="studentnModalRef">
     <!-- Dynamic content for the modal body -->
-    <StudentIntakeForm OnCompleteStudentFormForm="@SubmitStudentModalForm" OnCancel="@CancelStudentModalForm" EditStudent="@studentToEdit" />
+    <StudentIntakeForm OnCompleteStudentFormForm="@((editedModel) => SubmitModalForm(editedModel, students, ref studentToEdit, ref studentToEditIndex, studentnModalRef))" OnCancel="@(() => CloseModal(studentnModalRef))" EditStudent="@studentToEdit" />
 </Modal>
 
 <ConfirmationModal @ref="confirmationModalRef" OnConfirmation="HandleConfirmation" />
@@ -44,7 +44,6 @@
 </div>
 
 @code {
-
     private List<Student> students = new List<Student>();
     private List<Guardian> guardians = new List<Guardian>();
     private DataMapper mapper = new DataMapper();
@@ -59,127 +58,85 @@
 
     protected override void OnInitialized()
     {
-        @* var student = new Student();
-        student.initWithTestData();
-        students.Add(student);
-
-        var testGuardian = new Guardian();
-        testGuardian.initWithTestData();
-        guardians.Add(testGuardian); *@
+        // Initialization logic can be added here if needed
     }
 
-    private void ShowGuardianModalForm()
+    private void ShowModal(Modal? modalRef)
     {
-        guardianModalRef?.ShowModal();
-    } 
+        modalRef?.ShowModal();
+    }
 
-    private void ShowStudentModalForm()
+    private void ShowModal(ConfirmationModal? modalRef)
     {
-        studentnModalRef?.ShowModal();
-    } 
+        modalRef?.ShowModal();
+    }
 
-    private void SubmitGuardianModalForm(Guardian editedModel)
+    private void CloseModal(Modal? modalRef)
     {
-        
-        // Update the parent component's model with the edited data
-        if (guardianToEditIndex is null){
-            guardians.Add(editedModel);
-        } else {
-            guardians[(int)guardianToEditIndex] = editedModel;
+        modalRef?.CloseModal();
+    }
+
+    private void CloseModal(ConfirmationModal? modalRef)
+    {
+        modalRef?.CloseModal();
+    }
+
+    private void SubmitModalForm<T>(T editedModel, List<T> collection, ref T? editTarget, ref int? editIndex, Modal? modalRef)
+    {
+        if (editIndex is null)
+        {
+            collection.Add(editedModel);
+        }
+        else
+        {
+            collection[(int)editIndex] = editedModel;
         }
 
-        guardianToEdit = null;
-        guardianToEditIndex = null;
-        // Close the modal 
-        guardianModalRef?.CloseModal();
-    } 
-
-    private void SubmitStudentModalForm(Student editedModel)
-    {
-        
-        // Update the parent component's model with the edited data
-        if (studentToEditIndex is null){
-            students.Add(editedModel);
-        } else {
-            students[(int)studentToEditIndex] = editedModel;
-        }
-
-        studentToEdit = null;
-        studentToEditIndex = null;
-        // Close the modal 
-        studentnModalRef?.CloseModal();
-    } 
-
-    private void CancelGuardianModalForm()
-    {
-        guardianToEdit = null;
-        guardianToEditIndex = null;
-        guardianModalRef?.CloseModal();
-    } 
-
-    private void CancelStudentModalForm()
-    {
-        studentToEdit = null;
-        studentToEditIndex = null;
-        studentnModalRef?.CloseModal();
+        editTarget = default;
+        editIndex = null;
+        CloseModal(modalRef);
     }
 
-    private void HandleEditGuardian(int guardianIndex)
+    private void HandleEdit<T>(int index, List<T> collection, ref T? editTarget, ref int? editIndex, Modal? modalRef)
     {
-        guardianToEdit = guardians[guardianIndex];
-        guardianToEditIndex = guardianIndex;
-        guardianModalRef?.ShowModal();
-    }
-
-    private void HandleEditStudent(int studentIndex)
-    {
-        studentToEdit = students[studentIndex];
-        studentToEditIndex = studentIndex;
-        studentnModalRef?.ShowModal();
+        editTarget = collection[index];
+        editIndex = index;
+        ShowModal(modalRef);
     }
 
     private async Task HandleConfirmation(bool confirmed)
     {
-        confirmationModalRef?.CloseModal();
-        
+        CloseModal(confirmationModalRef);
+
         if (confirmed)
         {
             try
             {
-                
-                var storedStudents = new List<StudentStorageContractV1>();
-                var storedGuardians = new List<GuardianStorageContractV1>();
-
-                // Save the students
-                foreach (var student in students)
-                {
-                    var storageContract = mapper.ToStudentStorageContractV1(student);
-                    var result = await _studentDB.AddAsync(storageContract);
-                    storedStudents.Add(result);
-                }
-
-                // Save the guardians
                 foreach (var guardian in guardians)
                 {
                     var guardianStorageContract = mapper.ToGuardianStorageContractV1(guardian);
-                    var result = await _guardianDB.AddAsync(guardianStorageContract);
+                    await _guardianDB.AddAsync(guardianStorageContract);
 
-                    // Save the relationship between the students and guardians
-                    foreach (var student in storedStudents)
+                    foreach (var student in students)
                     {
-                        var relationship = new GuardianStudentRelationshipStorageContractV1();
-                        relationship.StudentId = student.Id;
-                        relationship.GuardianId = result.Id;
-                        relationship.Relationship = guardian.Relationship;
-                        relationship.IsAuthorizedPickup = guardian.IsAuthorizedPickup;
-                        relationship.IsEmergencyContact = guardian.IsEmergencyContact;
+                        var storageContract = mapper.ToStudentStorageContractV1(student);
+                        _studentDB.AddAsync(storageContract);
+
+                        var relationship = new GuardianStudentRelationshipStorageContractV1
+                        {
+                            StudentId = student.Id,
+                            GuardianId = guardian.Id,
+                            Relationship = guardian.Relationship,
+                            IsAuthorizedPickup = guardian.IsAuthorizedPickup,
+                            IsEmergencyContact = guardian.IsEmergencyContact
+                        };
                         await _relationshipDB.AddAsync(relationship);
                     }
                 }
-            
+
                 NavManager.NavigateTo("/explore-data?option=Students");
             }
-            catch 
+            catch
             {
                 PageNotificationService.NotifyErrorOccured();
             }
@@ -188,23 +145,21 @@
 
     private void HandleValidSubmit()
     {
-        var valid = true;
+        submitErrorMessages.Clear();
 
         if (students.Count == 0)
         {
             submitErrorMessages.Add("Please provide information for at least one student.");
-            valid = false;
         }
 
         if (guardians.Count == 0)
         {
             submitErrorMessages.Add("Please provide information for at least one parent/guardian.");
-            valid = false;
         }
-        
-        if (valid)
+
+        if (submitErrorMessages.Count == 0)
         {
-            confirmationModalRef?.ShowModal();
+            ShowModal(confirmationModalRef);
         }
     }
 }

@@ -1,4 +1,5 @@
-@inject InventoryItemRepository _db
+@using EntitledLearning.Tools.UI.Services
+@inject IInventoryDataService _inventoryDataService
 @inject IJSRuntime JSRuntime
 @inject DialogService DialogService
 @inject NavigationManager NavManager
@@ -42,9 +43,9 @@ Data="@_filteredData"TItem=" InventoryItemStorageContractV1" ColumnWidth="300px"
 <ConfirmationModal @ref="confirmationModalRef" OnConfirmation="HandleDeleteConfirmation" />
 
 @code {
-    private IEnumerable< InventoryItemStorageContractV1>? _inventory;
-    private IList< InventoryItemStorageContractV1>? _selectedItems;
-    private IList< InventoryItemStorageContractV1>? _filteredData;
+    private IEnumerable<InventoryItemStorageContractV1>? _inventory;
+    private IList<InventoryItemStorageContractV1>? _selectedItems;
+    private IList<InventoryItemStorageContractV1>? _filteredData;
 
     private ConfirmationModal? confirmationModalRef; 
     private string _searchTerm = string.Empty;
@@ -57,14 +58,21 @@ Data="@_filteredData"TItem=" InventoryItemStorageContractV1" ColumnWidth="300px"
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        await FetchData();
+        await LoadDataAsync();
     }
 
-    private async Task FetchData()
+    private async Task LoadDataAsync()
     {
-        _inventory = await _db.GetAllAsync();
-        ResetFilterdData();
-        FilterData();
+        try 
+        {
+            _inventory = await _inventoryDataService.GetAllItemsAsync();
+            ResetFilteredData();
+        }
+        catch (Exception ex) 
+        {
+            _logger.LogError(ex, "Failed to load inventory data");
+            PageNotificationService.NotifyErrorOccured();
+        }
     }
 
     private void OpenDetails(InventoryItemStorageContractV1 item)
@@ -73,56 +81,64 @@ Data="@_filteredData"TItem=" InventoryItemStorageContractV1" ColumnWidth="300px"
         _itemModalRef?.ShowModal();
     }
 
-    private void UpdateFilteredData(ChangeEventArgs e)
+    private async void UpdateFilteredData(ChangeEventArgs e)
     {
         _searchTerm = e.Value?.ToString() ?? string.Empty;
-        FilterData();
+        await FilterDataAsync();
     }
 
-    private void ResetFilterdData()
+    private void ResetFilteredData()
     {
         if (_inventory is null)
         {
             return;
         }
 
-        _filteredData = new List< InventoryItemStorageContractV1>();
-        foreach (var student in _inventory)
+        _filteredData = new List<InventoryItemStorageContractV1>();
+        foreach (var item in _inventory)
         {
-            if(_filteredData.Any(t => t.Id == student.Id))
+            if (_filteredData.Any(t => t.Id == item.Id))
             {
                 continue;
             } else {
-                _filteredData.Add(student);
+                _filteredData.Add(item);
             }
         }
     }
 
-    private void FilterData()
+    private async Task FilterDataAsync()
     {
-         if (_inventory is null)
+        if (_inventory is null)
         {
             return;
         }
 
-        _filteredData = _inventory
-        .Where(t =>
-            (t.Name != null && t.Name.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
-            (t.Description != null && t.Description.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
-            (t.PhysicalLocation != null && t.PhysicalLocation.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)) ||
-            (t.Sku != null && t.Sku.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase))).ToList();
+        _filteredData = (await _inventoryDataService.FilterItemsAsync(_searchTerm, _inventory)).ToList();
     }
 
     private async Task SubmitItemModalForm(InventoryItem editedModel)
     {
-        // Update the item
-        var storageContract = _mapper.ToInventoryItemStorageContractV1(editedModel);
-        await _db.UpdateAsync(storageContract);
-
-        await FetchData();
-
-        // Close the modal
-        _itemModalRef?.CloseModal();
+        try 
+        {
+            // Update the item
+            bool success = await _inventoryDataService.UpdateItemAsync(editedModel);
+            
+            if (success)
+            {
+                await LoadDataAsync();
+                // Close the modal
+                _itemModalRef?.CloseModal();
+            }
+            else
+            {
+                PageNotificationService.NotifyErrorOccured();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update inventory item");
+            PageNotificationService.NotifyErrorOccured();
+        }
     }
 
     private void CancelItemModalForm()
@@ -132,52 +148,27 @@ Data="@_filteredData"TItem=" InventoryItemStorageContractV1" ColumnWidth="300px"
 
     private async Task DownloadAsExcel()
     {
-        var filteredData = _inventory?.Select(x => x.ToDictionary());
+        if (_inventory is null || !_inventory.Any())
+            return;
 
-        if (filteredData is not null && filteredData.Any())
+        try
         {
-            var package = new OfficeOpenXml.ExcelPackage();
-            var worksheet = package.Workbook.Worksheets.Add("Sheet1");
-
-            // Header
-            var headerRow = 1;
-            var columnIndex = 1;
-            foreach (var header in filteredData.First().Keys)
-            {
-                worksheet.Cells[headerRow, columnIndex].Value = header;
-                columnIndex++;
-            }
-
-            // Data
-            var dataRow = 2;
-            foreach (var row in filteredData)
-            {
-                columnIndex = 1;
-                foreach (var value in row.Values)
+            var memoryStream = await _inventoryDataService.GenerateExcelFileAsync(_inventory);
+            var base64 = Convert.ToBase64String(memoryStream.ToArray());
+            
+            // Invoke JavaScript to trigger the download
+            await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", 
+                new
                 {
-                    worksheet.Cells[dataRow, columnIndex].Value = value;
-                    columnIndex++;
-                }
-                dataRow++;
-            }
-
-            // Save the Excel package to a stream
-            using (var stream = new MemoryStream())
-            {
-                await package.SaveAsAsync(stream);
-
-                // Convert the byte array to base64
-                var base64 = Convert.ToBase64String(stream.ToArray());
-                
-                // Invoke JavaScript to trigger the download
-                await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", 
-                    new
-                    {
-                        content = base64,
-                        contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        fileName = "InventoryData.xlsx"
-                    });
-            }
+                    content = base64,
+                    contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    fileName = "InventoryData.xlsx"
+                });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating Excel file");
+            PageNotificationService.NotifyErrorOccured();
         }
     }
 
@@ -194,15 +185,24 @@ Data="@_filteredData"TItem=" InventoryItemStorageContractV1" ColumnWidth="300px"
     {
         confirmationModalRef?.CloseModal();
         
-        if (confirmed)
+        if (confirmed && _itemToEdit?.Id != null)
         {
             try
             {
-                await _db.DeleteAsync(_itemToEdit?.Id!);
-                await FetchData();
+                bool success = await _inventoryDataService.DeleteItemAsync(_itemToEdit.Id);
+                
+                if (success)
+                {
+                    await LoadDataAsync();
+                }
+                else
+                {
+                    PageNotificationService.NotifyErrorOccured();
+                }
             }
-            catch 
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Failed to delete inventory item");
                 PageNotificationService.NotifyErrorOccured();
             }
         }

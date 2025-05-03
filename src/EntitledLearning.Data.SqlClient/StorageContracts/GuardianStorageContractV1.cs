@@ -36,5 +36,11 @@ public record GuardianStorageContractV1 : StorageContractBase
     
     public bool ReceiveUpdates { get; set; }
 
+    public string? Relationship { get; set; }
+    
+    public bool IsAuthorizedPickup { get; set; }
+    
+    public bool IsEmergencyContact { get; set; }
+
     public string? ContractVersion { get; } = nameof(GuardianStorageContractV1);
 }

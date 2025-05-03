@@ -67,11 +67,15 @@ public class GuardianRepository : RepositoryBase, IDataRepository<GuardianStorag
     public async Task<GuardianStorageContractV1> AddAsync(GuardianStorageContractV1 entity)
     {
         entity.Id = GenerateId(entity.FirstName, entity.LastName);
+        entity.CreatedOn = DateTime.UtcNow;
+        entity.UpdatedOn = DateTime.UtcNow;
 
         string sql = "if not exists (select 1 from dbo." + tableName + " WHERE Id = @Id) " +
             "begin " +
-            "    insert into dbo." + tableName + " (Id, FirstName, LastName, EmailAddress, CellPhoneNumber) " +
-            "    values (@Id, @FirstName, @LastName, @EmailAddress, @CellPhoneNumber); " +
+            "    insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, CellPhoneNumber, EmailAddress, " +
+            "    AddressLine1, AddressLine2, City, State, ZipCode, ReceiveUpdates, CreatedOn, UpdatedOn, ContractVersion) " +
+            "    values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @CellPhoneNumber, @EmailAddress, " +
+            "    @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @ReceiveUpdates, @CreatedOn, @UpdatedOn, @ContractVersion); " +
             "end;";
 
         try
@@ -87,19 +91,21 @@ public class GuardianRepository : RepositoryBase, IDataRepository<GuardianStorag
     public async Task<GuardianStorageContractV1> UpsertAsync(GuardianStorageContractV1 entity)
     {
         entity.Id = entity.Id is null ? GenerateId(entity.FirstName, entity.LastName) : entity.Id;
+        
+        if (string.IsNullOrEmpty(entity.Id))
+        {
+            entity.CreatedOn = DateTime.UtcNow;
+        }
+        entity.UpdatedOn = DateTime.UtcNow;
 
         string sql = "if exists (select 1 from dbo." + tableName + " where id = @id) " +
                      "begin " +
-                     "    update dbo." + tableName + " " +
-                     "    set Prefix = @Prefix, Firstname = @FirstName, MiddleName = @MiddleName, LastName = @LastName, Suffix = @Suffix, " +
-                     "        CellPhoneNumber = @CellPhoneNumber,EmailAddress = @EmailAddress, AddressLine1 = @AddressLine1, AddressLine2 = @AddressLine2, City = @City, " +
-                     "        State = @State, Zipcode = @ZipCode, ReceiveUpdates = @ReceiveUpdates, Contractversion = @ContractVersion " +
-                     "    where Id = @Id; " +
-                     "end " +
                      "else " +
                      "begin " +
-                     "    insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, CellPhoneNumber, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, ReceiveUpdates, ContractVersion) " +
-                     "    values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @CellPhoneNumber, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @ReceiveUpdates, @ContractVersion); " +
+                     "    insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, CellPhoneNumber, EmailAddress, " +
+                     "    AddressLine1, AddressLine2, City, State, ZipCode, ReceiveUpdates, ContractVersion) " +
+                     "    values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @CellPhoneNumber, @EmailAddress, " +
+                     "    @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @ReceiveUpdates, @ContractVersion); " +
                      "end;";
 
         try

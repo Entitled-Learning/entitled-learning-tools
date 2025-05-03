@@ -1,0 +1,51 @@
+﻿@page "/"
+@inherits BasePage
+
+<PageTitle>Entitled Tooling | Home</PageTitle>
+
+<div class="container mx-auto mt-10 sm:mt-0 flex flex-col justify-center items-center">
+    <h1 class="text-4xl tracking-tighter mb-3 text-center lg:text-7xl">
+        Welcome to
+        <strong class="bg-clip-text text-transparent bg-gradient-to-r from-yellow-500 to-red-500">
+            EntitledTooling
+        </strong>
+    </h1>
+
+    <p>
+        <abbr class="cursor-pointer" title="entitled learning tools">EntitledTooling</abbr>
+        helps ease the management of data for the organization.
+    </p>
+
+    <div class="w-full max-w-2xl grid grid-cols-1 lg:grid-cols-2 gap-4 my-8 px-4 lg:mx-0">
+
+        @if(_links.Count > 0){
+
+            @foreach(var link in _links){
+                <a href="@link.Value" class="p-5 border text-slate-600 rounded border-gray-200 hover:border-purple-400">
+                    <h3 class="text-2xl font-bold mb-3">@link.Key →</h3>
+                    <p>@_descriptions[link.Key]</p>
+                </a>
+            }
+        }
+    </div>
+
+    <p>
+        Explore the <abbr class="cursor-pointer" title="github repository"><a href="https://github.com/Entitled-Learning/entitled-learning-tools/tree/main">GitHub repository →</a></abbr>
+    </p>
+</div>
+
+@code {
+    private Dictionary<string, string> _links = new Dictionary<string, string>() {
+        { "Dashboard", "/dashboard" },
+        { "Explore Data", "/explore-data" },
+        { "Quiz Grader", "/grading-tool" },
+        { "Main Site", "https://www.entitledlearning.com/" },
+    };
+
+    private Dictionary<string, string> _descriptions = new Dictionary<string, string>() {
+        { "Dashboard", "View comprehensive metrics and visualizations" },
+        { "Explore Data", "View and export program data" },
+        { "Quiz Grader", "Auto-grade your Jotform quizzes" },
+        { "Main Site", "Navigate to the Entitled Learing website" },
+    };
+}

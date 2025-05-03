@@ -57,8 +57,14 @@ public class StudentRepository : RepositoryBase, IDataRepository<StudentStorageC
 
         string sql = "if not exists (select 1 from dbo." + tableName + " WHERE Id = @Id) " +
             "begin " +
-            "    insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, Race, DateOfBirth, HouseholdIncomeRange, ShirtSize, IsScholar, AllowPhotoRelease, ContractVersion) " +
-            "    values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @Race, @DateOfBirth, @HouseholdIncomeRange, @ShirtSize, @IsScholar, @AllowPhotoRelease, @ContractVersion); " +
+            "    insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, EmailAddress, " +
+            "    AddressLine1, AddressLine2, City, State, ZipCode, Race, DateOfBirth, HouseholdIncomeRange, ShirtSize, " +
+            "    School, Gender, GradeLevel, Allergies, MedicationInstructions, LearningAccommodations, " +
+            "    SummerElective, CareerInterests, Notes, IsScholar, AllowPhotoRelease, ContractVersion) " +
+            "    values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @EmailAddress, @AddressLine1, " +
+            "    @AddressLine2, @City, @State, @ZipCode, @Race, @DateOfBirth, @HouseholdIncomeRange, @ShirtSize, " +
+            "    @School, @Gender, @GradeLevel, @Allergies, @MedicationInstructions, @LearningAccommodations, " +
+            "    @SummerElective, @CareerInterests, @Notes, @IsScholar, @AllowPhotoRelease, @ContractVersion); " +
             "end;";
 
         try{
@@ -80,14 +86,23 @@ public class StudentRepository : RepositoryBase, IDataRepository<StudentStorageC
              "    set Prefix = @Prefix, FirstName = @FirstName, MiddleName = @MiddleName, LastName = @LastName, Suffix = @Suffix, " +
              "        EmailAddress = @EmailAddress, AddressLine1 = @AddressLine1, AddressLine2 = @AddressLine2, City = @City, " +
              "        State = @State, ZipCode = @ZipCode, Race = @Race, DateOfBirth = @DateOfBirth, " +
-             "        HouseholdIncomeRange = @HouseholdIncomeRange, ShirtSize = @ShirtSize, IsScholar = @IsScholar, " +
-             "        AllowPhotoRelease = @AllowPhotoRelease, ContractVersion = @ContractVersion " +
+             "        HouseholdIncomeRange = @HouseholdIncomeRange, ShirtSize = @ShirtSize, " +
+             "        School = @School, Gender = @Gender, GradeLevel = @GradeLevel, Allergies = @Allergies, " +
+             "        MedicationInstructions = @MedicationInstructions, LearningAccommodations = @LearningAccommodations, " +
+             "        SummerElective = @SummerElective, CareerInterests = @CareerInterests, Notes = @Notes, " +
+             "        IsScholar = @IsScholar, AllowPhotoRelease = @AllowPhotoRelease, ContractVersion = @ContractVersion " +
              "    where Id = @Id; " +
              "end " +
              "else " +
              "begin " +
-             "    insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, EmailAddress, AddressLine1, AddressLine2, City, State, ZipCode, Race, DateOfBirth, HouseholdIncomeRange, ShirtSize, IsScholar, AllowPhotoRelease, ContractVersion) " +
-             "    values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @EmailAddress, @AddressLine1, @AddressLine2, @City, @State, @ZipCode, @Race, @DateOfBirth, @HouseholdIncomeRange, @ShirtSize, @IsScholar, @AllowPhotoRelease, @ContractVersion); " +
+             "    insert into dbo." + tableName + " (Id, Prefix, FirstName, MiddleName, LastName, Suffix, EmailAddress, " +
+             "    AddressLine1, AddressLine2, City, State, ZipCode, Race, DateOfBirth, HouseholdIncomeRange, ShirtSize, " +
+             "    School, Gender, GradeLevel, Allergies, MedicationInstructions, LearningAccommodations, " +
+             "    SummerElective, CareerInterests, Notes, IsScholar, AllowPhotoRelease, ContractVersion) " +
+             "    values (@Id, @Prefix, @FirstName, @MiddleName, @LastName, @Suffix, @EmailAddress, @AddressLine1, " +
+             "    @AddressLine2, @City, @State, @ZipCode, @Race, @DateOfBirth, @HouseholdIncomeRange, @ShirtSize, " +
+             "    @School, @Gender, @GradeLevel, @Allergies, @MedicationInstructions, @LearningAccommodations, " +
+             "    @SummerElective, @CareerInterests, @Notes, @IsScholar, @AllowPhotoRelease, @ContractVersion); " +
              "end;";
 
         try
@@ -106,7 +121,14 @@ public class StudentRepository : RepositoryBase, IDataRepository<StudentStorageC
     {
         entity.UpdatedOn = DateTimeOffset.UtcNow;
 
-        string sql = "UPDATE dbo." + tableName + " SET Prefix = @Prefix, FirstName = @FirstName, MiddleName = @MiddleName, LastName = @LastName, Suffix = @Suffix, EmailAddress = @EmailAddress, AddressLine1 = @AddressLine1, AddressLine2 = @AddressLine2, City = @City, State = @State, ZipCode = @ZipCode, Race = @Race, DateOfBirth = @DateOfBirth, HouseholdIncomeRange = @HouseholdIncomeRange, ShirtSize = @ShirtSize, IsScholar = @IsScholar, AllowPhotoRelease = @AllowPhotoRelease, ContractVersion = @ContractVersion WHERE Id = @Id;";
+        string sql = "UPDATE dbo." + tableName + " SET Prefix = @Prefix, FirstName = @FirstName, MiddleName = @MiddleName, " +
+            "LastName = @LastName, Suffix = @Suffix, EmailAddress = @EmailAddress, AddressLine1 = @AddressLine1, " +
+            "AddressLine2 = @AddressLine2, City = @City, State = @State, ZipCode = @ZipCode, Race = @Race, " +
+            "DateOfBirth = @DateOfBirth, HouseholdIncomeRange = @HouseholdIncomeRange, ShirtSize = @ShirtSize, " +
+            "School = @School, Gender = @Gender, GradeLevel = @GradeLevel, Allergies = @Allergies, " +
+            "MedicationInstructions = @MedicationInstructions, LearningAccommodations = @LearningAccommodations, " +
+            "SummerElective = @SummerElective, CareerInterests = @CareerInterests, Notes = @Notes, " +
+            "IsScholar = @IsScholar, AllowPhotoRelease = @AllowPhotoRelease, ContractVersion = @ContractVersion WHERE Id = @Id;";
 
         try{
             await _db.SaveData(sql, entity);

@@ -166,12 +166,22 @@ public class GuardianStudentRelationshipRepository : IDataRepository<GuardianStu
         }
     }
 
-    public async Task DeleteAsync(string id)
+    public async Task DeleteByStudentIdAsync(string id)
     {
         try{
-            string studentIdParameter = id;
             string sql = "delete from dbo." + tableName + " where StudentId = @StudentId;";
-            await _db.SaveData(sql, new { StudentId = studentIdParameter });
+            await _db.SaveData(sql, new { StudentId = id });
+        } catch (Exception ex) {
+            _logger.DeleteGuardianStudentRelationshipError(ex);
+            throw;
+        }
+    }
+
+    public async Task DeleteByGuardianIdAsync(string id)
+    {
+        try{
+            string sql = "delete from dbo." + tableName + " where GuardianId = @GuardianId;";
+            await _db.SaveData(sql, new { GuardianId = id });
         } catch (Exception ex) {
             _logger.DeleteGuardianStudentRelationshipError(ex);
             throw;

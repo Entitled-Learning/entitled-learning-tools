@@ -76,8 +76,8 @@
                     TItem="StudentGuardian" ColumnWidth="300px" LogicalFilterOperator="LogicalFilterOperator.Or"
                     SelectionMode="DataGridSelectionMode.Single" @bind-Value=@_selectedGuardians RowSelect="(row) => OpenGuardianDetails(row)">
                     <Columns>
-                        <RadzenDataGridColumn TItem="StudentGuardian" Property="Id"
-                            Title="Guardian Id" Width="200px" />
+                        @* <RadzenDataGridColumn TItem="StudentGuardian" Property="GuardianId"
+                            Title="Guardian Id" Width="200px" /> *@
                         <RadzenDataGridColumn TItem="StudentGuardian" Title="Name" Width="200px">
                             <Template Context="guardian">
                                 @guardian.Prefix @guardian.FirstName @guardian.MiddleName @guardian.LastName
