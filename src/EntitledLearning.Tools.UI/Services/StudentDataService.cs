@@ -172,22 +172,29 @@ public class StudentDataService : IStudentDataService
             {
                 try
                 {
-                    // Process student
+                    // Process student - use UpsertAsync to update if student exists
                     var studentContract = _mapper.ToStudentStorageContractV1(record);
-                    var storedStudent = await _studentRepository.AddAsync(studentContract);
+                    var storedStudent = await _studentRepository.UpsertAsync(studentContract);
 
                     // Process guardian
                     var guardianStorageContract = _mapper.ToGuardianStorageContractV1(record);
                     var storedGuardian = await _guardianRepository.AddAsync(guardianStorageContract);
 
-                    // Create relationship
-                    var relationship = new GuardianStudentRelationshipStorageContractV1
+                    // Check if relationship already exists before adding
+                    var existingRelationships = await _relationshipRepository.GetByStudentIdAsync(storedStudent.Id!);
+                    
+                    // Only add relationship if no relationship exists between this student and guardian
+                    if (!existingRelationships.Any(r => r.GuardianId == storedGuardian.Id))
                     {
-                        StudentId = storedStudent.Id,
-                        GuardianId = storedGuardian.Id
-                    };
+                        // Create relationship
+                        var relationship = new GuardianStudentRelationshipStorageContractV1
+                        {
+                            StudentId = storedStudent.Id,
+                            GuardianId = storedGuardian.Id
+                        };
 
-                    await _relationshipRepository.AddAsync(relationship);
+                        await _relationshipRepository.AddAsync(relationship);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -242,37 +249,48 @@ public class StudentDataService : IStudentDataService
                         continue;
                     }
                     
-                    // Process student
+                    // Process student - use UpsertAsync to update if student exists
                     var studentContract = _mapper.ToStudentStorageContractV1(record);
-                    var storedStudent = await _studentRepository.AddAsync(studentContract);
+                    var storedStudent = await _studentRepository.UpsertAsync(studentContract);
+                    
+                    // Get existing relationships for the student to avoid duplicates
+                    var existingRelationships = await _relationshipRepository.GetByStudentIdAsync(storedStudent.Id!);
 
                     // Process primary guardian
                     var primaryGuardianContract = _mapper.ToPrimaryGuardianStorageContractV1(record);
                     var storedPrimaryGuardian = await _guardianRepository.AddAsync(primaryGuardianContract);
 
-                    // Create relationship between student and primary guardian
-                    var primaryRelationship = new GuardianStudentRelationshipStorageContractV1
+                    // Create relationship between student and primary guardian if it doesn't exist
+                    if (!existingRelationships.Any(r => r.GuardianId == storedPrimaryGuardian.Id))
                     {
-                        StudentId = storedStudent.Id,
-                        GuardianId = storedPrimaryGuardian.Id,
-                        Relationship = "Primary Guardian",
-                        IsAuthorizedPickup = true, // Assuming primary guardian is always authorized pickup
-                        IsEmergencyContact = true // Assuming primary guardian is always emergency contact
-                    };
-                    await _relationshipRepository.AddAsync(primaryRelationship);
+                        var primaryRelationship = new GuardianStudentRelationshipStorageContractV1
+                        {
+                            StudentId = storedStudent.Id,
+                            GuardianId = storedPrimaryGuardian.Id,
+                            Relationship = "Primary Guardian",
+                            IsAuthorizedPickup = true, // Assuming primary guardian is always authorized pickup
+                            IsEmergencyContact = true // Assuming primary guardian is always emergency contact
+                        };
+                        await _relationshipRepository.AddAsync(primaryRelationship);
+                    }
                     
                     // Process caregiver if exists
                     var caregiverGuardianContract = _mapper.ToCaregiverGuardianStorageContractV1(record);
                     if (caregiverGuardianContract != null)
                     {
                         var storedCaregiverGuardian = await _guardianRepository.AddAsync(caregiverGuardianContract);
-                        var caregiverRelationship = new GuardianStudentRelationshipStorageContractV1
+                        
+                        // Add relationship only if it doesn't exist
+                        if (!existingRelationships.Any(r => r.GuardianId == storedCaregiverGuardian.Id))
                         {
-                            StudentId = storedStudent.Id,
-                            GuardianId = storedCaregiverGuardian.Id,
-                            Relationship = "Caregiver"
-                        };
-                        await _relationshipRepository.AddAsync(caregiverRelationship);
+                            var caregiverRelationship = new GuardianStudentRelationshipStorageContractV1
+                            {
+                                StudentId = storedStudent.Id,
+                                GuardianId = storedCaregiverGuardian.Id,
+                                Relationship = "Caregiver"
+                            };
+                            await _relationshipRepository.AddAsync(caregiverRelationship);
+                        }
                     }
                     
                     // Process secondary contact if exists
@@ -280,14 +298,19 @@ public class StudentDataService : IStudentDataService
                     if (secondaryContactGuardianContract != null)
                     {
                         var storedSecondaryContactGuardian = await _guardianRepository.AddAsync(secondaryContactGuardianContract);
-                        var secondaryContactRelationship = new GuardianStudentRelationshipStorageContractV1
+                        
+                        // Add relationship only if it doesn't exist
+                        if (!existingRelationships.Any(r => r.GuardianId == storedSecondaryContactGuardian.Id))
                         {
-                            StudentId = storedStudent.Id,
-                            GuardianId = storedSecondaryContactGuardian.Id,
-                            Relationship = "Secondary Contact",
-                            IsEmergencyContact = true // Assuming secondary contact is always emergency contact
-                        };
-                        await _relationshipRepository.AddAsync(secondaryContactRelationship);
+                            var secondaryContactRelationship = new GuardianStudentRelationshipStorageContractV1
+                            {
+                                StudentId = storedStudent.Id,
+                                GuardianId = storedSecondaryContactGuardian.Id,
+                                Relationship = "Secondary Contact",
+                                IsEmergencyContact = true // Assuming secondary contact is always emergency contact
+                            };
+                            await _relationshipRepository.AddAsync(secondaryContactRelationship);
+                        }
                     }
                     
                     // Process authorized pickup if exists
@@ -295,12 +318,17 @@ public class StudentDataService : IStudentDataService
                     // if (authorizedPickupGuardianContract != null)
                     // {
                     //     var storedAuthorizedPickupGuardian = await _guardianRepository.AddAsync(authorizedPickupGuardianContract);
-                    //     var authorizedPickupRelationship = new GuardianStudentRelationshipStorageContractV1
+                    //     
+                    //     // Add relationship only if it doesn't exist
+                    //     if (!existingRelationships.Any(r => r.GuardianId == storedAuthorizedPickupGuardian.Id))
                     //     {
-                    //         StudentId = storedStudent.Id,
-                    //         GuardianId = storedAuthorizedPickupGuardian.Id
-                    //     };
-                    //     await _relationshipRepository.AddAsync(authorizedPickupRelationship);
+                    //         var authorizedPickupRelationship = new GuardianStudentRelationshipStorageContractV1
+                    //         {
+                    //             StudentId = storedStudent.Id,
+                    //             GuardianId = storedAuthorizedPickupGuardian.Id
+                    //         };
+                    //         await _relationshipRepository.AddAsync(authorizedPickupRelationship);
+                    //     }
                     // }
                 }
                 catch (Exception ex)
@@ -318,6 +346,7 @@ public class StudentDataService : IStudentDataService
             throw;
         }
     }
+
     private async Task<CsvFormat> DetectCsvFormatAsync(MemoryStream memoryStream)
     {
         try
