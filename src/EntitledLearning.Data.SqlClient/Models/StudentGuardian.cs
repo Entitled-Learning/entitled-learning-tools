@@ -8,7 +8,9 @@ namespace EntitledLearning.Data.Models;
 
 public record StudentGuardian
 {
-    public string? Id { get; set; }
+    public string? StudentId { get; set; } 
+
+    public string? GuardianId { get; set; } 
     
     public string? Prefix { get; set; }
 
