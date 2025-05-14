@@ -85,16 +85,7 @@
         // If no data, provide sample data
         if (!careerInterestsData.Any())
         {
-            careerInterestsData = new List<CareerInterestData>
-            {
-                new CareerInterestData { Interest = "STEM", Count = 15 },
-                new CareerInterestData { Interest = "Healthcare", Count = 12 },
-                new CareerInterestData { Interest = "Arts", Count = 10 },
-                new CareerInterestData { Interest = "Business", Count = 8 },
-                new CareerInterestData { Interest = "Education", Count = 6 },
-                new CareerInterestData { Interest = "Trades", Count = 5 },
-                new CareerInterestData { Interest = "Other", Count = 4 }
-            };
+            careerInterestsData = new List<CareerInterestData>();
         }
     }
     

@@ -101,15 +101,7 @@
         // If no data, provide sample data
         if (!accommodationsData.Any() || accommodationsData.Count == 1 && accommodationsData[0].Type == "No Accommodations")
         {
-            accommodationsData = new List<AccommodationData>
-            {
-                new AccommodationData { Type = "Extended Time", Count = 8 },
-                new AccommodationData { Type = "Reading Support", Count = 6 },
-                new AccommodationData { Type = "Executive Function", Count = 5 },
-                new AccommodationData { Type = "Sensory", Count = 4 },
-                new AccommodationData { Type = "Other Accommodations", Count = 3 },
-                new AccommodationData { Type = "No Accommodations", Count = 18 }
-            };
+            accommodationsData = new List<AccommodationData>();
         }
     }
     

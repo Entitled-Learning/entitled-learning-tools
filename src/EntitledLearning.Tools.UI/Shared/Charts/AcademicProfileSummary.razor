@@ -80,14 +80,7 @@
         // If no school data, provide sample data
         if (!topSchools.Any())
         {
-            topSchools = new List<SchoolData>
-            {
-                new SchoolData { SchoolName = "Washington Elementary", Count = 12 },
-                new SchoolData { SchoolName = "Lincoln Middle School", Count = 8 },
-                new SchoolData { SchoolName = "Roosevelt High", Count = 7 },
-                new SchoolData { SchoolName = "Jefferson Academy", Count = 5 },
-                new SchoolData { SchoolName = "Franklin Elementary", Count = 4 }
-            };
+            topSchools = new List<SchoolData>();
         }
             
         // Calculate Scholar vs Non-Scholar stats
@@ -103,11 +96,7 @@
         // If no scholar data or all zeros, provide sample data
         if (!scholarStats.Any() || scholarStats.All(s => s.Count == 0))
         {
-            scholarStats = new List<ScholarStatData>
-            {
-                new ScholarStatData { Category = "Scholar", Count = 25 },
-                new ScholarStatData { Category = "Non-Scholar", Count = 19 }
-            };
+            scholarStats = new List<ScholarStatData>();
         }
         
         // Calculate Key Academic Metrics
@@ -142,13 +131,7 @@
         // If no significant data, provide sample metrics
         if (totalStudents == 0 || (averageAge == 0 && mostCommonGrade == "N/A"))
         {
-            keyMetrics = new List<KeyMetric>
-            {
-                new KeyMetric { Label = "Total Students", Value = "44" },
-                new KeyMetric { Label = "Average Age", Value = "11.3" },
-                new KeyMetric { Label = "Most Common Grade", Value = "5th" },
-                new KeyMetric { Label = "% With Accommodations", Value = "22%" }
-            };
+            keyMetrics = new List<KeyMetric>();
         }
     }
     
